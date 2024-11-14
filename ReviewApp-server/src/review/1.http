@@ -1,0 +1,57 @@
+### Create a new review
+POST http://localhost:3000/review
+Content-Type: application/json
+
+{
+    "reviewname": "Viini on hyvää",
+    "reviewRating": 4,
+    "category": "x",
+    "imageUrl": "http://example.com/image.jpg",
+    "id_user": 1
+}
+
+### Create a new review
+POST  http://localhost:3000/users/register
+Content-Type: application/json
+
+{
+    "password": "S",
+    "email": "S",
+    "username": "Eero"
+}
+
+### Get all reviews
+GET http://localhost:3000/review
+
+### Get one dood reviews
+GET http://localhost:3000/review/user/4
+
+### Get a single review by ID
+GET http://localhost:3000/review/1
+
+###
+GET http://localhost:3000/users/4
+
+### Update a review
+PUT http://localhost:3000/review/
+Content-Type: application/json
+
+{
+    "reviewname": "Updated Review Name",
+    "reviewRating": 4,
+    "imageUrl": "http://example.com/new-image.jpg",
+    "userId": 8
+}
+
+### Delete a review
+DELETE http://localhost:3000/review/1
+
+
+### Get with category
+GET http://localhost:3000/review/users/4/reviews?category=beer
+
+
+
+
+
+
