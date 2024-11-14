@@ -21,11 +21,10 @@ interface AuthContextProps {
     setUserReviews: (reviews: Review[]) => void;
 }
 
-// Create the context
-const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
-// Create the AuthProvider component
+const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+    
     const [userReviews, setUserReviews] = useState<Review[]>([]);
     const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
 
