@@ -3,10 +3,17 @@ import React from 'react'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import ReviewsScreen from '../pages/ReviewsScreen';
 import TakeImageScreen from '../pages/TakeImageScreen';
+import { useAuth } from '../ContexApi';
+import LoginScreen from '../pages/LoginScreen';
 
 type Props = {}
 const Tab = createBottomTabNavigator();
-const TabNavigator = (props: Props) => {
+
+const TabNavigator = ({}) => {
+  const {userInfo} = useAuth()
+  if(!userInfo){
+    return <LoginScreen/>
+  }
   return (
     <Tab.Navigator>
       <Tab.Screen name="Reviews" component={ReviewsScreen} options={{headerShown: false}}/>

@@ -3,14 +3,15 @@ POST http://localhost:3000/review
 Content-Type: application/json
 
 {
-    "reviewname": "Viini on hyvää",
+    "reviewname": "es",
     "reviewRating": 4,
+    "reviewDescription": "hyvää",
     "category": "x",
     "imageUrl": "http://example.com/image.jpg",
     "id_user": 1
 }
 
-### Create a new review
+### Create a new user
 POST  http://localhost:3000/users/register
 Content-Type: application/json
 
@@ -24,7 +25,7 @@ Content-Type: application/json
 GET http://localhost:3000/review
 
 ### Get one dood reviews
-GET http://localhost:3000/review/user/4
+GET http://localhost:3000/review/user/1
 
 ### Get a single review by ID
 GET http://localhost:3000/review/1

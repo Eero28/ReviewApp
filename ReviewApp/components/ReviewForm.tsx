@@ -1,45 +1,59 @@
-// BeerForm.tsx
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, ActivityIndicator, Image } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
-import axios from 'axios';
-import CameraComponent from "../components/CameraComponent"
+import CameraComponent from "../components/CameraComponent";
+import { NavigationProp } from '@react-navigation/native';
+import RNPickerSelect from 'react-native-picker-select';
+import axios from "axios"
+import {API_URL} from "@env"
+import { useAuth } from '../ContexApi';
 
 interface BeerFormValues {
-  beerName: string;
-  beerValue: string;
+  reviewName: string;
+  reviewRating: number | null; 
+  reviewText: string;
+  category: string | null; 
 }
 
-const BeerForm: React.FC = () => {
+interface NavigationProps {
+  navigation: NavigationProp<any>;
+}
+
+const ReviewForm: React.FC<NavigationProps> = ({ navigation }) => {
   const { control, handleSubmit, reset, formState: { errors } } = useForm<BeerFormValues>();
-  const [imageUrl, setImageUrl] = useState<string | null>(null); 
-  const [loading, setLoading] = useState<boolean>(false); 
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+
+  const {userInfo} = useAuth()
+
+  const onImageCaptured = (url: string) => {
+    setImageUrl(url);
+  };
 
   const onSubmit = async (data: BeerFormValues) => {
-    setLoading(true);
+    
     try {
       const reviewData = {
-        reviewname: data.beerName,
-        reviewRating: data.beerValue,
-        imageUrl: imageUrl, 
+        reviewname: data.reviewName,
+        reviewDescription: data.reviewText,
+        reviewRating: data.reviewRating,
+        category: data.category,
+        imageUrl: imageUrl,
+        id_user: userInfo?.userId
       };
+      const response = await axios.post(`${API_URL}/review`, reviewData);
       reset();
-      setImageUrl(null); 
+      setImageUrl(null);
+      navigation.goBack()
     } catch (error: any) {
-      Alert.alert("Error", "There was an issue submitting your review.");
-      console.error(error);
-    } finally {
-      setLoading(false);
+      console.error(error.response.data);
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Beer Image:</Text>
-      <CameraComponent />
-      {imageUrl && <Image source={{ uri: imageUrl }} style={styles.imagePreview} />}
+      <CameraComponent navigation={navigation} onImageCaptured={onImageCaptured} />
 
-      <Text style={styles.label}>Beer Name:</Text>
+      <Text style={styles.label}>Review Name</Text>
       <Controller
         control={control}
         render={({ field: { onChange, onBlur, value } }) => (
@@ -48,16 +62,16 @@ const BeerForm: React.FC = () => {
             onBlur={onBlur}
             onChangeText={onChange}
             value={value}
-            placeholder="Enter beer name"
+            placeholder="Enter review name"
           />
         )}
-        name="beerName"
-        rules={{ required: 'Beer name is required' }}
+        name="reviewName"
+        rules={{ required: 'Review name is required' }}
         defaultValue=""
       />
-      {errors.beerName && <Text style={styles.error}>{errors.beerName.message}</Text>}
+      {errors.reviewName && <Text style={styles.error}>{errors.reviewName.message}</Text>}
 
-      <Text style={styles.label}>Beer Value:</Text>
+      <Text style={styles.label}>Review Text</Text>
       <Controller
         control={control}
         render={({ field: { onChange, onBlur, value } }) => (
@@ -66,26 +80,72 @@ const BeerForm: React.FC = () => {
             onBlur={onBlur}
             onChangeText={onChange}
             value={value}
-            placeholder="Enter beer value"
-            keyboardType="numeric"
+            placeholder="Enter review text"
           />
         )}
-        name="beerValue"
-        rules={{ required: 'Beer value is required' }}
+        name="reviewText"
+        rules={{ required: 'Review text is required' }}
         defaultValue=""
       />
-      {errors.beerValue && <Text style={styles.error}>{errors.beerValue.message}</Text>}
+      {errors.reviewText && <Text style={styles.error}>{errors.reviewText.message}</Text>}
 
-      <Button title="Submit" onPress={handleSubmit(onSubmit)} disabled={loading} />
-      {loading && <ActivityIndicator size="large" color="#0000ff" style={styles.loading} />}
+      <Text style={styles.label}>Review Rating</Text>
+      <Controller
+        control={control}
+        render={({ field: { onChange, value } }) => (
+          <RNPickerSelect
+            onValueChange={onChange}
+            value={value}
+            items={[
+              { label: '1', value: 1 },
+              { label: '2', value: 2 },
+              { label: '3', value: 3 },
+              { label: '4', value: 4 },
+              { label: '5', value: 5 },
+            ]}
+            placeholder={{ label: "Select a rating", value: null }}
+          />
+        )}
+        name="reviewRating"
+        rules={{
+          required: 'Rating is required',
+          validate: (value) => value !== null || 'Please select a rating',
+        }}
+        defaultValue={null}
+      />
+      {errors.reviewRating && <Text style={styles.error}>{errors.reviewRating.message}</Text>}
+
+      <Text style={styles.label}>Category</Text>
+      <Controller
+        control={control}
+        render={({ field: { onChange, value } }) => (
+          <RNPickerSelect
+            onValueChange={onChange}
+            value={value}
+            items={[
+              { label: 'Wine', value: 'wine' },
+              { label: 'Beer', value: 'beer' },
+              { label: 'Softdrink', value: 'softdrink' },
+            ]}
+            placeholder={{ label: "Select a category", value: null }}
+          />
+        )}
+        name="category"
+        rules={{
+          required: 'Category is required',
+          validate: (value) => value !== null || 'Please select a category',
+        }}
+        defaultValue={null}
+      />
+      {errors.category && <Text style={styles.error}>{errors.category.message}</Text>}
+
+      <Button title="Submit" onPress={handleSubmit(onSubmit)} />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
     padding: 16,
   },
   label: {
@@ -104,17 +164,6 @@ const styles = StyleSheet.create({
     color: 'red',
     marginBottom: 8,
   },
-  imagePreview: {
-    width: 200,
-    height: 200,
-    marginVertical: 16,
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: '#ccc',
-  },
-  loading: {
-    marginTop: 20,
-  },
 });
 
-export default BeerForm;
+export default ReviewForm;
