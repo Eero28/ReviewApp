@@ -38,9 +38,9 @@ const ReviewForm: React.FC<NavigationProps> = ({ navigation }) => {
         reviewRating: data.reviewRating,
         category: data.category,
         imageUrl: imageUrl,
-        id_user: userInfo?.userId
+        id_user: userInfo?.id_user
       };
-      const response = await axios.post(`${API_URL}/review`, reviewData);
+      await axios.post(`${API_URL}/review`, reviewData);
       reset();
       setImageUrl(null);
       navigation.goBack()

@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'; // Import 
 interface UserInfo {
     access_token: string;
     username: string;
-    userId: number;
+    id_user: number;
     email: string;
     role: string;
 }
@@ -43,7 +43,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 if (storedUserInfo) {
                     const parseUserInfo = JSON.parse(storedUserInfo)
                     console.log(parseUserInfo)
-                    setUserInfo(parseUserInfo); 
+                    setUserInfo(parseUserInfo);    
                 }
             } catch (error) {
                 console.log("Error retrieving user info from AsyncStorage:", error);
@@ -51,6 +51,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         };
         checkUserSession();
     }, []);
+
+    useEffect(() => {
+        if (userInfo) {
+            getReviews();
+        }
+    }, [userInfo]);
 
     const handleLogin = async (email: string, password: string) => {
         const loginData = {
@@ -80,6 +86,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             console.log("Error during logout:", error);
         }
     };
+
+
+    const getReviews = async() =>{
+        try{
+            const response = await axios.get(`${API_URL}/review/user/${userInfo?.id_user}`);
+            setUserReviews(response.data)
+            console.log(response.data)
+        }catch(error){
+            setUserReviews([])
+            console.log("reviews",error.message)
+            
+        }
+        
+    }
 
     return (
         <AuthContext.Provider

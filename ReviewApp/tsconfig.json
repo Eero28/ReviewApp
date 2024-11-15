@@ -6,6 +6,6 @@
   "include": [
     "src/**/*",                 
     "node_modules/react-native/types/**/*.d.ts", 
-    "env.d.ts"                    
+    "@env.d.ts"                    
   ]
 }
