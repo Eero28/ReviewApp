@@ -14,6 +14,7 @@ interface UserInfo {
 interface Review {
     id_review: number;
     reviewname: string;
+    reviewDescription: string;
     reviewRating: number;
     category: string;
     imageUrl: string;
@@ -26,6 +27,7 @@ interface AuthContextProps {
     setUserReviews: (reviews: Review[]) => void;
     handleLogin: (email: string, password: string) => void;
     handleLogout: () => void;
+    getReviews: () => void;
 }
 
 
@@ -109,7 +111,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 setUserInfo,
                 setUserReviews,
                 handleLogin,
-                handleLogout
+                handleLogout,
+                getReviews
             }}
         >
             {children}

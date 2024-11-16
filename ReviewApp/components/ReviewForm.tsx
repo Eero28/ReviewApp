@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import CameraComponent from "../components/CameraComponent";
 import { NavigationProp } from '@react-navigation/native';
@@ -23,7 +23,7 @@ const ReviewForm: React.FC<NavigationProps> = ({ navigation }) => {
   const { control, handleSubmit, reset, formState: { errors } } = useForm<BeerFormValues>();
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
-  const {userInfo} = useAuth()
+  const {userInfo, getReviews} = useAuth()
 
   const onImageCaptured = (url: string) => {
     setImageUrl(url);
@@ -44,6 +44,7 @@ const ReviewForm: React.FC<NavigationProps> = ({ navigation }) => {
       reset();
       setImageUrl(null);
       navigation.goBack()
+      getReviews()
     } catch (error: any) {
       console.error(error.response.data);
     }

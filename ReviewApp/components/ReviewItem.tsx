@@ -1,16 +1,37 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
 
-type Props = {reviewname: string}
+type Props = {
+    item: any;
+};
+
 
 const ReviewItem = (props: Props) => {
-  return (
-    <View>
-      <Text>{props.reviewname}</Text>
-    </View>
-  )
-}
+    const navigation = useNavigation<any>();
 
-export default ReviewItem
+    const gotoDetails = () => {
+        navigation.navigate('ReviewDetails', { item: props.item });
+    };
 
-const styles = StyleSheet.create({})
+    return (
+        <TouchableOpacity onPress={gotoDetails}>
+            <Image
+                style={styles.image}
+                source={{
+                    uri: props.item.imageUrl,
+                }}
+            />
+            <Text>{props.item.reviewname}</Text>
+        </TouchableOpacity>
+    );
+};
+
+export default ReviewItem;
+
+const styles = StyleSheet.create({
+    image: {
+        height: 200,
+        width: 200,
+    },
+});

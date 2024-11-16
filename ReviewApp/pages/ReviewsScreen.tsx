@@ -1,23 +1,31 @@
-import { StyleSheet, Text, View, FlatList, SafeAreaView, } from 'react-native'
-import React from 'react'
-import { useAuth } from '../ContexApi'
-import ReviewItem from '../components/ReviewItem'
+import { StyleSheet, SafeAreaView, FlatList } from 'react-native';
+import React, { FC } from 'react';
+import { useAuth } from '../ContexApi';
+import ReviewItem from '../components/ReviewItem';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-type Props = {}
 
-const ReviewsScreen = (props: Props) => {
-  const {userReviews} = useAuth()
+
+const ReviewsScreen: FC = () => {
+  const { userReviews } = useAuth();
+  const navigation = useNavigation<any>();
+
   return (
     <SafeAreaView>
       <FlatList
         data={userReviews}
-        renderItem={({item}) => <ReviewItem reviewname={item.reviewname} />}
-        keyExtractor={item => item.id_review.toString()}
+        renderItem={({ item }) => (
+          <ReviewItem
+            item={item}
+          />
+        )}
+        keyExtractor={(item) => item.id_review.toString()}
       />
     </SafeAreaView>
-  )
-}
+  );
+};
 
-export default ReviewsScreen
+export default ReviewsScreen;
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({});
