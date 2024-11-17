@@ -21,6 +21,9 @@ jobs:
         with:
           node-version: '18'  
       
+      - name: Check current directory
+        run: pwd  
+      
       - name: Install dependencies
         run: cd ReviewApp-server && npm install
       
