@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import React, { FC } from 'react'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import ReviewsScreen from '../pages/ReviewsScreen';
 import TakeImageScreen from '../pages/TakeImageScreen';
@@ -7,10 +7,10 @@ import { useAuth } from '../ContexApi';
 import LoginScreen from '../pages/LoginScreen';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-type Props = {}
+
 const Tab = createBottomTabNavigator();
 
-const TabNavigator = ({ }) => {
+const TabNavigator:FC = () => {
   const { userInfo } = useAuth()
   if (!userInfo) {
     return <LoginScreen />
@@ -33,7 +33,7 @@ const TabNavigator = ({ }) => {
         options={{
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <FontAwesome name="camera" size={24} color="black" />
+            <FontAwesome name="camera" size={size} color={color} />
           ),
         }}
       />
