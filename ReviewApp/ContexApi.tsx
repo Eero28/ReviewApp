@@ -2,33 +2,19 @@ import React, { createContext, useContext, useState, ReactNode, useEffect } from
 import axios from 'axios';
 import { API_URL } from "@env";
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
+import { UserInfo } from './interfaces/userInfo';
+import { ReviewItemIf } from './interfaces/reviewItemIf';
 
-interface UserInfo {
-    access_token: string;
-    username: string;
-    id_user: number;
-    email: string;
-    role: string;
-}
-
-interface Review {
-    id_review: number;
-    reviewname: string;
-    reviewDescription: string;
-    reviewRating: number;
-    category: string;
-    imageUrl: string;
-    createdAt:string;
-}
 
 interface AuthContextProps {
-    userReviews: Review[];
+    userReviews: ReviewItemIf[];
     userInfo: UserInfo | null;
     setUserInfo: (userInfo: UserInfo | null) => void;
-    setUserReviews: (reviews: Review[]) => void;
+    setUserReviews: (reviews: ReviewItemIf[]) => void;
     handleLogin: (email: string, password: string) => void;
     handleLogout: () => void;
     getReviews: () => void;
+    deleteReview: (id_review: number, access_token: string) => void;
 }
 
 
@@ -36,7 +22,7 @@ const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
-    const [userReviews, setUserReviews] = useState<Review[]>([]);
+    const [userReviews, setUserReviews] = useState<ReviewItemIf[]>([]);
     const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
 
     useEffect(() => {
@@ -45,8 +31,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 const storedUserInfo = await AsyncStorage.getItem('userInfo');
                 if (storedUserInfo) {
                     const parseUserInfo = JSON.parse(storedUserInfo)
-                    console.log(parseUserInfo)
-                    setUserInfo(parseUserInfo);    
+                    setUserInfo(parseUserInfo);
                 }
             } catch (error) {
                 console.log("Error retrieving user info from AsyncStorage:", error);
@@ -70,9 +55,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         try {
             const response = await axios.post(`${API_URL}/auth/login`, loginData);
             const userData: UserInfo = response.data;
-            console.log("Login successful:", userData);
             setUserInfo(userData);
-
             await AsyncStorage.setItem('userInfo', JSON.stringify(userData));
 
         } catch (error) {
@@ -80,28 +63,40 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
     };
 
-    
+
     const handleLogout = async () => {
         try {
             await AsyncStorage.removeItem('userInfo');
-            setUserInfo(null); 
+            setUserInfo(null);
         } catch (error) {
             console.log("Error during logout:", error);
         }
     };
 
 
-    const getReviews = async() =>{
-        try{
+    const getReviews = async () => {
+        try {
             const response = await axios.get(`${API_URL}/review/user/${userInfo?.id_user}`);
             setUserReviews(response.data)
-            console.log(response.data)
-        }catch(error){
+        } catch (error) {
             setUserReviews([])
-            console.log("reviews",error.message)
-            
+            console.log("reviews", error.message)
         }
-        
+
+    }
+
+    const deleteReview = async (id_review: number, access_token: string) => {
+        try {
+            await axios.delete(`${API_URL}/review/${id_review}`, {
+                headers: {
+                    "Authorization": `Bearer ${access_token}`
+                }
+            })
+            setUserReviews(userReviews.filter((item) => item.id_review !== id_review));
+
+        } catch (error) {
+            console.log(error.message)
+        }
     }
 
     return (
@@ -113,7 +108,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 setUserReviews,
                 handleLogin,
                 handleLogout,
-                getReviews
+                getReviews,
+                deleteReview
             }}
         >
             {children}

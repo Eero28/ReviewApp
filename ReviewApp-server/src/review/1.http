@@ -45,8 +45,17 @@ Content-Type: application/json
 }
 
 ### Delete a review
-DELETE http://localhost:3000/review/1
+DELETE http://localhost:3000/review/67
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IkUiLCJzdWIiOjEsInJvbGUiOiJ1c2VyIiwidXNlcm5hbWUiOiJFIiwiaWF0IjoxNzMxODQwOTQ3LCJleHAiOjE3MzE4NzY5NDd9.V4oE7kgtPlKCaMr8eQnF2iCAtNUXGfhEGp8e_arZFFU
 
+###Login
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+    "email": "E",
+    "password": "E"
+}
 
 ### Get with category
 GET http://localhost:3000/review/users/4/reviews?category=beer

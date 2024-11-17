@@ -2,23 +2,15 @@ import { StyleSheet, SafeAreaView, FlatList } from 'react-native';
 import React, { FC } from 'react';
 import { useAuth } from '../ContexApi';
 import ReviewItem from '../components/ReviewItem';
-interface Item {
-  reviewname: string;
-  category: string;
-  imageUrl: string;
-  createdAt: string;  
-  reviewRating: number;
-  reviewDescription: string;
-  id_review: number;
-}
+import { ReviewItemIf } from '../interfaces/reviewItemIf';
+
 const ReviewsScreen: FC = () => {
   const { userReviews } = useAuth();
-
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
         data={userReviews}
-        renderItem={({ item }: { item: Item }) => (
+        renderItem={({ item }: { item: ReviewItemIf }) => (
           <ReviewItem
             item={item}
           />
@@ -35,7 +27,7 @@ export default ReviewsScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5', // Light gray for a modern look
+    backgroundColor: '#f5f5f5',
     paddingHorizontal: 16,
     paddingVertical: 8,
   },

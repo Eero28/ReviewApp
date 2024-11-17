@@ -1,22 +1,18 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity, Alert } from 'react-native';
 import React, { FC, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import ModalDialog from './ModalDialog';
+import { useAuth } from '../ContexApi';
+import { ReviewItemIf } from '../interfaces/reviewItemIf';
 
-interface Item {
-    reviewname: string;
-    category: string;
-    imageUrl: string;
-    createdAt: string;
-    reviewRating: number;
-    reviewDescription: string;
-    id_review: number; 
-  }
+
 type Props = {
-    item: Item;
+    item: ReviewItemIf;
 };
 
 const ReviewItem: FC<Props> = ({item}) => {
+
+    const {deleteReview, userInfo} = useAuth()
 
     const [showDialogModal,setShowDialogModal] = useState<boolean>(false)
 
@@ -33,9 +29,14 @@ const ReviewItem: FC<Props> = ({item}) => {
         navigation.navigate('ReviewDetails', { item: item });
     };
     
-    const deleteReview = () => {
+    const handleDelete = () => {
         setShowDialogModal(false)
-        console.log("deleted")
+        if(userInfo && userInfo.access_token){
+            deleteReview(item.id_review,userInfo?.access_token)
+        }else{
+            Alert.alert("No access to delete!")
+        }
+        
     }
 
     return (
@@ -50,7 +51,7 @@ const ReviewItem: FC<Props> = ({item}) => {
                 <Text style={styles.title}>{item.reviewname}</Text>
                 <Text style={styles.description}>{item.category}</Text>
             </View>
-            <ModalDialog dialogTitle={`Delete "${item.reviewname}"?`} visible={showDialogModal} onCancel={closeModal} onDelete={deleteReview}/>
+            <ModalDialog dialogTitle={`Delete "${item.reviewname}"?`} visible={showDialogModal} onCancel={closeModal} onDelete={handleDelete}/>
         </TouchableOpacity>
     );
 };

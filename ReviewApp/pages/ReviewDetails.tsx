@@ -1,17 +1,12 @@
 import { StyleSheet, Text, View, Image } from 'react-native';
 import React, { FC } from 'react';
 import StarRating from 'react-native-star-rating-widget';
-interface ReviewItem {
-  reviewname: string;
-  imageUrl: string;
-  reviewDescription: string;
-  reviewRating: number;
-  createdAt: string;
-}
+import { ReviewItemIf } from '../interfaces/reviewItemIf';
+
 interface ReviewDetailsProps {
   route: {
     params: {
-      item: ReviewItem;
+      item: ReviewItemIf;
     };
   };
 }
