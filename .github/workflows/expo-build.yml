@@ -28,7 +28,7 @@ jobs:
         run: npm install -g expo-cli
 
       - name: Run Expo for Android
-        run: cd front-end && npm run android --non-interactive
+        run: cd ReviewApp && npm run android --non-interactive
 
       - name: Run Expo for iOS
-        run: cd front-end && npm run ios --non-interactive
+        run: cd ReviewApp && npm run ios --non-interactive
