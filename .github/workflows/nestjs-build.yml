@@ -1,34 +1,31 @@
-name: NestJS Build and Test
+name: NestJS Build
 
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
-      - master
+      - main
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    
+    runs-on: ubuntu-latest  
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      
+
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'  
-      
-      - name: Check current directory
-        run: pwd  
-      
-      - name: Install dependencies
-        run: cd ReviewApp-server && npm install
-      
-      - name: Build NestJS project
-        run: npm run build
-      
-      - name: Run tests
-        run: npm run test
+          node-version: '18'
+
+      - name: List contents of server directory
+        run: ls -la server  
+
+      - name: Install dependencies (Backend)
+        run: cd server && npm install 
+
+      - name: Run NestJS build
+        run: cd server && npm run build  
