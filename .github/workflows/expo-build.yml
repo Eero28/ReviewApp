@@ -21,9 +21,6 @@ jobs:
         with:
           node-version: '18'
 
-      - name: List contents of front-end directory
-        run: ls -la front-end  
-
       - name: Install dependencies (Frontend)
         run: cd ReviewApp && npm install  
 

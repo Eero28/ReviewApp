@@ -21,9 +21,6 @@ jobs:
         with:
           node-version: '18'
 
-      - name: List contents of server directory
-        run: ls -la server  
-
       - name: Install dependencies (Backend)
         run: cd ReviewApp-server && npm install 
 
