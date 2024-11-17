@@ -15,6 +15,15 @@ jobs:
       - name: Check EXPO_TOKEN
         run: echo $EXPO_TOKEN
 
+      - name: Check EXPO_TOKEN
+        run: |
+          if [ -z "$EXPO_TOKEN" ]; then
+            echo "EXPO_TOKEN is not set"
+            exit 1
+          else
+            echo "EXPO_TOKEN is set"
+          fi
+
       - name: 🏗 Setup Node
         uses: actions/setup-node@v3
         with:
