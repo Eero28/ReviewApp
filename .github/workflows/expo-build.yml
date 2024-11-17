@@ -22,17 +22,15 @@ jobs:
           node-version: '18'
 
       - name: Install dependencies (Frontend)
-        run: cd ReviewApp && npm install  
-
-      - name: Install EAS CLI (for Expo SDK 46+)
-        run: npm install -g eas-cli
-
-      - name: Log into Expo with Username and Password
         run: |
-          eas login --username ${{ secrets.EXPO_USERNAME }} --password ${{ secrets.EXPO_PASSWORD }}
+          cd ReviewApp
+          npm install  
 
-    
+      - name: Log into Expo with Access Token
+        run: |
+          npx expo whoami || npx eas login --token ${{ secrets.EXPO_TOKEN }}
+
       - name: Build Android app using EAS
         run: |
-          eas build --platform android 
-
+          cd ReviewApp
+          npx eas build --platform android

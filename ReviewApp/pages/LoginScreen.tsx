@@ -1,7 +1,6 @@
 import { StyleSheet, Text, View, TextInput, Button, Alert } from 'react-native';
 import React from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import {API_URL} from "@env"
 import { useAuth } from '../ContexApi';
 type Props = {};
 
