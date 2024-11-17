@@ -1,5 +1,4 @@
 name: Expo Update
-##
 on:
   push:
     branches:
@@ -23,16 +22,18 @@ jobs:
 
       - name: Install dependencies (Frontend)
         run: |
-            cd ReviewApp
-            npm install  
+          cd ReviewApp
+          npm install
 
-            - name: Setup Expo
-            uses: expo/expo-github-action@v8
-            with:
-              expo-version: latest
-              eas-version: latest
-              token: ${{ secrets.EXPO_TOKEN }}
-
-     
+      - name: Setup Expo
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
 
       
+      - name: Build Expo project
+        run: |
+          cd ReviewApp
+          eas build --platform android
