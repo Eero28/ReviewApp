@@ -1,16 +1,16 @@
 name: Expo Build
-###test
+
 on:
   push:
     branches:
-      - master
+      - dev
   pull_request:
     branches:
-      - master
+      - dev
 
 jobs:
   build:
-    runs-on: ubuntu-latest 
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
@@ -36,7 +36,8 @@ jobs:
 
       - name: Log into Expo with Access Token
         run: |
-          npx expo whoami || npx eas login --token ${{ secrets.EXPO_TOKEN }}
+          export EXPO_TOKEN=${{ secrets.EXPO_TOKEN }}  # Use GitHub Secret
+          npx eas login
 
       - name: Build Android app using EAS
         run: |
