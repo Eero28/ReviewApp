@@ -25,7 +25,7 @@ jobs:
         run: ls -la front-end  
 
       - name: Install dependencies (Frontend)
-        run: cd front-end && npm install  
+        run: cd ReviewApp && npm install  
 
       - name: Install Expo CLI
         run: npm install -g expo-cli
