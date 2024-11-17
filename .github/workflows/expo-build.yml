@@ -24,11 +24,14 @@ jobs:
       - name: Install dependencies (Frontend)
         run: cd ReviewApp && npm install  
 
-      - name: Install Expo CLI
-        run: npm install -g expo-cli
+      - name: Install EAS CLI (for Expo SDK 46+)
+        run: npm install -g eas-cli
 
-      - name: Run Expo for Android
-        run: cd ReviewApp && npm run android --non-interactive
+      - name: Log into Expo 
+        run: |
+          eas login --username ${{ secrets.EXPO_USERNAME }} --password ${{ secrets.EXPO_PASSWORD }}
+    
+      - name: Build Android app using EAS
+        run: |
+          eas build --platform android 
 
-      - name: Run Expo for iOS
-        run: cd ReviewApp && npm run ios --non-interactive
