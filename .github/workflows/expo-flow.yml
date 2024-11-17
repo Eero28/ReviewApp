@@ -1,0 +1,44 @@
+name: Expo Build
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest 
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Cache Node.js modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies (Frontend)
+        run: |
+          cd ReviewApp
+          npm install  
+
+      - name: Log into Expo with Access Token
+        run: |
+          npx expo whoami || npx eas login --token ${{ secrets.EXPO_TOKEN }}
+
+      - name: Build Android app using EAS
+        run: |
+          cd ReviewApp
+          npx eas build --platform android
