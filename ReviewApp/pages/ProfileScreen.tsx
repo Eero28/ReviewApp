@@ -1,31 +1,31 @@
-import { Button, StyleSheet, Text, View } from 'react-native'
-import React from 'react'
-import { useAuth } from '../ContexApi'
-import { NavigationProp, useNavigation } from '@react-navigation/native'
-type Props = {}
-interface NavigationProps{
-  navigation: NavigationProp<any>
-}
+import React from "react";
+import { Button, StyleSheet, Text, View } from "react-native";
+import { useAuth } from "../ContexApi";
+import { useNavigation } from "@react-navigation/native";
 
-const ProfileScreen = ({}) => {
-  const navigation = useNavigation()
 
-  const {handleLogout} = useAuth()
+const ProfileScreen = () => {
+  const navigation = useNavigation();
+  const { handleLogout } = useAuth();
 
-  
-  const handleUserLogout = () =>{
-    handleLogout()
-    navigation.goBack()
-  }
-  
+  const confirmLogout = () => {
+    handleLogout();
+    navigation.goBack();
+  };
+
+
   return (
-    <View>
+    <View style={styles.container}>
       <Text>ProfileScreen</Text>
-      <Button onPress={handleUserLogout} title='Logout'></Button>
+      <Button onPress={confirmLogout} title="Logout" />
     </View>
-  )
-}
+  );
+};
 
-export default ProfileScreen
+export default ProfileScreen;
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  container: {
+    flex: 1
+  }
+});
