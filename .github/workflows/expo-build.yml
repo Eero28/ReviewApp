@@ -27,9 +27,10 @@ jobs:
       - name: Install EAS CLI (for Expo SDK 46+)
         run: npm install -g eas-cli
 
-      - name: Log into Expo 
+      - name: Log into Expo with Access Token
         run: |
-          eas login --username ${{ secrets.EXPO_USERNAME }} --password ${{ secrets.EXPO_PASSWORD }}
+          eas login --token ${{ secrets.EXPO_TOKEN }}
+
     
       - name: Build Android app using EAS
         run: |
