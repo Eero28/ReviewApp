@@ -1,10 +1,10 @@
-// Importing necessary navigation components and other screens
+
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createStackNavigator } from '@react-navigation/stack';
-import TabNavigator from './TabNavigator'; // Tab navigation (Home, Reviews, etc.)
-import ProfileScreen from '../pages/ProfileScreen'; // User profile screen
-import ReviewDetails from '../pages/ReviewDetails'; // Individual review details
-import { useAuth } from '../ContexApi'; // Custom hook for user authentication
+import TabNavigator from './TabNavigator'; 
+import ProfileScreen from '../pages/ProfileScreen'; 
+import ReviewDetails from '../pages/ReviewDetails'; 
+import { useAuth } from '../ContexApi'; 
 import React from 'react';
 
 type Props = {};

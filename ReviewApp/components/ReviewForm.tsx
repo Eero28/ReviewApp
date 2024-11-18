@@ -5,6 +5,7 @@ import CameraComponent from "../components/CameraComponent";
 import { NavigationProp } from '@react-navigation/native';
 import RNPickerSelect from 'react-native-picker-select';
 import axios from "axios"
+//@ts-ignore
 import {API_URL} from "@env"
 import { useAuth } from '../ContexApi';
 

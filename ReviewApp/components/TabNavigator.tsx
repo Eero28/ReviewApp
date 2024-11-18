@@ -7,13 +7,36 @@ import { useAuth } from '../ContexApi';
 import LoginScreen from '../pages/LoginScreen';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-
+import RegisterScreen from '../pages/RegisterScreen';
 const Tab = createBottomTabNavigator();
 
 const TabNavigator:FC = () => {
   const { userInfo } = useAuth()
   if (!userInfo) {
-    return <LoginScreen />
+    return (
+      <Tab.Navigator>
+        <Tab.Screen
+          name="Login"
+          component={LoginScreen}
+          options={{
+            headerShown: false,
+            tabBarIcon: ({ color, size }) => (
+              <MaterialIcons name="login" size={size} color={color} />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Register"
+          component={RegisterScreen} 
+          options={{
+            headerShown: false,
+            tabBarIcon: ({ color, size }) => (
+              <MaterialIcons name="app-registration" size={size} color={color} />
+            ),
+          }}
+        />
+      </Tab.Navigator>
+    );
   }
   return (
     <Tab.Navigator>
