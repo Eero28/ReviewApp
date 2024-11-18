@@ -1,4 +1,4 @@
-import { StyleSheet, SafeAreaView, FlatList } from 'react-native';
+import { StyleSheet, SafeAreaView, FlatList, Text } from 'react-native';
 import React, { FC } from 'react';
 import { useAuth } from '../ContexApi';
 import ReviewItem from '../components/ReviewItem';
@@ -6,6 +6,14 @@ import { ReviewItemIf } from '../interfaces/reviewItemIf';
 
 const ReviewsScreen: FC = () => {
   const { userReviews } = useAuth();
+  if (userReviews.length <= 0) {
+    return (
+      <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>No reviews yet. Be the first to leave a review!</Text>
+      </SafeAreaView>
+    );
+  }
+  
   return (
     <SafeAreaView style={styles.container}>
       <FlatList

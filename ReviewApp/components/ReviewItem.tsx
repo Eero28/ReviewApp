@@ -38,7 +38,6 @@ const ReviewItem: FC<Props> = ({item}) => {
         }
         
     }
-
     return (
         <TouchableOpacity onLongPress={showModal} style={styles.container} onPress={gotoDetails}>
             <Image
@@ -50,6 +49,7 @@ const ReviewItem: FC<Props> = ({item}) => {
             <View style={styles.textContainer}>
                 <Text style={styles.title}>{item.reviewname}</Text>
                 <Text style={styles.description}>{item.category}</Text>
+                <Text style={styles.description}>Reviewed by: {item.user.username}</Text>
             </View>
             <ModalDialog dialogTitle={`Delete "${item.reviewname}"?`} visible={showDialogModal} onCancel={closeModal} onDelete={handleDelete}/>
         </TouchableOpacity>
