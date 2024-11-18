@@ -1,10 +1,10 @@
 
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createStackNavigator } from '@react-navigation/stack';
-import TabNavigator from './TabNavigator'; 
-import ProfileScreen from '../pages/ProfileScreen'; 
-import ReviewDetails from '../pages/ReviewDetails'; 
-import { useAuth } from '../ContexApi'; 
+import TabNavigator from './TabNavigator';
+import ProfileScreen from '../pages/ProfileScreen';
+import ReviewDetails from '../pages/ReviewDetails';
+import { useAuth } from '../ContexApi';
 import React from 'react';
 
 type Props = {};
@@ -14,14 +14,22 @@ const Stack = createStackNavigator();
 
 
 const MainNavigation = (props: Props) => {
-  const { userInfo } = useAuth(); 
+  const { userInfo } = useAuth();
 
   return (
-    <Drawer.Navigator>
+    <Drawer.Navigator
+      screenOptions={{
+        drawerStyle: {
+          backgroundColor: '#ffff', 
+        },
+        drawerActiveTintColor: '#6200EE',
+        drawerInactiveTintColor: '#B0B0B0', 
+      }}
+    >
       <Drawer.Screen name="Home">
         {() => (
           <Stack.Navigator>
-            <Stack.Screen name="TabNavigator" options={{headerShown: false}} component={TabNavigator} />
+            <Stack.Screen name="TabNavigator" options={{ headerShown: false }} component={TabNavigator} />
             <Stack.Screen name="ReviewDetails" component={ReviewDetails} />
           </Stack.Navigator>
         )}

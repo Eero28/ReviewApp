@@ -24,7 +24,6 @@ const RegisterScreen = (props: Props) => {
         }
         try {
             await axios.post(`${API_URL}/users/register`,registerValues)
-            console.log("worked")
             navigation.goBack()
         } catch (error) {
             console.log(error);

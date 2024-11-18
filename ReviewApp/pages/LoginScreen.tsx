@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, TextInput, Button, Alert } from 'react-native';
-import React from 'react';
+import React, { FC } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { useAuth } from '../ContexApi';
 type Props = {};
@@ -9,12 +9,9 @@ interface LoginData{
     password: string
 }
 
-const LoginScreen = (props: Props) => {
+const LoginScreen: FC<{ navigation: any }> = ({ navigation }) => {
   const { control, handleSubmit, formState: { errors } } = useForm();
-
   const {handleLogin} = useAuth()
-
-  
   const onSubmit = async(data) => {
     
     const loginData: LoginData = {
@@ -79,6 +76,10 @@ const LoginScreen = (props: Props) => {
 
     
       <Button title="Login" onPress={handleSubmit(onSubmit)} />
+      <Button
+        title="Don't have an account? Register"
+        onPress={() => navigation.navigate('Register')}
+      />
     </View>
   );
 };
