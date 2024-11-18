@@ -4,8 +4,8 @@ module.exports = {
       [
         'module:react-native-dotenv',
         {
-          moduleName: '@env', // The module name you'll import from
-          path: '.env',        // Path to the .env file
+          moduleName: '@env', 
+          path: '.env',        
         },
       ],
     ],

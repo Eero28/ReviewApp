@@ -15,9 +15,9 @@ const LoginScreen = (props: Props) => {
   const {handleLogin} = useAuth()
 
   
-  const onSubmit = async(data: any) => {
+  const onSubmit = async(data) => {
     
-    const loginData = {
+    const loginData: LoginData = {
         email: data.email,
         password: data.password
     }
