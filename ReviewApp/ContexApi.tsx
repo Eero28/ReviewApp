@@ -97,6 +97,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
         } catch (error) {
             console.log(error.message)
+            if (error.response && error.response.status === 401){
+                alert("Token expired or invalid. Logging out...");
+                await handleLogout();
+            }
         }
     }
 

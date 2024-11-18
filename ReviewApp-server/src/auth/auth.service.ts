@@ -1,4 +1,4 @@
-// src/auth/auth.service.ts
+
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
@@ -30,7 +30,7 @@ export class AuthService {
         const payload = { email: user.email, sub: user.id_user, role: user.role, username: user.username };
         console.log(payload)
         return {
-            access_token: this.jwtService.sign(payload),
+            access_token: this.jwtService.sign(payload, { expiresIn: '1s' }),
             email: user.email,
             id_user: user.id_user,
             role: user.role,
