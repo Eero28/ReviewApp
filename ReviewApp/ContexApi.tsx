@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import axios from 'axios';
+//@ts-ignore
 import { API_URL } from "@env";
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 import { UserInfo } from './interfaces/userInfo';
