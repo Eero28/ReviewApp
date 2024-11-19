@@ -24,6 +24,9 @@ Content-Type: application/json
 ### Get all reviews
 GET http://localhost:3000/review
 
+### Get all reviews
+GET http://localhost:3000/review/all?category=beer
+
 ### Get one dood reviews
 GET http://localhost:3000/review/user/1
 
@@ -58,7 +61,7 @@ Content-Type: application/json
 }
 
 ### Get with category
-GET http://localhost:3000/review/users/4/reviews?category=beer
+GET http://localhost:3000/review/users/1/reviews?category=softdrink
 
 
 

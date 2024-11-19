@@ -12,6 +12,11 @@ export class ReviewController {
         return await this.reviewService.findAll()
     }
 
+    @Get('all')
+    async findAllWithCategory(@Query('category') category: string): Promise<Review[]>{
+        return await this.reviewService.findAllWithCategory(category)
+    }
+
     @Get(':id')
     async findOne(@Param('id') id_review: number): Promise<Review> {
         return await this.reviewService.findOne(id_review)

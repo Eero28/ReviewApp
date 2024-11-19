@@ -15,6 +15,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import ReviewItem from './ReviewItem';
 import { ReviewItemIf } from '../interfaces/reviewItemIf';
 
+
 type Props = {
     reviews: ReviewItemIf[];
     disableLongPress?: boolean; 
@@ -85,7 +86,7 @@ const ReviewFlatlist: FC<Props> = ({reviews, disableLongPress = false}) => {
                         <AntDesign name={isOpen ? "close" : "search1"} size={24} color="black" />
                     </TouchableOpacity>
                 </View>
-                {filteredReviews.length === 0 && searchTerm ? (
+                {filteredReviews.length === 0 && !searchTerm ? (
                     <Text style={styles.noResultsText}>No search results found</Text>
                 ) : (
                     <FlatList

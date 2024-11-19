@@ -1,15 +1,21 @@
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import ReviewFlatlist from '../components/ReviewFlatlist';
+import { useAuth } from '../ContexApi';
+import FilterButtons from '../components/FilterButtons';
 
-import React from 'react'
-import ReviewFlatlist from '../components/ReviewFlatlist'
-import { useAuth } from '../ContexApi'
-
-type Props = {}
+type Props = {};
 
 const ReviewsScreen = (props: Props) => {
-  const {userReviews} = useAuth()
+  const { userReviews,reviewsWithCategory } = useAuth();
   return (
-    <ReviewFlatlist reviews={userReviews}/>
-  )
-}
+    <>
+    <FilterButtons reviewsWithCategory={reviewsWithCategory}/>
+    <ReviewFlatlist reviews={userReviews} />
+    </>
+  );
+};
 
-export default ReviewsScreen
+
+
+export default ReviewsScreen;

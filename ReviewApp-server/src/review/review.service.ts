@@ -39,6 +39,13 @@ export class ReviewService {
         return await this.reviewRepository.find({ relations: ['user'] });
     }
 
+    async findAllWithCategory(category: string): Promise<Review[]> {
+        return await this.reviewRepository.find({
+            where: { category },
+            relations: ['user'], 
+        });
+    }
+
     async findAllByUserId(id_user: number): Promise<Review[]> {
 
         if (!id_user) {

@@ -18,6 +18,8 @@ interface AuthContextProps {
     getReviews: () => void;
     deleteReview: (id_review: number, access_token: string) => void;
     allReviewsFetch: () => void;
+    reviewsWithCategory: (category?: string | undefined) => void;
+    reviewsWithCategoryAll: (category?: string | undefined) => void;
 }
 
 
@@ -101,6 +103,34 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     }
 
+    const reviewsWithCategory = async (category?: string) => {
+        try {
+            const url = category
+                ? `${API_URL}/review/users/${userInfo?.id_user}/reviews?category=${category}`
+                : `${API_URL}/review/user/${userInfo?.id_user}`;
+    
+            const response = await axios.get(url);
+            setUserReviews(response.data);  
+        } catch (error) {
+            console.log("Error fetching reviews by category:", error);
+        }
+    };
+
+    const reviewsWithCategoryAll = async (category?: string) => {
+        try {
+            console.log("hello")
+            const url = category
+                ? `${API_URL}/review/all?category=${category}`
+                : `${API_URL}/review`;
+    
+            const response = await axios.get(url);
+            setAllReviews(response.data);  
+        } catch (error) {
+            console.log("Error fetching reviews by category:", error);
+        }
+    };
+
+
     const deleteReview = async (id_review: number, access_token: string) => {
         try {
             await axios.delete(`${API_URL}/review/${id_review}`, {
@@ -112,7 +142,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
         } catch (error) {
             console.log(error.message)
-            if (error.response && error.response.status === 401){
+            if (error.response && error.response.status === 401) {
                 alert("Token expired or invalid. Logging out...");
                 await handleLogout();
             }
@@ -131,7 +161,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 handleLogout,
                 getReviews,
                 deleteReview,
-                allReviewsFetch
+                allReviewsFetch,
+                reviewsWithCategory,
+                reviewsWithCategoryAll
             }}
         >
             {children}
