@@ -24,7 +24,7 @@ const ReviewForm: React.FC<NavigationProps> = ({ navigation }) => {
   const { control, handleSubmit, reset, formState: { errors } } = useForm<BeerFormValues>();
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
-  const {userInfo, getReviews} = useAuth()
+  const {userInfo, getReviews, allReviewsFetch} = useAuth()
 
   const onImageCaptured = (url: string) => {
     setImageUrl(url);
@@ -46,6 +46,7 @@ const ReviewForm: React.FC<NavigationProps> = ({ navigation }) => {
       setImageUrl(null);
       navigation.goBack()
       getReviews()
+      allReviewsFetch()
     } catch (error: any) {
       console.error(error.response.data);
     }

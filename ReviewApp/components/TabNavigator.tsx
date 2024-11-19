@@ -8,6 +8,8 @@ import LoginScreen from '../pages/LoginScreen';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import RegisterScreen from '../pages/RegisterScreen';
+import AllReviews from '../pages/AllReviews';
+import Ionicons from '@expo/vector-icons/Ionicons';
 const Tab = createBottomTabNavigator();
 
 const TabNavigator:FC = () => {
@@ -41,7 +43,7 @@ const TabNavigator:FC = () => {
   return (
     <Tab.Navigator>
       <Tab.Screen
-        name="Reviews"
+        name="My reviews"
         component={ReviewsScreen}
         options={{
           headerShown: false,  
@@ -57,6 +59,16 @@ const TabNavigator:FC = () => {
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <FontAwesome name="camera" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="AllReviews"
+        component={AllReviews}
+        options={{
+          headerShown: false,  
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="people-sharp" size={size} color={color} /> 
           ),
         }}
       />

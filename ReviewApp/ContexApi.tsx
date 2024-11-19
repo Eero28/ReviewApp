@@ -9,6 +9,7 @@ import { ReviewItemIf } from './interfaces/reviewItemIf';
 
 interface AuthContextProps {
     userReviews: ReviewItemIf[];
+    allReviews: ReviewItemIf[];
     userInfo: UserInfo | null;
     setUserInfo: (userInfo: UserInfo | null) => void;
     setUserReviews: (reviews: ReviewItemIf[]) => void;
@@ -16,13 +17,14 @@ interface AuthContextProps {
     handleLogout: () => void;
     getReviews: () => void;
     deleteReview: (id_review: number, access_token: string) => void;
+    allReviewsFetch: () => void;
 }
 
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-
+    const [allReviews, setAllReviews] = useState<ReviewItemIf[]>([])
     const [userReviews, setUserReviews] = useState<ReviewItemIf[]>([]);
     const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
 
@@ -44,6 +46,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     useEffect(() => {
         if (userInfo) {
             getReviews();
+            allReviewsFetch();
         }
     }, [userInfo]);
 
@@ -86,6 +89,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     }
 
+    const allReviewsFetch = async () => {
+        try {
+            const responce = await axios.get(`${API_URL}/review`)
+            setAllReviews(responce.data)
+        } catch (error) {
+            setAllReviews([])
+            console.log(error.responce.message)
+        }
+
+
+    }
+
     const deleteReview = async (id_review: number, access_token: string) => {
         try {
             await axios.delete(`${API_URL}/review/${id_review}`, {
@@ -108,13 +123,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         <AuthContext.Provider
             value={{
                 userReviews,
+                allReviews,
                 userInfo,
                 setUserInfo,
                 setUserReviews,
                 handleLogin,
                 handleLogout,
                 getReviews,
-                deleteReview
+                deleteReview,
+                allReviewsFetch
             }}
         >
             {children}
