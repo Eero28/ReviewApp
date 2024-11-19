@@ -42,6 +42,7 @@ const ReviewsScreen: FC = () => {
         duration: 300,
         useNativeDriver: false,
       }).start(() => setIsOpen(false));
+      setSearchTerm("")
     } else {
       setIsOpen(true);
       Animated.timing(animatedWidth, {

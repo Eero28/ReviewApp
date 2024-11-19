@@ -60,7 +60,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             await AsyncStorage.setItem('userInfo', JSON.stringify(userData));
 
         } catch (error) {
-            console.log("Login failed:", error.message);
+            console.log("Login failed:", error.response.data.message);
         }
     };
 

@@ -6,16 +6,16 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, CreateDateColumn, Up
 @Entity()
 export class Review {
     @PrimaryGeneratedColumn()
-    id_review:number
+    id_review: number
 
     @Column()
     reviewname: string
-    
+
     @Column()
     reviewDescription: string
 
-    @Column()
-    reviewRating: number
+    @Column('decimal', { precision: 5, scale: 2 }) 
+    reviewRating: number;
 
     @Column()
     imageUrl: string
@@ -29,5 +29,5 @@ export class Review {
     @UpdateDateColumn()
     updatedAt: Date;
 
-    @ManyToOne(() => User, (user) => user.reviews, { eager: true })    user: User;
+    @ManyToOne(() => User, (user) => user.reviews, { eager: true }) user: User;
 }
