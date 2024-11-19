@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Request, UseGuards } from '@nestjs/common';
 import { ReviewService } from './review.service';
 import { Review } from './entities/review.entity';
 import { CreateReviewDto } from './dto/create-review.dto';
@@ -13,8 +13,8 @@ export class ReviewController {
     }
 
     @Get(':id')
-    async findOne(@Param('id') id: number): Promise<Review> {
-        return await this.reviewService.findOne(id)
+    async findOne(@Param('id') id_review: number): Promise<Review> {
+        return await this.reviewService.findOne(id_review)
     }
 
     @Get('user/:id_user')
@@ -32,8 +32,8 @@ export class ReviewController {
 
     @Delete(':id')
     @UseGuards(JwtAuthGuard)
-    async remove(@Param('id') id: number): Promise<void> {
-        return await this.reviewService.remove(id)
+    async remove(@Param('id') id: number, @Request() req): Promise<void> {
+        return await this.reviewService.remove(id,req)
     }
 
     @Put()

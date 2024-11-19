@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Review } from './entities/review.entity';
 import { Repository } from 'typeorm';
@@ -103,9 +103,19 @@ export class ReviewService {
         return this.reviewRepository.save(review);
     }
 
-    async remove(id_review: number): Promise<void> {
-        console.log(id_review)
+    async remove(id_review: number, req:any): Promise<void> {
+        const user: User = req.user
         try {
+
+            const review = await this.reviewRepository.findOne({ where: { id_review } });
+
+            if(!review){
+                throw new NotFoundException(`Review with ID ${id_review} not found`); 
+            }
+
+            if(review.user.id_user !== user.id_user){
+                throw new ForbiddenException('You can only delete your own reviews');
+            }
             const result = await this.reviewRepository.delete(id_review);
             if (result.affected === 0) {
                 throw new NotFoundException(`Review with ID ${id_review} not found`);
