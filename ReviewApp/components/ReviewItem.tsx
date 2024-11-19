@@ -5,41 +5,59 @@ import ModalDialog from './ModalDialog';
 import { useAuth } from '../ContexApi';
 import { ReviewItemIf } from '../interfaces/reviewItemIf';
 
-
 type Props = {
     item: ReviewItemIf;
+    disableLongPress?: boolean;  
 };
 
-const ReviewItem: FC<Props> = ({item}) => {
+const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
+    const { deleteReview, userInfo } = useAuth();
 
-    const {deleteReview, userInfo} = useAuth()
+    const [showDialogModal, setShowDialogModal] = useState<boolean>(false);
+    const [isLongPress, setIsLongPress] = useState<boolean>(false); 
 
-    const [showDialogModal,setShowDialogModal] = useState<boolean>(false)
-
-    const showModal = () =>{
-        setShowDialogModal(true)
-    }
-    const closeModal = () =>{
-        setShowDialogModal(false)
-    }
+    const showModal = () => {
+        setShowDialogModal(true);
+    };
+    const closeModal = () => {
+        setShowDialogModal(false);
+    };
 
     const navigation = useNavigation<any>();
 
     const gotoDetails = () => {
-        navigation.navigate('ReviewDetails', { item: item });
-    };
-    
-    const handleDelete = () => {
-        setShowDialogModal(false)
-        if(userInfo && userInfo.access_token){
-            deleteReview(item.id_review,userInfo?.access_token)
-        }else{
-            Alert.alert("No access to delete!")
+        if (!isLongPress) {  
+            navigation.navigate('ReviewDetails', { item: item });
         }
-        
-    }
+    };
+
+    const handleDelete = () => {
+        setShowDialogModal(false);
+        if (userInfo && userInfo.access_token) {
+            deleteReview(item.id_review, userInfo?.access_token);
+        } else {
+            Alert.alert("No access to delete!");
+        }
+    };
+
+    const handlePressIn = () => {
+        setIsLongPress(false); 
+    };
+
+    const handleLongPress = () => {
+        if (!disableLongPress) {  
+            setIsLongPress(true);  
+            showModal();  
+        }
+    };
+
     return (
-        <TouchableOpacity onLongPress={showModal} style={styles.container} onPress={gotoDetails}>
+        <TouchableOpacity
+            onLongPress={handleLongPress}
+            onPressIn={handlePressIn}  
+            onPress={gotoDetails}      
+            style={styles.container}
+        >
             <Image
                 style={styles.image}
                 source={{
@@ -51,7 +69,12 @@ const ReviewItem: FC<Props> = ({item}) => {
                 <Text style={styles.description}>{item.category}</Text>
                 <Text style={styles.description}>Reviewed by: {item.user.username}</Text>
             </View>
-            <ModalDialog dialogTitle={`Delete "${item.reviewname}"?`} visible={showDialogModal} onCancel={closeModal} onDelete={handleDelete}/>
+            <ModalDialog 
+                dialogTitle={`Delete "${item.reviewname}"?`} 
+                visible={showDialogModal} 
+                onCancel={closeModal} 
+                onDelete={handleDelete} 
+            />
         </TouchableOpacity>
     );
 };

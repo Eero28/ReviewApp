@@ -30,11 +30,14 @@ const ReviewDetails: FC<ReviewDetailsProps> = ({ route }) => {
             uri: item.imageUrl,
           }}
         />
+        <View style={styles.ratingContainer}>
         <StarRating
           rating={item.reviewRating}
           onChange={doNothing}
           color='#0f3c85'
         />
+        <Text style={styles.ratingText}>({item.reviewRating})</Text>
+        </View>
         <Text style={styles.text}>{item.reviewDescription}</Text>
         <Text style={styles.text}>Reviewed: {convertDate(item.createdAt)}</Text>
       </View>
@@ -74,4 +77,14 @@ const styles = StyleSheet.create({
     color: "#333",
     marginBottom: 10,
   },
+  reviewDescription:{
+    padding: 5
+  },
+  ratingContainer:{
+    display: "flex",
+    flexDirection: "row"
+  },
+  ratingText:{
+    padding: 5
+  }
 });

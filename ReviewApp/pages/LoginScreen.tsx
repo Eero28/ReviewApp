@@ -2,28 +2,28 @@ import { StyleSheet, Text, View, TextInput, Button, Alert } from 'react-native';
 import React, { FC } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { useAuth } from '../ContexApi';
+
 type Props = {};
 
-interface LoginData{
-    email:string,
-    password: string
+interface LoginData {
+  email: string;
+  password: string;
 }
 
 const LoginScreen: FC<{ navigation: any }> = ({ navigation }) => {
   const { control, handleSubmit, formState: { errors } } = useForm();
-  const {handleLogin} = useAuth()
-  const onSubmit = async(data) => {
-    
-    const loginData: LoginData = {
-        email: data.email,
-        password: data.password
-    }
+  const { handleLogin } = useAuth();
 
-    try{
-         await handleLogin(loginData.email,loginData.password)
-    
-    }catch(error){
-        console.log(error)
+  const onSubmit = async (data) => {
+    const loginData: LoginData = {
+      email: data.email,
+      password: data.password
+    };
+
+    try {
+      await handleLogin(loginData.email, loginData.password);
+    } catch (error: any) {
+      console.error("Login error:", error);
     }
   };
 
@@ -31,7 +31,6 @@ const LoginScreen: FC<{ navigation: any }> = ({ navigation }) => {
     <View style={styles.container}>
       <Text style={styles.header}>Login</Text>
 
- 
       <View style={styles.inputContainer}>
         <Text>Email</Text>
         <Controller
@@ -48,10 +47,11 @@ const LoginScreen: FC<{ navigation: any }> = ({ navigation }) => {
           )}
           name="email"
         />
-        {errors.username && (
+         {errors.email && (
           <Text style={styles.error}>{(errors.email as { message?: string }).message}</Text>
         )}
       </View>
+
       <View style={styles.inputContainer}>
         <Text>Password</Text>
         <Controller
@@ -74,7 +74,6 @@ const LoginScreen: FC<{ navigation: any }> = ({ navigation }) => {
         )}
       </View>
 
-    
       <Button title="Login" onPress={handleSubmit(onSubmit)} />
       <Button
         title="Don't have an account? Register"
