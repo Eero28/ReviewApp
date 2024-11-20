@@ -10,7 +10,7 @@ const AllReviews = (props: Props) => {
   const { allReviews, reviewsWithCategoryAll } = useAuth()
   return (
     <>
-      <FilterButtons reviewsWithCategory={reviewsWithCategoryAll}/>
+      <FilterButtons fetchReviewsWithCategory={reviewsWithCategoryAll}/>
       <ReviewFlatlist disableLongPress={true} reviews={allReviews} />
     </>
   )

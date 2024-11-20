@@ -10,7 +10,7 @@ const ReviewsScreen = (props: Props) => {
   const { userReviews,reviewsWithCategory } = useAuth();
   return (
     <>
-    <FilterButtons reviewsWithCategory={reviewsWithCategory}/>
+    <FilterButtons fetchReviewsWithCategory={reviewsWithCategory}/>
     <ReviewFlatlist reviews={userReviews} />
     </>
   );
