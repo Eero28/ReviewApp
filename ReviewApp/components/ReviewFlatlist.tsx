@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
     },
     listContainer: {
-        paddingBottom: 16,
+        paddingBottom: 40,
     },
     searchbarWrapper: {
         flexDirection: 'row',
