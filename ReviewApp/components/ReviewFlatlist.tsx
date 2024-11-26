@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, useState } from 'react';
 import {
     StyleSheet,
     SafeAreaView,
@@ -14,15 +14,15 @@ import {
 import AntDesign from '@expo/vector-icons/AntDesign';
 import ReviewItem from './ReviewItem';
 import { ReviewItemIf } from '../interfaces/reviewItemIf';
-
+import { useNavigation } from '@react-navigation/native';
 
 type Props = {
     reviews: ReviewItemIf[];
-    disableLongPress?: boolean; 
+    disableLongPress?: boolean;
 }
 
 const ReviewFlatlist: FC<Props> = ({reviews, disableLongPress = false}) => {
-    
+    const navigation = useNavigation();
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [animatedWidth] = useState(new Animated.Value(50));

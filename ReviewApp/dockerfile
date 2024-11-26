@@ -1,0 +1,21 @@
+# Use official Node.js image as base
+FROM node:18
+
+# Set the working directory inside the container
+WORKDIR /usr/src/app
+
+# Install dependencies
+COPY package*.json ./
+RUN npm install
+
+# Pre-install @expo/ngrok globally
+RUN npm install -g @expo/ngrok
+
+# Copy the rest of the application
+COPY . .
+
+# Expose ports for Expo
+EXPOSE 19000 19001 19002
+
+# Use npx to run expo CLI from the local project
+CMD ["npx", "expo", "start", "--tunnel"]
