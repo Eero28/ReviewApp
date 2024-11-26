@@ -8,9 +8,8 @@ import { useAuth } from '../ContexApi';
 
 const Drawer = createDrawerNavigator();
 
-const DrawerNavigator = ({route}) => {
+const DrawerNavigator = () => {
   const { userInfo } = useAuth();
-  console.log(route)
   return (
     <Drawer.Navigator
       screenOptions={{

@@ -126,7 +126,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#f2f2f2',
         borderRadius: 20,
-        height: 40,
         paddingHorizontal: 10,
     },
     input: {
@@ -135,6 +134,8 @@ const styles = StyleSheet.create({
         color: '#333',
         backgroundColor: "lightgray",
         borderRadius: 10,
+        height: 40,
+        letterSpacing: 0.2,
     },
     iconWrapper: {
         justifyContent: 'center',

@@ -109,9 +109,11 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: '#333',
         marginBottom: 4,
+        fontFamily: 'poppins'
     },
     description: {
         fontSize: 14,
         color: '#666',
+        fontFamily: 'poppins'
     },
 });

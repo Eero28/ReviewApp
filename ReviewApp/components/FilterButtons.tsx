@@ -42,12 +42,12 @@ const styles = StyleSheet.create({
         backgroundColor: '#6200EE',
         paddingVertical: 8,
         borderRadius: 5,
-        width: '22%',
+        width: '20%',
         alignItems: 'center',
     },
     buttonText: {
         color: '#fff',
         fontSize: 14,
-        fontWeight: 'bold',
+        fontFamily: 'poppins'
     },
 });
