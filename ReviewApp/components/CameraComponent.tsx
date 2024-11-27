@@ -25,7 +25,7 @@ const CameraComponent: React.FC<CameraComponentProps> = ({ navigation, onImageCa
 
   const openCamera = async () => {
     const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ["images"],
       quality: 1,
       aspect: [4, 3],
     });
