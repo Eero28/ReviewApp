@@ -1,0 +1,26 @@
+# Use Node.js 18 as the base image
+FROM node:18-alpine
+
+# Set working directory
+WORKDIR /usr/src/app
+
+# Copy only package.json and package-lock.json (if present) for caching layers
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy the rest of the application source code
+COPY . .
+
+# Ensure TypeScript is installed globally for the build step
+RUN npm install -g typescript
+
+# Run the build script to generate production-ready files
+RUN npm run build
+
+# Expose the application port (adjust if needed)
+EXPOSE 3000
+
+# Start the server in production mode
+CMD ["npm", "run", "start:prod"]

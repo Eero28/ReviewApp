@@ -1,20 +1,30 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createDrawerNavigator } from '@react-navigation/drawer';
-import AppNavigator from './components/AppNavigator';
+import MainNavigation from './Navigation/MainNavigation';
 import { AuthProvider } from './ContexApi';
-
-const Drawer = createDrawerNavigator();
-
-
+import * as Font from 'expo-font';
 
 
 export default function App() {
+  const [isFontLoaded, setFontLoaded] = useState<boolean>(false);
+
+  useEffect(() => {
+    async function loadFonts() {
+      await Font.loadAsync({
+        'poppins': require('./assets/fonts/Poppins-Regular.ttf'),
+      });
+      setFontLoaded(true);
+    }
+    loadFonts();
+  }, []);
+
+
   return (
     <AuthProvider>
-    <NavigationContainer>
-      <AppNavigator/>
-    </NavigationContainer>
+      <NavigationContainer>
+        <MainNavigation />
+      </NavigationContainer>
     </AuthProvider>
   );
 }
+

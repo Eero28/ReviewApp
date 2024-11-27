@@ -4,17 +4,18 @@ import { useNavigation } from '@react-navigation/native';
 import ModalDialog from './ModalDialog';
 import { useAuth } from '../ContexApi';
 import { ReviewItemIf } from '../interfaces/reviewItemIf';
-
 type Props = {
     item: ReviewItemIf;
-    disableLongPress?: boolean;  
+    disableLongPress?: boolean; 
 };
 
 const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
     const { deleteReview, userInfo } = useAuth();
-
     const [showDialogModal, setShowDialogModal] = useState<boolean>(false);
     const [isLongPress, setIsLongPress] = useState<boolean>(false); 
+
+
+    const navigation = useNavigation<any>();
 
     const showModal = () => {
         setShowDialogModal(true);
@@ -23,7 +24,6 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
         setShowDialogModal(false);
     };
 
-    const navigation = useNavigation<any>();
 
     const gotoDetails = () => {
         if (!isLongPress) {  
@@ -109,9 +109,11 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: '#333',
         marginBottom: 4,
+        fontFamily: 'poppins'
     },
     description: {
         fontSize: 14,
         color: '#666',
+        fontFamily: 'poppins'
     },
 });

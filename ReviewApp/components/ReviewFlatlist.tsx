@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, useState } from 'react';
 import {
     StyleSheet,
     SafeAreaView,
@@ -17,15 +17,13 @@ import { ReviewItemIf } from '../interfaces/reviewItemIf';
 
 type Props = {
     reviews: ReviewItemIf[];
-    disableLongPress?: boolean; 
+    disableLongPress?: boolean;
 }
 
 const ReviewFlatlist: FC<Props> = ({reviews, disableLongPress = false}) => {
-    
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [animatedWidth] = useState(new Animated.Value(50));
-
 
     if (reviews.length <= 0) {
         return (
@@ -35,7 +33,7 @@ const ReviewFlatlist: FC<Props> = ({reviews, disableLongPress = false}) => {
         );
     }
 
-    // filter also by username
+    // Filter reviews based on the search term
     const filteredReviews = reviews.filter((val) => {
         const searchResult =
             val.reviewname.toLowerCase().trim().includes(searchTerm.toLowerCase()) ||
@@ -51,11 +49,11 @@ const ReviewFlatlist: FC<Props> = ({reviews, disableLongPress = false}) => {
                 duration: 300,
                 useNativeDriver: false,
             }).start(() => setIsOpen(false));
-            setSearchTerm("")
+            setSearchTerm("");  
         } else {
             setIsOpen(true);
             Animated.timing(animatedWidth, {
-                toValue: 350,
+                toValue: 350,  
                 duration: 300,
                 useNativeDriver: false,
             }).start();
@@ -69,9 +67,9 @@ const ReviewFlatlist: FC<Props> = ({reviews, disableLongPress = false}) => {
     return (
         <TouchableWithoutFeedback onPress={dismissKeyboard}>
             <SafeAreaView style={styles.container}>
-                <View style={styles.searchbarWrapper}>
-                    <Animated.View style={[styles.searchbarContainer, { width: animatedWidth }]}>
-                        {isOpen && (
+                {isOpen && (
+                    <View style={styles.searchbarWrapper}>
+                        <Animated.View style={[styles.searchbarContainer, { width: animatedWidth }]}>
                             <TextInput
                                 style={styles.input}
                                 onChangeText={(val) => setSearchTerm(val.toLowerCase())}
@@ -79,13 +77,18 @@ const ReviewFlatlist: FC<Props> = ({reviews, disableLongPress = false}) => {
                                 autoFocus={true}
                                 placeholderTextColor="#999"
                             />
-                        )}
-                    </Animated.View>
+                        </Animated.View>
+                        <TouchableOpacity onPress={toggleSearchBar} style={styles.iconWrapper}>
+                            <AntDesign name={isOpen ? "close" : "search1"} size={24} color="black" />
+                        </TouchableOpacity>
+                    </View>
+                )}
+                {!isOpen && (
                     <TouchableOpacity onPress={toggleSearchBar} style={styles.iconWrapper}>
-                        <AntDesign name={isOpen ? "close" : "search1"} size={24} color="black" />
+                        <AntDesign name="search1" size={24} color="black" />
                     </TouchableOpacity>
-                </View>
-                {filteredReviews.length === 0 && searchTerm ? (
+                )}
+                {filteredReviews.length === 0 && !searchTerm ? (
                     <Text style={styles.noResultsText}>No search results found</Text>
                 ) : (
                     <FlatList
@@ -110,12 +113,12 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
     },
     listContainer: {
-        paddingBottom: 16,
+        paddingBottom: 40,
     },
     searchbarWrapper: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-end',
         marginBottom: 10,
     },
     searchbarContainer: {
@@ -124,19 +127,19 @@ const styles = StyleSheet.create({
         backgroundColor: '#f2f2f2',
         borderRadius: 20,
         paddingHorizontal: 10,
-        height: 40,
     },
     input: {
         flex: 1,
         fontSize: 16,
         color: '#333',
         backgroundColor: "lightgray",
-        borderRadius: 10
+        borderRadius: 10,
+        height: 40,
+        letterSpacing: 0.2,
     },
     iconWrapper: {
-        paddingLeft: 10,
         justifyContent: 'center',
-        alignItems: 'center',
+        alignItems: 'flex-end',
     },
     noResultsText: {
         textAlign: 'center',
