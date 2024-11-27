@@ -1,20 +1,17 @@
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
 import React, { FC, useState } from 'react';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import Feather from '@expo/vector-icons/Feather';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-
+import Icon from './Icon';
 type Props = {
     fetchReviewsWithCategory: (category?: string) => void;
 };
 
 const categories = [
-    { label: 'All', value: undefined, icon: 'filter' },
-    { label: 'Beer', value: 'beer', icon: 'beer-outline' },
-    { label: 'Wine', value: 'wine', icon: 'wine-outline' },
-    { label: 'Softdrink', value: 'softdrink', icon: 'beer-outline' },
-    { label: 'Coffee', value: 'coffee', icon: 'coffee' },
-    { label: 'Tea', value: 'tea', icon: 'tea-outline' }
+    { label: 'All', value: undefined, icon: 'beer' },
+    { label: 'Beers', value: 'beer', icon: 'beer' },
+    { label: 'Wines', value: 'wine', icon: 'wine' },
+    { label: 'Softdrinks', value: 'softdrink', icon: 'soda' },
+    { label: 'Hot beverages', value: 'hot beverage', icon: 'hotbeverage' },
+    { label: 'Cocktails', value: 'cocktail', icon: "cocktail" }
 ];
 
 const FilterButtons: FC<Props> = ({ fetchReviewsWithCategory }) => {
@@ -24,18 +21,6 @@ const FilterButtons: FC<Props> = ({ fetchReviewsWithCategory }) => {
     const handlePress = (categoryValue?: string) => {
         setActiveCategory(categoryValue);
         fetchReviewsWithCategory(categoryValue);
-    };
-
-    const renderIcon = (iconName: string, isActive: boolean) => {
-        const iconColor = isActive ? '#007AFF' : 'black';
-        if (iconName === 'tea-outline') {
-            return <MaterialCommunityIcons name="tea-outline" size={24} color={iconColor} />;
-        }
-        if (iconName === 'coffee') {
-            return <Feather name="coffee" size={24} color={iconColor} />;
-        }
-        //@ts-ignore
-        return <Ionicons name={iconName} size={24} color={iconColor} />;
     };
 
     return (
@@ -52,10 +37,15 @@ const FilterButtons: FC<Props> = ({ fetchReviewsWithCategory }) => {
                         style={[
                             styles.button,
                             activeCategory === category.value && styles.activeButton,
-                            { width: width * 0.2 }, 
+                            { width: width * 0.2 },
                         ]}
                     >
-                        {renderIcon(category.icon, activeCategory === category.value)}
+                        <Icon
+                            //@ts-ignore
+                            name={category.icon}
+                            size={24}
+                            color={activeCategory === category.value ? '#007AFF' : 'black'}
+                        />
 
                         <Text
                             style={[
@@ -84,7 +74,6 @@ const styles = StyleSheet.create({
         paddingVertical: 5,
     },
     button: {
-        paddingVertical: 5,
         borderRadius: 5,
         alignItems: 'center',
         marginHorizontal: 10,
@@ -98,6 +87,8 @@ const styles = StyleSheet.create({
         color: 'black',
         fontSize: 14,
         fontFamily: 'poppins',
+        textAlign: 'center',
+        
     },
     selectedButton: {
         color: '#007AFF',
