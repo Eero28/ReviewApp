@@ -14,6 +14,7 @@ import {
 import AntDesign from '@expo/vector-icons/AntDesign';
 import ReviewItem from './ReviewItem';
 import { ReviewItemIf } from '../interfaces/reviewItemIf';
+import NoReviewsMade from './NoReviewsMade';
 
 type Props = {
     reviews: ReviewItemIf[];
@@ -24,12 +25,9 @@ const ReviewFlatlist: FC<Props> = ({reviews, disableLongPress = false}) => {
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [animatedWidth] = useState(new Animated.Value(50));
-
     if (reviews.length <= 0) {
         return (
-            <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <Text>No reviews yet. Be the first to leave a review!</Text>
-            </SafeAreaView>
+            <NoReviewsMade/>
         );
     }
 
