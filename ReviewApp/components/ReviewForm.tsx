@@ -141,6 +141,8 @@ const ReviewForm: React.FC<NavigationProps> = ({ navigation }) => {
               { label: 'Wine', value: 'wine' },
               { label: 'Beer', value: 'beer' },
               { label: 'Softdrink', value: 'softdrink' },
+              { label: 'Coffee', value: 'coffee' },
+              { label: 'Tea', value: 'tea' }
             ]}
             placeholder={{ label: "Select a category", value: null }}
           />
