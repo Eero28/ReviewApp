@@ -25,10 +25,7 @@ const FilterButtons: FC<Props> = ({ fetchReviewsWithCategory }) => {
     const handlePress = (categoryValue?: string) => {
         setActiveCategory(categoryValue);
         fetchReviewsWithCategory(categoryValue);
-        console.log(categoryValue);
     };
-
-    // Get screen width and height for dynamic sizing
     const { width } = Dimensions.get('window');
 
     return (
