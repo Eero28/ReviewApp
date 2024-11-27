@@ -118,7 +118,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const reviewsWithCategoryAll = async (category?: string) => {
         try {
-            console.log("hello")
             const url = category
                 ? `${API_URL}/review/all?category=${category}`
                 : `${API_URL}/review`;

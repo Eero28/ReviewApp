@@ -2,31 +2,41 @@ import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Dimensions } from
 import React, { FC, useState } from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Feather from '@expo/vector-icons/Feather';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 type Props = {
     fetchReviewsWithCategory: (category?: string) => void;
 };
 
-// Type for icons, ensuring only valid icon names are passed.
-type IoniconName = keyof typeof Ionicons.glyphMap;
-type FeatherIconName = keyof typeof Feather.glyphMap;
-
-const categories: { label: string; value?: string; icon: IoniconName | FeatherIconName }[] = [
+const categories = [
     { label: 'All', value: undefined, icon: 'filter' },
     { label: 'Beer', value: 'beer', icon: 'beer-outline' },
     { label: 'Wine', value: 'wine', icon: 'wine-outline' },
     { label: 'Softdrink', value: 'softdrink', icon: 'beer-outline' },
     { label: 'Coffee', value: 'coffee', icon: 'coffee' },
+    { label: 'Tea', value: 'tea', icon: 'tea-outline' }
 ];
 
 const FilterButtons: FC<Props> = ({ fetchReviewsWithCategory }) => {
     const [activeCategory, setActiveCategory] = useState<string | undefined>(undefined);
+    const { width } = Dimensions.get('window');
 
     const handlePress = (categoryValue?: string) => {
         setActiveCategory(categoryValue);
         fetchReviewsWithCategory(categoryValue);
     };
-    const { width } = Dimensions.get('window');
+
+    const renderIcon = (iconName: string, isActive: boolean) => {
+        const iconColor = isActive ? '#007AFF' : 'black';
+        if (iconName === 'tea-outline') {
+            return <MaterialCommunityIcons name="tea-outline" size={24} color={iconColor} />;
+        }
+        if (iconName === 'coffee') {
+            return <Feather name="coffee" size={24} color={iconColor} />;
+        }
+        //@ts-ignore
+        return <Ionicons name={iconName} size={24} color={iconColor} />;
+    };
 
     return (
         <View style={styles.container}>
@@ -42,23 +52,10 @@ const FilterButtons: FC<Props> = ({ fetchReviewsWithCategory }) => {
                         style={[
                             styles.button,
                             activeCategory === category.value && styles.activeButton,
-                            { width: width * 0.2 }, // Dynamic width based on screen size (20% of screen width)
+                            { width: width * 0.2 }, 
                         ]}
                     >
-                        {category.icon === 'coffee' ? (
-                            <Feather
-                                color={activeCategory === category.value ? '#007AFF' : 'black'}
-                                name="coffee"
-                                size={24}
-                            />
-                        ) : (
-                            <Ionicons
-                                //@ts-ignore
-                                name={category.icon}
-                                size={24}
-                                color={activeCategory === category.value ? '#007AFF' : 'black'}
-                            />
-                        )}
+                        {renderIcon(category.icon, activeCategory === category.value)}
 
                         <Text
                             style={[
