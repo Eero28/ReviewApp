@@ -6,12 +6,13 @@ type Props = {
 };
 
 const categories = [
-    { label: 'All', value: undefined, icon: 'beer' },
+    { label: 'All', value: undefined, icon: 'all' },
     { label: 'Beers', value: 'beer', icon: 'beer' },
     { label: 'Wines', value: 'wine', icon: 'wine' },
     { label: 'Softdrinks', value: 'softdrink', icon: 'soda' },
     { label: 'Hot beverages', value: 'hot beverage', icon: 'hotbeverage' },
-    { label: 'Cocktails', value: 'cocktail', icon: "cocktail" }
+    { label: 'Cocktails', value: 'cocktail', icon: "cocktail" },
+    { label: 'Others', value: 'other', icon: "other" }
 ];
 
 const FilterButtons: FC<Props> = ({ fetchReviewsWithCategory }) => {

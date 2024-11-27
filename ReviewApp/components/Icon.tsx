@@ -5,10 +5,10 @@ import Wine from '../assets/svg/wine.svg'
 import Soda from '../assets/svg/soda.svg'
 import HotBeverage from '../assets/svg/hot-beverage.svg'
 import Cocktail from '../assets/svg/cockitail.svg'
+import Other from '../assets/svg/other.svg'
+import All from '../assets/svg/all.svg'
 
-
-
-type IconName = 'beer' | 'wine' | 'softdrink' | 'hotbeverage' | 'cocktail' | 'soda';
+type IconName = 'beer' | 'wine' | 'softdrink' | 'hotbeverage' | 'cocktail' | 'soda' | 'other' | 'all';
 
 type IconProps = {
   name: IconName;
@@ -28,6 +28,10 @@ const Icon: React.FC<IconProps> = ({ name, size = 24, color = 'black' }) => {
         return <Soda width={size} height={size} fill={color}/>
     case 'cocktail':
         return <Cocktail width={size} height={size} fill={color}/>
+    case 'other':
+        return <Other width={size} height={size} fill={color}/>
+    case 'all':
+        return <All width={size} height={size} fill={color}/>
     default:
       return null; 
   }
