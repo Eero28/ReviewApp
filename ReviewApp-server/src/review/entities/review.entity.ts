@@ -1,27 +1,26 @@
 import { User } from "src/users/entities/user.entity";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from "typeorm";
-
-
+import { Comment } from "src/comments/entities/comment.entity";
+import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
 export class Review {
     @PrimaryGeneratedColumn()
-    id_review: number
+    id_review: number;
 
     @Column()
-    reviewname: string
+    reviewname: string;
 
     @Column()
-    reviewDescription: string
+    reviewDescription: string;
 
-    @Column('decimal', { precision: 5, scale: 2 }) 
+    @Column('decimal', { precision: 5, scale: 2 })
     reviewRating: number;
 
     @Column()
-    imageUrl: string
+    imageUrl: string;
 
     @Column()
-    category: string
+    category: string;
 
     @CreateDateColumn()
     createdAt: Date;
@@ -29,5 +28,11 @@ export class Review {
     @UpdateDateColumn()
     updatedAt: Date;
 
-    @ManyToOne(() => User, (user) => user.reviews, { eager: true }) user: User;
+    // Many reviews can belong to one user
+    @ManyToOne(() => User, (user) => user.reviews, { eager: true })
+    user: User;
+
+    // One review can have many comments
+    @OneToMany(() => Comment, (comment) => comment.review)
+    comments: Comment[];
 }

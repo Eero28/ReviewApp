@@ -3,7 +3,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import MainNavigation from './Navigation/MainNavigation';
 import { AuthProvider } from './ContexApi';
 import * as Font from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 
+SplashScreen.preventAutoHideAsync();
 
 export default function App() {
   const [isFontLoaded, setFontLoaded] = useState<boolean>(false);
@@ -18,6 +20,15 @@ export default function App() {
     loadFonts();
   }, []);
 
+  useEffect(() => {
+    if (isFontLoaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [isFontLoaded]);
+
+  if (!isFontLoaded) {
+    return null;
+  }
 
   return (
     <AuthProvider>
@@ -27,4 +38,3 @@ export default function App() {
     </AuthProvider>
   );
 }
-

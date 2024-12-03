@@ -1,0 +1,33 @@
+POST http://localhost:3000/comments
+Content-Type: application/json
+
+{
+  "text": "This is a comment on the review eero.",
+  "id_user": 1,
+  "id_review": 13
+}
+
+###Login
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+    "email": "E",
+    "password": "E"
+}
+
+### get review comments
+GET http://localhost:3000/comments/review/13
+
+### delete
+DELETE http://localhost:3000/comments/2
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IkUiLCJzdWIiOjEsInJvbGUiOiJ1c2VyIiwidXNlcm5hbWUiOiJFZXJvIiwiaWF0IjoxNzMzMjMxNDk5LCJleHAiOjE3MzMyMzUwOTl9.OyY5uEMuPe4raA9Qd5WzD1VzDzN9Tt5Krkxsn71VBMA
+
+###
+GET http://localhost:3000/comments/2
+
+###
+GET http://localhost:3000/users/2
+
+### Get one dood reviews
+GET http://localhost:3000/review/user/1

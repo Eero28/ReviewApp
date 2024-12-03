@@ -1,3 +1,4 @@
+import { Comment } from "src/comments/entities/comment.entity";
 import { Review } from "src/review/entities/review.entity";
 import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from "typeorm";
 
@@ -6,7 +7,7 @@ import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from "typeorm";
 export class User {
     @PrimaryGeneratedColumn()
     id_user: number;
-    //ee
+
     @Column()
     password: string;
     
@@ -19,6 +20,11 @@ export class User {
     @Column({default: "user"})
     role: string;
 
+    // one user can have many reviews
     @OneToMany(() => Review, (review) => review.user)
     reviews: Review[];
+
+    // one user can have many comments 
+    @OneToMany(() => Comment, (comment) => comment.user)
+    comments: Comment[];
 }
