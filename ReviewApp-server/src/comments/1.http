@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "text": "This is a comment on the review eero.",
   "id_user": 1,
-  "id_review": 13
+  "id_review": 19
 }
 
 ###Login
