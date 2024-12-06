@@ -1,7 +1,7 @@
 import { User } from "src/users/entities/user.entity";
 import { Comment } from "src/comments/entities/comment.entity";
 import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn } from "typeorm";
-
+import { Like } from "src/like/entities/like.entity";
 @Entity()
 export class Review {
     @PrimaryGeneratedColumn()
@@ -33,6 +33,10 @@ export class Review {
     user: User;
 
     // One review can have many comments
-    @OneToMany(() => Comment, (comment) => comment.review)
+    @OneToMany(() => Comment, (comment) => comment.review, { onDelete: 'CASCADE' })
     comments: Comment[];
+
+    // A review can have many likes
+    @OneToMany(() => Like, (like) => like.review, { onDelete: 'CASCADE' })
+    likes: Like[]
 }

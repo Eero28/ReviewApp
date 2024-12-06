@@ -67,6 +67,7 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
             <View style={styles.textContainer}>
                 <Text style={styles.title}>{item.reviewname}</Text>
                 <Text style={styles.description}>{item.category}</Text>
+                <Text style={styles.description}>{item.id_review}</Text>
                 <Text style={styles.description}>Reviewed by: {item.user.username}</Text>
             </View>
             <ModalDialog 
