@@ -1,10 +1,12 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Review } from './entities/review.entity';
 import { Repository } from 'typeorm';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { User } from 'src/users/entities/user.entity';
 import { UpdateReviewDto } from './dto/update-review.dto';
+
+
 
 @Injectable()
 export class ReviewService {
@@ -13,12 +15,14 @@ export class ReviewService {
         private reviewRepository: Repository<Review>,
 
         @InjectRepository(User)
-        private userRepository: Repository<User>
+        private userRepository: Repository<User>,
     ) { }
+
+
 
     async create(createReviewDto: CreateReviewDto): Promise<Review> {
         const user = await this.userRepository.findOne({
-            where: { id_user: createReviewDto.id_user }
+            where: { id_user: createReviewDto.id_user }, 
         });
 
         if (!user) {
@@ -36,9 +40,8 @@ export class ReviewService {
     }
 
     async findAll(): Promise<Review[]> {
-        return await this.reviewRepository.find({ relations: ['user'] });
+        return await this.reviewRepository.find({ relations: ['user','likes'] });
     }
-
     async findAllWithCategory(category: string): Promise<Review[]> {
         return await this.reviewRepository.find({
             where: { category },
@@ -79,7 +82,7 @@ export class ReviewService {
         }
 
         if (userReviews.length === 0) {
-            return []; 
+            return [];
         }
         return userReviews;
     }
@@ -88,10 +91,7 @@ export class ReviewService {
 
 
     async findOne(id_review: number): Promise<Review> {
-        const review = await this.reviewRepository.findOne({
-            where: { id_review },
-            relations: ['user'],
-        });
+        const review = await this.reviewRepository.findOne({ where:  { id_review }, relations:['user','likes'] })
 
         if (!review) {
             throw new NotFoundException(`Review with ID ${id_review} not found`);
@@ -100,27 +100,52 @@ export class ReviewService {
         return review;
     }
 
-    async update(id_review: number, updateReviewDto: UpdateReviewDto): Promise<Review> {
-        const review = await this.reviewRepository.findOne({ where: { id_review } });
-        if (!review) {
-            throw new NotFoundException(`Review with ID ${id_review} not found`);
-        }
-        Object.assign(review, updateReviewDto);
+    async update(id_review: number, updateReviewDto: UpdateReviewDto, id_user: number): Promise<Review> {
 
-        return this.reviewRepository.save(review);
+        const review = await this.reviewRepository.findOne({ where: { id_review }, relations: ['user'] });
+
+        if (!review) {
+            throw new NotFoundException(`Review with ID ${id_review} not found.`);
+        }
+
+        if (review.user.id_user !== id_user) {
+            throw new ForbiddenException(`You are not authorized to update this review.`);
+        }
+
+        for (const key in updateReviewDto) {
+            const value = updateReviewDto[key];
+            if (value !== undefined && value !== null) {
+                review[key] = value;
+            }
+        }
+
+        await this.reviewRepository.save(review);
+
+
+        const updatedReview = await this.reviewRepository.findOne({
+            where: { user: {id_user} },
+            relations: ['user', 'likes'],
+        });
+
+        if (!updatedReview) {
+            throw new NotFoundException(`Updated review with ID ${id_review} could not be retrieved.`);
+        }
+
+        return updatedReview;
     }
 
-    async remove(id_review: number, req:any): Promise<void> {
+
+    async remove(id_review: number, req: any): Promise<void> {
         const user: User = req.user
         try {
 
             const review = await this.reviewRepository.findOne({ where: { id_review } });
 
-            if(!review){
-                throw new NotFoundException(`Review with ID ${id_review} not found`); 
+            if (!review) {
+                throw new NotFoundException(`Review with ID ${id_review} not found`);
             }
 
-            if(review.user.id_user !== user.id_user){
+            if (review.user.id_user !== user.id_user) {
                 throw new ForbiddenException('You can only delete your own reviews');
             }
             const result = await this.reviewRepository.delete(id_review);

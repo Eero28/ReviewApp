@@ -1,5 +1,5 @@
 ### like review
-POST http://localhost:3000/likes/like/6
+POST http://localhost:3000/likes/like/5
 Content-Type: application/json
 
 {
@@ -7,7 +7,7 @@ Content-Type: application/json
 }
 
 ### delete like from review
-DELETE http://localhost:3000/likes/like/6
+DELETE http://localhost:3000/likes/like/5
 Content-Type: application/json
 
 {
@@ -15,7 +15,7 @@ Content-Type: application/json
 }
 
 ### users who liked review
-GET http://localhost:3000/likes/users/6 
+GET http://localhost:3000/likes/users/5 
 Content-Type: application/json
 
 ###

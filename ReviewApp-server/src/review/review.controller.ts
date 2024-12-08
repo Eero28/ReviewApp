@@ -3,17 +3,18 @@ import { ReviewService } from './review.service';
 import { Review } from './entities/review.entity';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { UpdateReviewDto } from './dto/update-review.dto';
 @Controller('review')
 export class ReviewController {
     constructor(private readonly reviewService: ReviewService) { }
 
     @Get()
-    async findAll(): Promise<Review[]> {
+    async findAll(): Promise<any> {
         return await this.reviewService.findAll()
     }
 
     @Get('all')
-    async findAllWithCategory(@Query('category') category: string): Promise<Review[]>{
+    async findAllWithCategory(@Query('category') category: string): Promise<Review[]> {
         return await this.reviewService.findAllWithCategory(category)
     }
 
@@ -30,7 +31,7 @@ export class ReviewController {
     @Get('users/:id_user/reviews')
     async findAllByUserIdWithCategory(
         @Param('id_user') id_user: number,
-        @Query('category') category?: string 
+        @Query('category') category?: string
     ): Promise<Review[]> {
         return this.reviewService.findAllByUserIdWithCategory(id_user, category);
     }
@@ -38,12 +39,16 @@ export class ReviewController {
     @Delete(':id')
     @UseGuards(JwtAuthGuard)
     async remove(@Param('id') id: number, @Request() req): Promise<void> {
-        return await this.reviewService.remove(id,req)
+        return await this.reviewService.remove(id, req)
     }
 
     @Put()
-    async update(@Param('id') id: number, updateReview: CreateReviewDto): Promise<Review> {
-        return await this.reviewService.update(id, updateReview)
+    async update(
+        @Body('id_review') id_review: number,
+        @Body('id_user') id_user: number,
+        @Body() updateReview: UpdateReviewDto 
+    ): Promise<Review> {
+        return await this.reviewService.update(id_review, updateReview, id_user);
     }
 
     @Post()

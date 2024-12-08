@@ -1,4 +1,4 @@
-import { IsOptional, IsNotEmpty, IsInt, IsUrl } from 'class-validator';
+import { IsOptional, IsNotEmpty, IsInt, IsUrl, Min, Max } from 'class-validator';
 
 export class UpdateReviewDto {
     @IsOptional()
@@ -7,12 +7,11 @@ export class UpdateReviewDto {
 
     @IsOptional()
     @IsInt()
-    reviewRating?: number;
+    @Min(1)
+    @Max(5)
+    reviewRating?: number;  // Ensures that review rating is between 1 and 5
 
     @IsOptional()
     @IsUrl()
     imageUrl?: string;
-
-    @IsInt()
-    id_user?: number; // If you want to update user as well, though usually it's not changed
 }
