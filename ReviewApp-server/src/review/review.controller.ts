@@ -25,6 +25,7 @@ export class ReviewController {
 
     @Get('user/:id_user')
     async findAllByUserId(@Param('id_user') id_user: number): Promise<Review[]> {
+        console.log("täälää")
         return this.reviewService.findAllByUserId(id_user);
     }
 

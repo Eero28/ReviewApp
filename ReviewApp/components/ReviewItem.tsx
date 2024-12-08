@@ -62,7 +62,7 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
 
     useEffect(() => {
         getReviewLikes();
-    }, []);
+    }, [item]);
 
     const navigation = useNavigation<any>();
 

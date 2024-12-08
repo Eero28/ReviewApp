@@ -50,13 +50,12 @@ export class ReviewService {
     }
 
     async findAllByUserId(id_user: number): Promise<Review[]> {
-
         if (!id_user) {
             throw new Error("No id found!")
         }
         const userReviews = await this.reviewRepository.find({
             where: { user: { id_user } },
-            relations: ['user'],
+            relations: ['user','likes','likes.user'],
         });
 
         if (userReviews.length === 0) {
