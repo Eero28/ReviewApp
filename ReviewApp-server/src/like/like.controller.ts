@@ -7,19 +7,21 @@ import { Like } from './entities/like.entity';
 export class LikeController {
   constructor(private readonly likeService: LikeService) {}
 
-  @Post('like/:id_review')
+  @Post('like/review/:id_review')
   async likeReview(
     @Param('id_review') id_review: number,
     @Body('id_user') id_user: number
   ): Promise<Review> {
+    console.log('like')
     return this.likeService.likeReview(id_user, id_review);
   }
 
-  @Delete('like/:id_review')
+  @Delete('unlike/review/:id_review/user/:id_user')
   async deleteLike(
     @Param('id_review') id_review:number,
-    @Body('id_user') id_user: number
+    @Param('id_user') id_user: number
   ){
+    console.log("unlike")
     return this.likeService.deleteLike(id_user,id_review)
   }
 
@@ -28,7 +30,7 @@ export class LikeController {
     return this.likeService.findOne(id_like)
   }
 
-  @Get('users/:id_review')
+  @Get('users/review/:id_review')
   async getUsersWhoLikedReview(@Param('id_review') id_review: number): Promise<User[]> {
     return this.likeService.getUsersWhoLikedReview(id_review);
   }

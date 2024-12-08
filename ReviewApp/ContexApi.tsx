@@ -3,8 +3,8 @@ import axios from 'axios';
 //@ts-ignore
 import { API_URL } from "@env";
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
-import { UserInfo } from './interfaces/userInfo';
-import { ReviewItemIf } from './interfaces/reviewItemIf';
+import { UserInfo } from './interfaces/UserInfo';
+import { ReviewItemIf } from './interfaces/ReviewItemIf';
 
 
 interface AuthContextProps {
@@ -13,6 +13,7 @@ interface AuthContextProps {
     userInfo: UserInfo | null;
     setUserInfo: (userInfo: UserInfo | null) => void;
     setUserReviews: (reviews: ReviewItemIf[]) => void;
+    setAllReviews: (reviews: ReviewItemIf[]) => void;
     handleLogin: (email: string, password: string) => void;
     handleLogout: () => void;
     getReviews: () => void;
@@ -46,6 +47,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }, []);
 
     useEffect(() => {
+        console.log("mounted")
         if (userInfo) {
             getReviews();
             allReviewsFetch();
@@ -158,6 +160,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 userInfo,
                 setUserInfo,
                 setUserReviews,
+                setAllReviews,
                 handleLogin,
                 handleLogout,
                 getReviews,
