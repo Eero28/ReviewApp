@@ -17,3 +17,6 @@ Content-Type: application/json
 
 ###
 GET http://localhost:3000/review
+
+###
+GET http://localhost:3000/likes/user/favorite/1

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect, SetStateAction, Dispatch } from 'react';
 import axios from 'axios';
 //@ts-ignore
 import { API_URL } from "@env";
@@ -21,6 +21,8 @@ interface AuthContextProps {
     allReviewsFetch: () => void;
     reviewsWithCategory: (category?: string | undefined) => void;
     reviewsWithCategoryAll: (category?: string | undefined) => void;
+    setReviewsUpdated: Dispatch<SetStateAction<boolean>>;
+    reviewsUpdated: boolean;
 }
 
 
@@ -30,11 +32,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [allReviews, setAllReviews] = useState<ReviewItemIf[]>([])
     const [userReviews, setUserReviews] = useState<ReviewItemIf[]>([]);
     const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
-
+    const [reviewsUpdated, setReviewsUpdated] = useState(false);
     useEffect(() => {
         const checkUserSession = async () => {
             try {
                 const storedUserInfo = await AsyncStorage.getItem('userInfo');
+                console.log(storedUserInfo)
                 if (storedUserInfo) {
                     const parseUserInfo = JSON.parse(storedUserInfo)
                     setUserInfo(parseUserInfo);
@@ -47,14 +50,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }, []);
 
     useEffect(() => {
-        console.log("mounted")
         if (userInfo) {
             getReviews();
             allReviewsFetch();
         }
-    }, [userInfo]);
+    }, [userInfo,reviewsUpdated]);
 
     const handleLogin = async (email: string, password: string) => {
+        
         const loginData = {
             email: email,
             password: password
@@ -62,7 +65,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
         try {
             const response = await axios.post(`${API_URL}/auth/login`, loginData);
-            const userData: UserInfo = response.data;
+            const userData: UserInfo = response.data.data;
             setUserInfo(userData);
             await AsyncStorage.setItem('userInfo', JSON.stringify(userData));
 
@@ -85,18 +88,26 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const getReviews = async () => {
         try {
             const response = await axios.get(`${API_URL}/review/user/${userInfo?.id_user}`);
-            setUserReviews(response.data)
-        } catch (error) {
-            setUserReviews([])
-            console.log("reviews", error.message)
-        }
 
-    }
+            const sortedReviews = response.data.data.sort((a: ReviewItemIf, b: ReviewItemIf) => 
+                new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            );
+          
+            setUserReviews(sortedReviews);
+        } catch (error) {
+            setUserReviews([]);
+            console.log("reviews", error.message);
+        }
+    };
 
     const allReviewsFetch = async () => {
         try {
-            const responce = await axios.get(`${API_URL}/review`)
-            setAllReviews(responce.data)
+            const response = await axios.get(`${API_URL}/review`)
+
+            const sortedReviews = response.data.data.sort((a: ReviewItemIf, b: ReviewItemIf) => 
+                new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            );
+            setAllReviews(sortedReviews)
         } catch (error) {
             setAllReviews([])
             console.log(error.responce.message)
@@ -112,7 +123,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 : `${API_URL}/review/user/${userInfo?.id_user}`;
     
             const response = await axios.get(url);
-            setUserReviews(response.data);  
+            setUserReviews(response.data.data);  
         } catch (error) {
             console.log("Error fetching reviews by category:", error);
         }
@@ -125,7 +136,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 : `${API_URL}/review`;
     
             const response = await axios.get(url);
-            setAllReviews(response.data);  
+            setAllReviews(response.data.data);  
         } catch (error) {
             console.log("Error fetching reviews by category:", error);
         }
@@ -139,8 +150,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                     "Authorization": `Bearer ${access_token}`
                 }
             })
-            setUserReviews(userReviews.filter((item) => item.id_review !== id_review));
-
+            // update if deleted
+            setReviewsUpdated(!reviewsUpdated);
         } catch (error) {
             console.log(error.message)
             if (error.response && error.response.status === 401) {
@@ -167,7 +178,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 deleteReview,
                 allReviewsFetch,
                 reviewsWithCategory,
-                reviewsWithCategoryAll
+                reviewsWithCategoryAll,
+                setReviewsUpdated,
+                reviewsUpdated
             }}
         >
             {children}

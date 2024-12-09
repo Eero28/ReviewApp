@@ -17,7 +17,7 @@ type Props = {
 };
 
 const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
-    const { deleteReview, userInfo } = useAuth();
+    const { deleteReview, userInfo, setReviewsUpdated, reviewsUpdated } = useAuth();
     const [showDialogModal, setShowDialogModal] = useState<boolean>(false);
     const [isLongPress, setIsLongPress] = useState<boolean>(false);
     const [likesState, setLikesState] = useState<usersLiked>({
@@ -28,7 +28,7 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
     const getReviewLikes = async () => {
         try {
             const response = await axios.get(`${API_URL}/likes/users/review/${item.id_review}`);
-            const usersWhoLiked = response.data;
+            const usersWhoLiked = response.data.data;
             const isLikedByUser = usersWhoLiked.some((like: UserInfo) => like.id_user === userInfo?.id_user);
 
             setLikesState({
@@ -39,6 +39,8 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
             console.error('Error fetching review likes:', error);
         }
     };
+
+    
 
     const likeReview = async () => {
         try {
@@ -105,6 +107,7 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
         } else {
             likeReview();
         }
+        setReviewsUpdated(!reviewsUpdated) 
     };
 
     return (
@@ -126,7 +129,7 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
                 <Text style={styles.description}>{item.id_review}</Text>
                 <Text style={styles.description}>Reviewed by: {item.user.username}</Text>
             </View>
-            {disableLongPress && (
+            
                 <TouchableOpacity onPress={toggleLike} style={styles.iconContainer}>
                     <FontAwesome
                         name={likesState.isLiked ? 'heart' : 'heart-o'}
@@ -135,7 +138,7 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
                     />
                     <Text style={styles.iconContainerText}>{likesState.user.length}</Text>
                 </TouchableOpacity>
-            )}
+            
 
             <ModalDialog
                 dialogTitle={`Delete "${item.reviewname}"?`}

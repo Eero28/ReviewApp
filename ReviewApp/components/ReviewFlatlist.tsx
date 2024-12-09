@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import ReviewItem from './ReviewItem';
-import { ReviewItemIf } from '../interfaces/reviewItemIf';
+import { ReviewItemIf } from '../interfaces/ReviewItemIf';
 import NoReviewsMade from './NoReviewsMade';
 
 type Props = {

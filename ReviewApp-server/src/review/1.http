@@ -28,13 +28,13 @@ GET http://localhost:3000/review
 GET http://localhost:3000/review/all?category=softdrink
 
 ### Get one dood reviews
-GET http://localhost:3000/review/user/1
+GET http://localhost:3000/review/user/2
 
 ### Get a single review by ID
 GET http://localhost:3000/review/6
 
 ###
-GET http://localhost:3000/users/4
+GET http://localhost:3000/users/1
 
 ### Update Review Request
 PUT http://localhost:3000/review

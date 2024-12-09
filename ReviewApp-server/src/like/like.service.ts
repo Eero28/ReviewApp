@@ -14,12 +14,6 @@ export class LikeService {
     ) { }
 
 
-    async findOne(id_like: number) {
-
-
-    }
-
-
     async deleteLike(id_user: number, id_review: number): Promise<void> {
         try {
             const user = await this.userRepository.findOne({ where: { id_user } });
@@ -93,8 +87,24 @@ export class LikeService {
             where: { review: { id_review } },
             relations: ['user'],
         });
-
         const usersWhoLiked = likes.map(like => like.user);
         return usersWhoLiked;
+    }
+
+    async getUserLikedReviews(id_user: number): Promise<Review[]> {
+        const user = await this.userRepository.findOne({ where: { id_user: id_user } });
+    
+        if (!user) {
+            throw new Error(`User with ID ${id_user} not found`);
+        }
+    
+        const likes = await this.likeRepository.find({
+            where: { user: { id_user: id_user } },
+            relations: ['review'],
+        });
+    
+        const reviews = likes.map(like => like.review);
+    
+        return reviews;
     }
 }

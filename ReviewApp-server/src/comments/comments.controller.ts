@@ -8,9 +8,9 @@ export class CommentsController {
     constructor(private readonly commentService: CommentsService) { }
 
     @Post()
-    async create(@Body() create: CreateCommentDto): Promise<Comment> {
+    async createComment(@Body() create: CreateCommentDto): Promise<Comment> {
         console.log(create);
-        return await this.commentService.create(create)
+        return await this.commentService.createComment(create)
     }
 
     @Get(":id")
