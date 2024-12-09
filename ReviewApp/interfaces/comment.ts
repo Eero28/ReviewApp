@@ -1,5 +1,5 @@
-import { ReviewItemIf } from "./reviewItemIf";
-import { UserInfo } from "./userInfo";
+import { ReviewItemIf } from "./ReviewItemIf";
+import { UserInfo } from "./UserInfo";
 export interface Comment {
     id_comment: number;
     text: string;

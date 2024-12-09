@@ -4,26 +4,29 @@ import StarRating from 'react-native-star-rating-widget';
 import axios from 'axios';
 //@ts-ignore
 import { API_URL } from '@env';
-import { Comment } from '../interfaces/comment';
-import CommentsList from '../components/CommentList';
+import { Comment } from '../interfaces/Comment';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
+import UserComment from '../components/UserComment';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { FontAwesome } from '@expo/vector-icons';
+import { ReviewItemIf } from '../interfaces/ReviewItemIf';
 interface ReviewDetailsProps {
   route: any;
 }
 
 const ReviewDetails: FC<ReviewDetailsProps> = ({ route }) => {
   const [comments, setComments] = useState<Comment[]>([]);
-  const { item } = route.params;
+  const { item } : {item: ReviewItemIf}  = route.params;
 
   const getReviewComments = async () => {
     try {
       const response = await axios.get(`${API_URL}/comments/review/${item.id_review}`);
-      setComments(response.data);
+      setComments(response.data.data);
     } catch (error) {
       console.error('Failed to fetch comments:', error);
     }
   };
+
 
   useEffect(() => {
     getReviewComments();
@@ -34,11 +37,25 @@ const ReviewDetails: FC<ReviewDetailsProps> = ({ route }) => {
       <Text style={styles.title}>{item.reviewname}</Text>
       <Image style={styles.image} source={{ uri: item.imageUrl }} />
       <View style={styles.ratingContainer}>
-        <StarRating rating={item.reviewRating} onChange={() => {}} color='#0f3c85' />
+        <StarRating rating={item.reviewRating} onChange={() => { }} color='#0f3c85' />
         <Text style={styles.ratingText}>({item.reviewRating})</Text>
       </View>
       <Text style={styles.text}>{item.reviewDescription}</Text>
-      <Text style={styles.text}>Reviewed: {new Date(item.createdAt).toLocaleDateString()}</Text>
+      <Text style={styles.text}>Reviewed: {item.createdAt}</Text>
+      <View style={styles.statsContainer}>
+        <Text style={styles.text}>
+          <MaterialCommunityIcons name="chat-outline" size={24} color="black" />
+          {item.comments.length}
+        </Text>
+        <Text style={styles.text}>
+          <FontAwesome
+            name={'heart'}
+            size={24}
+            color={'black'}
+          />
+          {item.likes.length}
+        </Text>
+      </View>
     </View>
   );
 
@@ -48,11 +65,7 @@ const ReviewDetails: FC<ReviewDetailsProps> = ({ route }) => {
         data={comments}
         ListHeaderComponent={renderHeader}
         renderItem={({ item }) => (
-          <View style={styles.commentContainer}>
-            <Text style={styles.commentUser}>{item.user.username}:</Text>
-            <Text style={styles.commentText}>{item.text}</Text>
-            <Text style={styles.dateText}>{new Date(item.createdAt).toLocaleDateString()}</Text>
-          </View>
+          <UserComment item={item} />
         )}
         keyExtractor={(item) => item.id_comment.toString()}
         contentContainerStyle={styles.scrollContainer}
@@ -103,23 +116,15 @@ const styles = StyleSheet.create({
     color: '#333',
     marginBottom: 10,
   },
-  commentContainer: {
-    marginBottom: 10,
-    padding: 10,
-    backgroundColor: '#f9f9f9',
-    borderRadius: 8,
-  },
-  commentUser: {
-    fontWeight: 'bold',
-    fontSize: 14,
-  },
-  commentText: {
-    fontSize: 16,
-    marginTop: 5,
-  },
   dateText: {
     fontSize: 12,
     color: '#777',
     marginTop: 5,
   },
+  statsContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    gap: 10,
+    padding:20
+  }
 });

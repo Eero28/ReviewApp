@@ -1,5 +1,6 @@
 import { UserInfo } from "./UserInfo";
 import { ReviewLike } from "./ReviewLike";
+import { Comment } from "./Comment";
 export interface ReviewItemIf {
     id_review: number;
     reviewname: string;
@@ -10,4 +11,5 @@ export interface ReviewItemIf {
     createdAt: string;
     user: UserInfo;
     likes: ReviewLike[];
+    comments: Comment[];
 }
