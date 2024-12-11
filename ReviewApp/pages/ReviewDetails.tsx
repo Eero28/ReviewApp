@@ -1,76 +1,84 @@
-import { StyleSheet, Text, View, Image, FlatList } from 'react-native';
+import { StyleSheet, Text, View, Image } from 'react-native';
 import React, { FC, useEffect, useState } from 'react';
 import StarRating from 'react-native-star-rating-widget';
 import axios from 'axios';
-//@ts-ignore
+// @ts-ignore
 import { API_URL } from '@env';
 import { Comment } from '../interfaces/Comment';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import UserComment from '../components/UserComment';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { FontAwesome } from '@expo/vector-icons';
 import { ReviewItemIf } from '../interfaces/ReviewItemIf';
 import BottomSheet from '../components/BottomSheet';
 import CommentsList from '../components/CommentList';
+
 interface ReviewDetailsProps {
   route: any;
 }
 
 const ReviewDetails: FC<ReviewDetailsProps> = ({ route }) => {
   const [comments, setComments] = useState<Comment[]>([]);
-  const { item } : {item: ReviewItemIf}  = route.params;
+  const { item }: { item: ReviewItemIf } = route.params;
 
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false); // State to control bottom sheet visibility
 
   const toggleSheet = () => {
-    console.log("bottom")
-    setIsOpen((prev) => !prev); 
+    console.log("Toggling sheet");
+    setIsOpen(prev => !prev); // Toggle the bottom sheet
   };
 
   const getReviewComments = async () => {
     try {
       const response = await axios.get(`${API_URL}/comments/review/${item.id_review}`);
-      setComments(response.data.data);
+      setComments(response.data.data); // Update the comments data
     } catch (error) {
       console.error('Failed to fetch comments:', error);
     }
   };
 
-
   useEffect(() => {
-    getReviewComments();
+    getReviewComments(); // Fetch comments when the component mounts
   }, [item.id_review]);
 
-  
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.cardContainer}>
-      <Text style={styles.title}>{item.reviewname}</Text>
-      <Image style={styles.image} source={{ uri: item.imageUrl }} />
-      <View style={styles.ratingContainer}>
-        <StarRating rating={item.reviewRating} onChange={() => { }} color='#0f3c85' />
-        <Text style={styles.ratingText}>({item.reviewRating})</Text>
+        <Text style={styles.title}>{item.reviewname}</Text>
+        <Image style={styles.image} source={{ uri: item.imageUrl }} />
+        <View style={styles.ratingContainer}>
+          <StarRating rating={item.reviewRating} onChange={() => { }} color='#0f3c85' />
+          <Text style={styles.ratingText}>({item.reviewRating})</Text>
+        </View>
+        <Text style={styles.text}>{item.reviewDescription}</Text>
+        <Text style={styles.text}>Reviewed: {item.createdAt}</Text>
+        <View style={styles.statsContainer}>
+          <Text style={styles.text}>
+            <MaterialCommunityIcons
+              name="chat-outline"
+              size={24}
+              color="black"
+              onPress={toggleSheet}
+            />
+            {item.comments.length}
+          </Text>
+          <Text style={styles.text}>
+            <FontAwesome
+              name={'heart'}
+              size={24}
+              color={'black'}
+            />
+            {item.likes.length}
+          </Text>
+        </View>
       </View>
-      <Text style={styles.text}>{item.reviewDescription}</Text>
-      <Text style={styles.text}>Reviewed: {item.createdAt}</Text>
-      <View style={styles.statsContainer}>
-        <Text style={styles.text}>
-          <MaterialCommunityIcons onPress={toggleSheet} name="chat-outline" size={24} color="black" />
-          {item.comments.length}
-        </Text>
-        <Text style={styles.text}>
-          <FontAwesome
-            name={'heart'}
-            size={24}
-            color={'black'}
-          />
-          {item.likes.length}
-        </Text>
-      </View>
-    </View>
-    <BottomSheet isOpen={isOpen}>
-      <CommentsList comments={comments}/>
-    </BottomSheet>
+
+      {/* Bottom Sheet with comments */}
+      <BottomSheet isOpen={isOpen}>
+        <Text>wewqewqeqewqe</Text> 
+        <Text>wewqewqeqewqe</Text> 
+        <Text>wewqewqeqewqe</Text> 
+        <Text>wewqewqeqewqe</Text> 
+      </BottomSheet>
     </SafeAreaView>
   );
 };
@@ -82,9 +90,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: 'gray',
-  },
-  scrollContainer: {
-    paddingBottom: 20,
   },
   cardContainer: {
     backgroundColor: 'white',
@@ -117,17 +122,12 @@ const styles = StyleSheet.create({
     color: '#333',
     marginBottom: 10,
   },
-  dateText: {
-    fontSize: 12,
-    color: '#777',
-    marginTop: 5,
-  },
   statsContainer: {
     flexDirection: 'row',
     gap: 10,
-    padding:20,
-    backgroundColor: "red",
-    width: "100%",
-    justifyContent: "center"
-  }
+    padding: 20,
+    backgroundColor: 'red',
+    width: '100%',
+    justifyContent: 'center',
+  },
 });

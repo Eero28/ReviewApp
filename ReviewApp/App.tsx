@@ -5,6 +5,7 @@ import MainNavigation from './Navigation/MainNavigation';
 import { AuthProvider } from './ContexApi';
 import * as Font from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -32,10 +33,12 @@ export default function App() {
   }
 
   return (
+    <GestureHandlerRootView style={{flex:1}}>
     <AuthProvider>
       <NavigationContainer>
         <MainNavigation />
       </NavigationContainer>
     </AuthProvider>
+    </GestureHandlerRootView>
   );
 }
