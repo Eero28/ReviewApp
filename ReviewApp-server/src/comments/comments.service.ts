@@ -18,7 +18,7 @@ export class CommentsService {
         private userRepository: Repository<User>
     ) { }
 
-    async create(create: CreateCommentDto): Promise<Comment> {
+    async createComment(create: CreateCommentDto): Promise<Comment> {
 
         const review = await this.reviewRepository.findOne({
             where: { id_review: create.id_review }

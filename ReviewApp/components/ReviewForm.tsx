@@ -41,6 +41,7 @@ const ReviewForm: React.FC<NavigationProps> = ({ navigation }) => {
         imageUrl: imageUrl,
         id_user: userInfo?.id_user
       };
+      console.log(reviewData)
       await axios.post(`${API_URL}/review`, reviewData);
       reset();
       setImageUrl(null);

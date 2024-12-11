@@ -25,26 +25,27 @@ Content-Type: application/json
 GET http://localhost:3000/review
 
 ### Get all reviews
-GET http://localhost:3000/review/all?category=beer
+GET http://localhost:3000/review/all?category=softdrink
 
 ### Get one dood reviews
-GET http://localhost:3000/review/user/1
+GET http://localhost:3000/review/user/2
 
 ### Get a single review by ID
-GET http://localhost:3000/review/1
+GET http://localhost:3000/review/6
 
 ###
-GET http://localhost:3000/users/4
+GET http://localhost:3000/users/1
 
-### Update a review
-PUT http://localhost:3000/review/
+### Update Review Request
+PUT http://localhost:3000/review
 Content-Type: application/json
 
 {
-    "reviewname": "Updated Review Name",
-    "reviewRating": 4,
-    "imageUrl": "http://example.com/new-image.jpg",
-    "userId": 8
+  "id_review": 3,
+  "id_user": 1,
+  "reviewname": "Updated revieww",
+  "reviewRating": 5,
+  "imageUrl": "http://image.url"
 }
 
 ### Delete a review
@@ -60,7 +61,7 @@ Content-Type: application/json
     "password": "E"
 }
 
-### Get with category
+### Get with category using id
 GET http://localhost:3000/review/users/1/reviews?category=softdrink
 
 

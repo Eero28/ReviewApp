@@ -1,0 +1,22 @@
+### like review
+POST http://localhost:3000/likes/like/review/5
+Content-Type: application/json
+
+{
+  "id_user": 3
+}
+
+### delete like from review
+DELETE http://localhost:3000/likes/unlike/review/5/user/3
+
+
+
+### users who liked review
+GET http://localhost:3000/likes/users/review/5
+Content-Type: application/json
+
+###
+GET http://localhost:3000/review
+
+###
+GET http://localhost:3000/likes/user/favorite/1

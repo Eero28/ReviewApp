@@ -3,53 +3,57 @@ import { ReviewService } from './review.service';
 import { Review } from './entities/review.entity';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { UpdateReviewDto } from './dto/update-review.dto';
 @Controller('review')
 export class ReviewController {
     constructor(private readonly reviewService: ReviewService) { }
 
     @Get()
-    async findAll(): Promise<Review[]> {
-        return await this.reviewService.findAll()
+    async findAllReviews(): Promise<any> {
+        return await this.reviewService.findAllReviews()
     }
 
     @Get('all')
-    async findAllWithCategory(@Query('category') category: string): Promise<Review[]>{
-        return await this.reviewService.findAllWithCategory(category)
+    async getReviewsByCategory(@Query('category') category: string): Promise<Review[]> {
+        return await this.reviewService.getReviewsByCategory(category)
     }
 
     @Get(':id')
-    async findOne(@Param('id') id_review: number): Promise<Review> {
-        return await this.reviewService.findOne(id_review)
+    async getReviewById(@Param('id') id_review: number): Promise<Review> {
+        return await this.reviewService.getReviewById(id_review)
     }
 
     @Get('user/:id_user')
-    async findAllByUserId(@Param('id_user') id_user: number): Promise<Review[]> {
-        return this.reviewService.findAllByUserId(id_user);
+    async getUserReviewsByCategory(@Param('id_user') id_user: number): Promise<Review[]> {
+        return this.reviewService.getUserReviewsByCategory(id_user);
     }
 
     @Get('users/:id_user/reviews')
     async findAllByUserIdWithCategory(
         @Param('id_user') id_user: number,
-        @Query('category') category?: string 
+        @Query('category') category?: string
     ): Promise<Review[]> {
         return this.reviewService.findAllByUserIdWithCategory(id_user, category);
     }
 
     @Delete(':id')
     @UseGuards(JwtAuthGuard)
-    async remove(@Param('id') id: number, @Request() req): Promise<void> {
-        return await this.reviewService.remove(id,req)
+    async deleteReview(@Param('id') id: number, @Request() req): Promise<void> {
+        return await this.reviewService.deleteReview(id, req)
     }
 
     @Put()
-    async update(@Param('id') id: number, updateReview: CreateReviewDto): Promise<Review> {
-        return await this.reviewService.update(id, updateReview)
+    async updateReview(
+        @Body('id_review') id_review: number,
+        @Body('id_user') id_user: number,
+        @Body() updateReview: UpdateReviewDto 
+    ): Promise<Review> {
+        return await this.reviewService.updateReview(id_review, updateReview, id_user);
     }
 
     @Post()
-    async create(@Body() create: CreateReviewDto): Promise<Review> {
-        console.log(create);
-        return await this.reviewService.create(create)
+    async createReview(@Body() create: CreateReviewDto): Promise<Review> {
+        return await this.reviewService.createReview(create)
     }
 
 }

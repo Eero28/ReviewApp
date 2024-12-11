@@ -1,10 +1,11 @@
+
 POST http://localhost:3000/comments
 Content-Type: application/json
 
 {
   "text": "This is a comment on the review eero.",
   "id_user": 1,
-  "id_review": 13
+  "id_review": 4
 }
 
 ###Login
@@ -17,7 +18,7 @@ Content-Type: application/json
 }
 
 ### get review comments
-GET http://localhost:3000/comments/review/13
+GET http://localhost:3000/comments/review/4
 
 ### delete
 DELETE http://localhost:3000/comments/2
