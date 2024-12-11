@@ -1,22 +1,50 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import Animated, { withSpring, useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import { View, StyleSheet, Text } from 'react-native';
+import Animated, {
+  withSpring,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+  Easing,
+} from 'react-native-reanimated';
+import { PanResponder } from 'react-native';
 
-const BottomSheet = ({ isOpen, children }) => {
-  const translateY = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateY: withSpring(isOpen ? 0 : 300) }],
-    };
+const BottomSheet = ({ isOpen, children, height = 300 }) => {
+  const translateY = useSharedValue(isOpen ? 0 : height);
+  const panResponder = PanResponder.create({
+    onStartShouldSetPanResponder: () => true,
+    onMoveShouldSetPanResponder: () => true,
+    onPanResponderMove: (e, gestureState) => {
+      if (gestureState.dy < 0) return;
+      translateY.value = gestureState.dy;
+    },
+    onPanResponderRelease: (e, gestureState) => {
+      if (gestureState.dy > 150) {
+        translateY.value = withTiming(height, {
+          duration: 200,
+          easing: Easing.ease,
+        });
+      } else {
+        translateY.value = withTiming(0, {
+          duration: 200,
+          easing: Easing.ease,
+        });
+      }
+    },
   });
 
-  const opacity = useAnimatedStyle(() => {
+  const animatedStyle = useAnimatedStyle(() => {
     return {
-      opacity: withTiming(isOpen ? 1 : 0, { duration: 300 }),
+      transform: [{ translateY: withSpring(translateY.value) }],
     };
   });
 
   return (
-    <Animated.View style={[styles.bottomSheet, translateY, opacity]}>
+    <Animated.View style={[styles.bottomSheet, animatedStyle]}>
+      <View
+        {...panResponder.panHandlers}
+        style={styles.handle}
+      />
       <View style={styles.content}>
         {children}
       </View>
@@ -34,11 +62,19 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
     padding: 20,
-    elevation: 5, 
-    shadowColor: '#000', 
+    elevation: 5,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: -5 },
     shadowOpacity: 0.2,
     shadowRadius: 5,
+  },
+  handle: {
+    height: 10,
+    width: 100,
+    backgroundColor: '#ccc',
+    borderRadius: 3,
+    alignSelf: 'center',
+    marginTop: 10,
   },
   content: {
     marginTop: 20,

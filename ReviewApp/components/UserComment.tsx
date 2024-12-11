@@ -6,7 +6,6 @@ type Props = {
 }
 
 const UserComment: FC<Props> = ({ item }) => {
-  console.log(item)
   return (
     <View style={styles.commentContainer}>
       <Text style={styles.commentUser}>{item.user.username}:</Text>

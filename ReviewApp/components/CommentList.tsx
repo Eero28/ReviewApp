@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View, FlatList } from 'react-native';
 import React, { FC } from 'react';
-import { Comment } from '../interfaces/comment';
+import { Comment } from '../interfaces/Comment';
+import UserComment from './UserComment';
 
 interface Comments {
   comments: Comment[];
@@ -8,19 +9,13 @@ interface Comments {
 
 const CommentsList: FC<Comments> = ({ comments }) => {
   return (
-    <View>
       <FlatList
         data={comments}
         renderItem={({ item }) => (
-          <View style={styles.commentContainer}>
-            <Text style={styles.commentUser}>{item.user.username}:</Text>
-            <Text style={styles.commentText}>{item.text}</Text>
-            <Text style={styles.dateText}>{new Date(item.createdAt).toLocaleDateString()}</Text>
-          </View>
+          <UserComment item={item}/>
         )}
         keyExtractor={(item) => item.id_comment.toString()}
       />
-    </View>
   );
 };
 

@@ -10,6 +10,8 @@ import UserComment from '../components/UserComment';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { FontAwesome } from '@expo/vector-icons';
 import { ReviewItemIf } from '../interfaces/ReviewItemIf';
+import BottomSheet from '../components/BottomSheet';
+import CommentsList from '../components/CommentList';
 interface ReviewDetailsProps {
   route: any;
 }
@@ -17,6 +19,13 @@ interface ReviewDetailsProps {
 const ReviewDetails: FC<ReviewDetailsProps> = ({ route }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const { item } : {item: ReviewItemIf}  = route.params;
+
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleSheet = () => {
+    console.log("bottom")
+    setIsOpen((prev) => !prev); 
+  };
 
   const getReviewComments = async () => {
     try {
@@ -32,8 +41,10 @@ const ReviewDetails: FC<ReviewDetailsProps> = ({ route }) => {
     getReviewComments();
   }, [item.id_review]);
 
-  const renderHeader = () => (
-    <View style={styles.cardContainer}>
+  
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.cardContainer}>
       <Text style={styles.title}>{item.reviewname}</Text>
       <Image style={styles.image} source={{ uri: item.imageUrl }} />
       <View style={styles.ratingContainer}>
@@ -44,7 +55,7 @@ const ReviewDetails: FC<ReviewDetailsProps> = ({ route }) => {
       <Text style={styles.text}>Reviewed: {item.createdAt}</Text>
       <View style={styles.statsContainer}>
         <Text style={styles.text}>
-          <MaterialCommunityIcons name="chat-outline" size={24} color="black" />
+          <MaterialCommunityIcons onPress={toggleSheet} name="chat-outline" size={24} color="black" />
           {item.comments.length}
         </Text>
         <Text style={styles.text}>
@@ -57,19 +68,9 @@ const ReviewDetails: FC<ReviewDetailsProps> = ({ route }) => {
         </Text>
       </View>
     </View>
-  );
-
-  return (
-    <SafeAreaView style={styles.container}>
-      <FlatList
-        data={comments}
-        ListHeaderComponent={renderHeader}
-        renderItem={({ item }) => (
-          <UserComment item={item} />
-        )}
-        keyExtractor={(item) => item.id_comment.toString()}
-        contentContainerStyle={styles.scrollContainer}
-      />
+    <BottomSheet isOpen={isOpen}>
+      <CommentsList comments={comments}/>
+    </BottomSheet>
     </SafeAreaView>
   );
 };
@@ -122,9 +123,11 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   statsContainer: {
-    flex: 1,
     flexDirection: 'row',
     gap: 10,
-    padding:20
+    padding:20,
+    backgroundColor: "red",
+    width: "100%",
+    justifyContent: "center"
   }
 });

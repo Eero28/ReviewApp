@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
+import 'react-native-gesture-handler';
 import MainNavigation from './Navigation/MainNavigation';
 import { AuthProvider } from './ContexApi';
 import * as Font from 'expo-font';
