@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
 import { useAuth } from "../ContexApi";
 import { useNavigation } from "@react-navigation/native";
 import BottomSheet from "../components/BottomSheet";
-
+import { screenHeight } from "../helpers/dimensions";
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const { handleLogout, userInfo } = useAuth();
@@ -11,7 +11,7 @@ const ProfileScreen = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleSheet = () => {
-    setIsOpen((prev) => !prev); 
+    setIsOpen(!isOpen); 
   };
 
   const confirmLogout = () => {
@@ -36,7 +36,7 @@ const ProfileScreen = () => {
         <Text style={styles.logoutButtonText}>Logout</Text>
       </TouchableOpacity>
 
-      <BottomSheet isOpen={isOpen} >
+      <BottomSheet snapPoints={[0,screenHeight * 0.50]} onClose={toggleSheet} isOpen={isOpen} >
         <View style={styles.sheetContent}>
           <Text style={styles.sheetTitle}>Are you sure you want to logout?</Text>
           <Text style={styles.sheetText}>

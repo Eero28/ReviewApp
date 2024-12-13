@@ -9,36 +9,30 @@ interface Comments {
 
 const CommentsList: FC<Comments> = ({ comments }) => {
   return (
-      <FlatList
-        data={comments}
-        renderItem={({ item }) => (
-          <UserComment item={item}/>
-        )}
-        keyExtractor={(item) => item.id_comment.toString()}
-      />
+    <FlatList
+      data={comments}
+      renderItem={({ item }) => <UserComment item={item} />}
+      keyExtractor={(item) => item.id_comment.toString()}
+      nestedScrollEnabled={true}  // Ensures proper nesting behavior
+      keyboardShouldPersistTaps="handled"
+      contentContainerStyle={styles.listContainer}
+    />
   );
 };
 
 export default CommentsList;
 
 const styles = StyleSheet.create({
-  commentContainer: {
-    marginBottom: 10,
-    padding: 10,
-    backgroundColor: '#f9f9f9',
-    borderRadius: 8,
+  listContainer: {
+    paddingBottom: 40,
   },
-  commentUser: {
-    fontWeight: 'bold',
-    fontSize: 14,
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
   },
-  commentText: {
+  emptyText: {
     fontSize: 16,
-    marginTop: 5,
-  },
-  dateText: {
-    fontSize: 12,
-    color: '#777',
-    marginTop: 5,
+    color: '#aaa',
   },
 });

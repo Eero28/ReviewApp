@@ -61,12 +61,27 @@ export class ReviewService {
             text: comment.text,
             user: mapUser(comment.user),
         });
+        //format date
+        const dateFormat = (date: Date) =>{
+            const formattedDate = new Intl.DateTimeFormat("en-US", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+                hour: "numeric",
+                minute: "numeric",
+                hour12: true,
+                timeZone: "UTC"
+              }).format(new Date(date));
+            return formattedDate
+        }
 
         return reviews.map(review => ({
             id_review: review.id_review,
             reviewname: review.reviewname,
             reviewRating: review.reviewRating,
+            reviewDescription: review.reviewDescription,
             imageUrl: review.imageUrl,
+            createdAt: dateFormat(review.createdAt),
             category: review.category,
             user: mapUser(review.user),
             likes: review.likes?.map(mapLike),

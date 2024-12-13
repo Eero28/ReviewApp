@@ -1,24 +1,27 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, PanResponder, Dimensions } from 'react-native';
+import { View, StyleSheet, PanResponder } from 'react-native';
 import Animated, {
   useSharedValue,
   withTiming,
   useAnimatedStyle,
 } from 'react-native-reanimated';
+import {screenHeight} from '../helpers/dimensions'
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-const { height: screenHeight } = Dimensions.get('window');
 
 interface BottomSheetProps {
   isOpen: boolean;
-  children: React.ReactNode;
+  onClose: () => void | undefined;
+  children?: React.ReactNode;
+  snapPoints?: number[];
 }
 
-const snapPoints = [0, screenHeight * 0.25, screenHeight * 0.5, screenHeight * 0.75, screenHeight];
 
-const BottomSheet: React.FC<BottomSheetProps> = ({ isOpen, children }) => {
+
+const BottomSheet: React.FC<BottomSheetProps> = ({ isOpen, children, onClose, snapPoints }) => {
+  const activeSnapPoints = snapPoints || [0, screenHeight * 0.5, screenHeight];
   const translateY = useSharedValue(screenHeight);
   const initialTranslateY = useSharedValue(screenHeight); // To track the initial position during the drag
-
   useEffect(() => {
     translateY.value = withTiming(isOpen ? 0 : screenHeight, {
       duration: 300,
@@ -48,16 +51,20 @@ const BottomSheet: React.FC<BottomSheetProps> = ({ isOpen, children }) => {
     onPanResponderRelease: (e, gestureState) => {
       setDragging(false);
       // Find the nearest snap point
-      const nearestSnapPoint = snapPoints.reduce((prev, curr) => {
+      const nearestSnapPoint = activeSnapPoints.reduce((prev, curr) => {
         return Math.abs(curr - translateY.value) < Math.abs(prev - translateY.value) ? curr : prev;
       });
-
-      // Log the snap point
-      console.log('Snapping to:', nearestSnapPoint);
-
+     
       translateY.value = withTiming(nearestSnapPoint, {
         duration: 300,
       });
+
+
+      // calc biggest number of array and close if it is the nearestSnapPoint
+      if(nearestSnapPoint === Math.max(...activeSnapPoints)){
+        onClose()
+      }
+
     },
     onPanResponderTerminate: () => {
       setDragging(false);
@@ -72,7 +79,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({ isOpen, children }) => {
   return (
     <Animated.View style={[styles.bottomSheet, animatedStyle]}>
       <View {...panResponder.panHandlers} style={styles.handle} />
-      <View style={styles.content}>{children}</View>
+      <SafeAreaView style={styles.content}>{children}</SafeAreaView>
     </Animated.View>
   );
 };
@@ -84,21 +91,22 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0,
     height: screenHeight,
-    backgroundColor: 'white',
+    backgroundColor: 'gray',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
   },
   handle: {
-    height: 10,
-    width: 60,
+    height: 15, 
+    width: 100, 
     backgroundColor: '#ccc',
-    borderRadius: 5,
+    borderRadius: 7.5, 
     alignSelf: 'center',
-    marginVertical: 10,
+    marginVertical: 15, 
   },
   content: {
     flex: 1,
     padding: 20,
+    backgroundColor:"red"
   },
 });
 

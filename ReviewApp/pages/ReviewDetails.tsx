@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { StyleSheet, Text, View, Image, Pressable } from 'react-native';
 import React, { FC, useEffect, useState } from 'react';
 import StarRating from 'react-native-star-rating-widget';
 import axios from 'axios';
@@ -11,6 +11,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import { ReviewItemIf } from '../interfaces/ReviewItemIf';
 import BottomSheet from '../components/BottomSheet';
 import CommentsList from '../components/CommentList';
+import { screenHeight } from '../helpers/dimensions';
 
 interface ReviewDetailsProps {
   route: any;
@@ -19,12 +20,12 @@ interface ReviewDetailsProps {
 const ReviewDetails: FC<ReviewDetailsProps> = ({ route }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const { item }: { item: ReviewItemIf } = route.params;
-
-  const [isOpen, setIsOpen] = useState(false); // State to control bottom sheet visibility
-
+  console.log(item)
+  //BottomSheet
+  const [isOpen, setIsOpen] = useState(false); 
   const toggleSheet = () => {
     console.log("Toggling sheet");
-    setIsOpen(prev => !prev); // Toggle the bottom sheet
+    setIsOpen(!isOpen);
   };
 
   const getReviewComments = async () => {
@@ -37,7 +38,7 @@ const ReviewDetails: FC<ReviewDetailsProps> = ({ route }) => {
   };
 
   useEffect(() => {
-    getReviewComments(); // Fetch comments when the component mounts
+    getReviewComments(); 
   }, [item.id_review]);
 
   return (
@@ -52,34 +53,33 @@ const ReviewDetails: FC<ReviewDetailsProps> = ({ route }) => {
         <Text style={styles.text}>{item.reviewDescription}</Text>
         <Text style={styles.text}>Reviewed: {item.createdAt}</Text>
         <View style={styles.statsContainer}>
-          <Text style={styles.text}>
-            <MaterialCommunityIcons
-              name="chat-outline"
-              size={24}
-              color="black"
-              onPress={toggleSheet}
-            />
-            {item.comments.length}
-          </Text>
-          <Text style={styles.text}>
-            <FontAwesome
-              name={'heart'}
-              size={24}
-              color={'black'}
-            />
-            {item.likes.length}
-          </Text>
+          <Pressable onPress={toggleSheet} style={styles.pressable}>
+            <Text style={styles.text}>
+              <MaterialCommunityIcons
+                name="chat-outline"
+                size={24}
+                color="black"
+              />
+              {item.comments.length}
+            </Text>
+          </Pressable>
+          <Pressable style={styles.pressable}>
+            <Text style={styles.text}>
+              <FontAwesome
+                name="heart"
+                size={24}
+                color="black"
+              />
+              {item.likes.length}
+            </Text>
+          </Pressable>
         </View>
       </View>
-
-      {/* Bottom Sheet with comments */}
-      <BottomSheet isOpen={isOpen}>
-        <Text>wewqewqeqewqe</Text> 
-        <Text>wewqewqeqewqe</Text> 
-        <Text>wewqewqeqewqe</Text> 
-        <Text>wewqewqeqewqe</Text> 
-      </BottomSheet>
+      {isOpen && <BottomSheet snapPoints={[0, screenHeight * 0.60, screenHeight * 0.50, screenHeight * 0.90]} onClose={toggleSheet} isOpen={isOpen}>
+        <CommentsList comments={comments}/>
+      </BottomSheet>}
     </SafeAreaView>
+    
   );
 };
 
@@ -89,45 +89,65 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: 'gray',
+    backgroundColor: '#f0f4f8', 
   },
   cardContainer: {
     backgroundColor: 'white',
-    padding: 10,
-    borderRadius: 15,
+    padding: 15,
+    borderRadius: 20,
     alignItems: 'center',
     marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 8, 
   },
   title: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: 'bold',
     marginBottom: 10,
+    color: '#0f3c85', 
   },
   image: {
-    height: 300,
-    width: 300,
-    borderRadius: 10,
+    height: 250,
+    width: '100%',
+    borderRadius: 15,
     marginVertical: 10,
+    resizeMode: 'cover',
   },
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 10,
   },
   ratingText: {
-    paddingLeft: 5,
+    paddingLeft: 8,
     fontSize: 16,
+    color: '#444', 
   },
   text: {
     fontSize: 16,
-    color: '#333',
-    marginBottom: 10,
+    color: '#555',
+    marginBottom: 8,
   },
   statsContainer: {
     flexDirection: 'row',
+    paddingVertical: 15,
+    paddingHorizontal: 10,
     gap: 10,
-    padding: 20,
-    backgroundColor: 'red',
+    backgroundColor: '#ffffff',
+    borderRadius: 15,
     width: '100%',
     justifyContent: 'center',
   },
+  pressable: {
+    padding: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+    backgroundColor: '#eef2f7', 
+  },
 });
+
