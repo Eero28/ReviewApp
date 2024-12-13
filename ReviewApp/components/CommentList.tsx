@@ -8,14 +8,22 @@ interface Comments {
 }
 
 const CommentsList: FC<Comments> = ({ comments }) => {
+  const empyList = () =>{
+    return(
+      <View>
+        <Text>No Comments yet. Be The first one to comment!</Text>
+      </View>
+    )
+  }
   return (
     <FlatList
       data={comments}
       renderItem={({ item }) => <UserComment item={item} />}
       keyExtractor={(item) => item.id_comment.toString()}
-      nestedScrollEnabled={true}  // Ensures proper nesting behavior
+      nestedScrollEnabled={true} 
       keyboardShouldPersistTaps="handled"
       contentContainerStyle={styles.listContainer}
+      ListEmptyComponent={empyList}
     />
   );
 };

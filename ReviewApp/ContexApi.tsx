@@ -37,7 +37,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const checkUserSession = async () => {
             try {
                 const storedUserInfo = await AsyncStorage.getItem('userInfo');
-                console.log(storedUserInfo)
                 if (storedUserInfo) {
                     const parseUserInfo = JSON.parse(storedUserInfo)
                     setUserInfo(parseUserInfo);
