@@ -69,11 +69,11 @@ const ReviewDetails: FC<ReviewDetailsProps> = ({ route }) => {
       </ScrollView>
 
       <BottomSheet
-          isOpen={isOpen}
-          snapTo={'50%'}
-          backgroundColor="gray"
-          onClose={toggleSheet}
-        />
+        isOpen={isOpen}
+        snapPoints={['100%','50%']} 
+        backgroundColor="gray"
+        onClose={toggleSheet} 
+      />
     </SafeAreaView>
   );
 };
