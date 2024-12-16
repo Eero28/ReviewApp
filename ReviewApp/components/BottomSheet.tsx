@@ -1,117 +1,101 @@
-import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, PanResponder, ScrollView } from 'react-native';
-import Animated, {
-  useSharedValue,
-  withTiming,
-  useAnimatedStyle,
-} from 'react-native-reanimated';
-import { screenHeight } from '../helpers/dimensions';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React, { FC } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { screenHeight } from '../helpers/dimensions'; // Use screen height
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, runOnJS } from 'react-native-reanimated';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 interface BottomSheetProps {
-  isOpen: boolean;
-  onClose: () => void | undefined;
-  children?: React.ReactNode;
-  snapPoints?: number[];
+  isOpen: boolean; 
+  snapTo?: string;
+  backgroundColor: string; 
+  onClose: () => void;
 }
 
-const BottomSheet: React.FC<BottomSheetProps> = ({ isOpen, children, onClose, snapPoints }) => {
-  // include 0 to props = top
-  const activeSnapPoints = snapPoints || [0, screenHeight * 0.5, screenHeight];
-  const translateY = useSharedValue(screenHeight);
-  const initialTranslateY = useSharedValue(screenHeight); // To track the initial position during the drag
-  const opacity = useSharedValue(0); // Initial opacity for dimmed background
-  useEffect(() => {
-    translateY.value = withTiming(isOpen ? 0 : screenHeight, {
-      duration: 300,
-    });
-    opacity.value = withTiming(isOpen ? 0.5 : 0, { duration: 300 });
+const BottomSheet: FC<BottomSheetProps> = ({ isOpen, snapTo, backgroundColor, onClose }) => {
+  // Set the percentage for the open position. Default to 50% if not provided
+  const percentage = snapTo ? parseFloat(snapTo.replace('%', '')) / 100 : 0.5;
+  
+  // Calculate the open height based on the screen height and snap position
+  const openHeight = screenHeight - screenHeight * percentage;
+  const closeHeight = screenHeight;
+  
+  // Shared value for animation (starts with closed position off-screen)
+  const translateY = useSharedValue(closeHeight); // Set starting position to be off-screen
+  const context = useSharedValue(0);
+
+  React.useEffect(() => {
+    translateY.value = withSpring(isOpen ? openHeight : closeHeight, { damping: 25, stiffness: 200 });
   }, [isOpen]);
 
-  const [dragging, setDragging] = useState(false);
-
-  const panResponder = PanResponder.create({
-    onStartShouldSetPanResponder: () => true,
-    onPanResponderGrant: () => {
-      setDragging(true);
-      initialTranslateY.value = translateY.value;
-    },
-    onPanResponderMove: (e, gestureState) => {
-      if (dragging) {
-        const newTranslateY = initialTranslateY.value + gestureState.dy;
-        translateY.value = Math.max(Math.min(newTranslateY, screenHeight), 0);
+  // Pan gesture handler
+  const pan = Gesture.Pan()
+    .onBegin(() => {
+      context.value = translateY.value;
+    })
+    .onUpdate((event) => {
+      if (event.translationY < 0) {
+        translateY.value = withSpring(openHeight, {
+          damping: 100,
+          stiffness: 400,
+        });
+      } else {
+        translateY.value = withSpring(context.value + event.translationY, {
+          damping: 100,
+          stiffness: 400,
+        }); // Update the position during the drag
       }
-    },
-    onPanResponderRelease: () => {
-      setDragging(false);
-      const nearestSnapPoint = activeSnapPoints.reduce((prev, curr) => {
-        return Math.abs(curr - translateY.value) < Math.abs(prev - translateY.value) ? curr : prev;
-      });
-      translateY.value = withTiming(nearestSnapPoint, {
-        duration: 300,
-      });
-
-      if (nearestSnapPoint === Math.max(...activeSnapPoints)) {
-        onClose();
+    })
+    .onEnd(() => {
+      if (translateY.value > openHeight + 50) {
+        translateY.value = withSpring(closeHeight, {
+          damping: 100,
+          stiffness: 400,
+        });
+        runOnJS(onClose)(); 
+      } else {
+        translateY.value = withSpring(openHeight, {
+          damping: 100,
+          stiffness: 400,
+        });
       }
-    },
-    onPanResponderTerminate: () => {
-      setDragging(false);
-    },
+    });
+
+  // Animated style for applying the translation
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateY: translateY.value }],
+    };
   });
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }],
-  }));
-
-  const dimmedBackgroundStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-  }));
-
   return (
-    <>
-      <Animated.View
-        style={[styles.dimmedBackground, dimmedBackgroundStyle]}
-        onTouchEnd={onClose} // Close when tapping outside
-      />
-      <Animated.View style={[styles.bottomSheet, animatedStyle]}>
-        <View {...panResponder.panHandlers} style={styles.handle} />
-        <SafeAreaView style={styles.content}>{children}</SafeAreaView>
+    <GestureDetector gesture={pan}>
+      <Animated.View style={[styles.container, animatedStyle, { backgroundColor: backgroundColor }]}>
+        <View style={styles.lineContainer}>
+          <View style={styles.line}></View>
+        </View>
       </Animated.View>
-    </>
+    </GestureDetector>
   );
 };
 
 const styles = StyleSheet.create({
-  bottomSheet: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    height: screenHeight,
-    backgroundColor: 'white',
+  container: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'gray',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
+    height: screenHeight,
+    
   },
-  dimmedBackground: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'black',
+  lineContainer: {
+    alignItems: 'center',
+    marginVertical: 10,
   },
-  handle: {
-    height: 15,
-    width: 100,
-    backgroundColor: '#ccc',
-    borderRadius: 7.5,
-    alignSelf: 'center',
-    marginVertical: 15,
-  },
-  content: {
-    flex: 1,
-    padding: 20,
+  line: {
+    width: 50,
+    height: 4,
+    backgroundColor: 'red',
+    borderRadius: 20,
   },
 });
 

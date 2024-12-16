@@ -10,8 +10,8 @@ interface Comments {
 const CommentsList: FC<Comments> = ({ comments }) => {
   const empyList = () =>{
     return(
-      <View>
-        <Text>No Comments yet. Be The first one to comment!</Text>
+      <View style={styles.emptyContainer}>
+        <Text style={styles.emptyText}>No Comments yet. Be The first one to comment! :)</Text>
       </View>
     )
   }
@@ -35,6 +35,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   emptyContainer: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
@@ -42,5 +43,6 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
     color: '#aaa',
+    fontFamily: 'poppins',
   },
 });
