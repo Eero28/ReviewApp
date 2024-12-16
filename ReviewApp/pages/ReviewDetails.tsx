@@ -1,11 +1,11 @@
 import React, { FC, useEffect, useState } from 'react';
-import { View, Text, Image, Pressable, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import StarRating from 'react-native-star-rating-widget';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { FontAwesome } from '@expo/vector-icons';
 import { screenHeight } from '../helpers/dimensions';
 import BottomSheet from '../components/BottomSheet';
-import CommentsList from '../components/CommentList';
+import UserComment from '../components/UserComment'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Comment } from '../interfaces/Comment';
 import axios from 'axios';
@@ -20,12 +20,12 @@ const ReviewDetails: FC<ReviewDetailsProps> = ({ route }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const { item } = route.params;
 
+  //bottomSheet
   const [isOpen, setIsOpen] = useState(false);
-
   const toggleSheet = () => {
     setIsOpen(!isOpen);
-    console.log('Toggling BottomSheet:', !isOpen);
   }
+
   const getReviewComments = async () => {
     try {
       const response = await axios.get(`${API_URL}/comments/review/${item.id_review}`);
@@ -53,27 +53,27 @@ const ReviewDetails: FC<ReviewDetailsProps> = ({ route }) => {
         <Text style={styles.text}>{item.reviewDescription}</Text>
         <Text style={styles.text}>Reviewed: {item.createdAt}</Text>
         <View style={styles.statsContainer}>
-          <Pressable onPress={toggleSheet} style={styles.pressable}>
+          <TouchableOpacity onPress={toggleSheet} style={styles.pressable}>
             <Text style={styles.text}>
               <MaterialCommunityIcons name="chat-outline" size={24} color="black" />
               {item.comments.length}
             </Text>
-          </Pressable>
-          <Pressable style={styles.pressable}>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.pressable}>
             <Text style={styles.text}>
               <FontAwesome name="heart" size={24} color="black" />
               {item.likes.length}
             </Text>
-          </Pressable>
+          </TouchableOpacity>
         </View>
       </ScrollView>
-        <BottomSheet
-          snapPoints={[screenHeight * 0.10, screenHeight * 0.50, screenHeight * 0.90]}
-          onClose={toggleSheet}
+
+      <BottomSheet
           isOpen={isOpen}
-        >
-          <CommentsList comments={comments} />
-        </BottomSheet>
+          snapTo={'50%'}
+          backgroundColor="gray"
+          onClose={toggleSheet}
+        />
     </SafeAreaView>
   );
 };
@@ -90,11 +90,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 20,
     marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 8,
   },
   title: {
     fontSize: 22,
@@ -125,13 +120,13 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   statsContainer: {
+    flex: 1,
     flexDirection: 'row',
     paddingVertical: 15,
     paddingHorizontal: 10,
     gap: 10,
     backgroundColor: '#ffffff',
     borderRadius: 15,
-    width: '100%',
     justifyContent: 'center',
   },
   pressable: {
