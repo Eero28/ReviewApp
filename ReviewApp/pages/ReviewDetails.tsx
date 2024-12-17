@@ -67,13 +67,23 @@ const ReviewDetails: FC<ReviewDetailsProps> = ({ route }) => {
           </TouchableOpacity>
         </View>
       </ScrollView>
-
+      
       <BottomSheet
-        isOpen={isOpen}
-        snapPoints={['100%','50%']} 
-        backgroundColor="gray"
-        onClose={toggleSheet} 
-      />
+      isOpen={isOpen}
+      snapPoints={['80%','50%','0%']} 
+      backgroundColor="gray"
+      onClose={toggleSheet}
+      >
+      {comments.length > 0 ? (
+      comments.map((comment, index) => (
+        <UserComment key={index} item={comment} />
+      ))
+    ) : (
+      <Text style={{ textAlign: 'center', marginVertical: 20 }}>
+        No comments yet.
+      </Text>
+    )}
+      </BottomSheet>
     </SafeAreaView>
   );
 };
