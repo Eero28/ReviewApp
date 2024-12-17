@@ -1,10 +1,11 @@
-import React, { FC } from 'react';
+import React, { FC, useEffect } from 'react';
 import { ScrollView, StyleSheet, View, Text } from 'react-native';
 import { screenHeight } from '../helpers/dimensions'; // Use screen height
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
+  withTiming,
   runOnJS,
   useAnimatedScrollHandler,
 } from 'react-native-reanimated';
@@ -15,18 +16,22 @@ import {
 
 interface BottomSheetProps {
   isOpen: boolean;
-  snapPoints: string[]; // Array of snap points (e.g. ['0%', '50%', '100%'])
+  snapPoints: string[]; 
   backgroundColor: string;
+  handleColor?: string;
   onClose: () => void;
   children?: React.ReactNode;
+  handleTitle?: string;
 }
 
-const BottomSheet: FC<BottomSheetProps> = ({
+const BottomSheetScrollView: FC<BottomSheetProps> = ({
   isOpen,
   snapPoints,
   backgroundColor,
+  handleColor = 'gray',
   onClose,
   children,
+  handleTitle = ""
 }) => {
   const snapPositions = snapPoints.map((point) => parseFloat(point.replace('%', '')) / 100);
   const closeHeight = screenHeight;
@@ -36,7 +41,7 @@ const BottomSheet: FC<BottomSheetProps> = ({
   const scrollBegin = useSharedValue(0);
   const scrollY = useSharedValue(0);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const targetHeight = isOpen
       ? screenHeight - screenHeight * snapPositions[0]
       : closeHeight;
@@ -51,24 +56,25 @@ const BottomSheet: FC<BottomSheetProps> = ({
     })
     .onUpdate((event) => {
       const newTranslateY = context.value + event.translationY;
-      translateY.value = Math.max(newTranslateY, 0); // Clamp to 0 to avoid going out of bounds
+      
+      translateY.value = Math.max(newTranslateY, 0);
     })
     .onEnd(() => {
-      // Calculate the closest snap point based on the final translation
+      // Adjust responsiveness for fast drags by using `withTiming` instead of `withSpring`
       const closestSnap = snapPositions.reduce((prev, curr) => {
         const prevDistance = Math.abs(translateY.value - (screenHeight - screenHeight * prev));
         const currDistance = Math.abs(translateY.value - (screenHeight - screenHeight * curr));
         return currDistance < prevDistance ? curr : prev;
       });
 
-      translateY.value = withSpring(screenHeight - screenHeight * closestSnap, {
-        damping: 100,
-        stiffness: 400,
+      translateY.value = withTiming(screenHeight - screenHeight * closestSnap, {
+        duration: 200, 
+        easing: (t) => t, 
       });
 
       const lowestPosition = Math.min(...snapPositions);
       if (closestSnap === lowestPosition) {
-        runOnJS(onClose)(); // Close the bottom sheet if the lowest snap point is reached
+        runOnJS(onClose)(); 
       }
     });
 
@@ -102,15 +108,13 @@ const BottomSheet: FC<BottomSheetProps> = ({
           return currDistance < prevDistance ? curr : prev;
         });
 
-        translateY.value = withSpring(screenHeight - screenHeight * closestSnap, {
-          damping: 100,
-          stiffness: 400,
+        translateY.value = withTiming(screenHeight - screenHeight * closestSnap, {
+          duration: 200,
+          easing: (t) => t, 
         });
         const lowestPosition = Math.min(...snapPositions);
-        console.log(lowestPosition)
-        console.log("closestSnap",closestSnap)
         if (closestSnap === lowestPosition) {
-          runOnJS(onClose)(); // Close the bottom sheet if the lowest snap point is reached
+          runOnJS(onClose)(); 
         }
       }
     });
@@ -127,10 +131,9 @@ const BottomSheet: FC<BottomSheetProps> = ({
   return (
     <GestureDetector gesture={pan}>
       <Animated.View style={[styles.container, animatedStyle, { backgroundColor }]}>
-
         <View style={styles.lineContainer}>
-          <View style={styles.line} />
-          <Text style={styles.text}>Comments</Text>
+          <View style={[styles.line,{backgroundColor: handleColor}]} />
+          <Text style={styles.text}>{handleTitle}</Text>
         </View>
         <GestureDetector
           gesture={Gesture.Simultaneous(panScroll, scrollViewGesture)}
@@ -139,7 +142,7 @@ const BottomSheet: FC<BottomSheetProps> = ({
             scrollEventThrottle={16}
             bounces={false}
             onScroll={onScroll}
-            contentContainerStyle={styles.scrollContent} // Apply the scroll content style here
+            contentContainerStyle={styles.scrollContent} 
           >
             {children}
           </Animated.ScrollView>
@@ -152,7 +155,6 @@ const BottomSheet: FC<BottomSheetProps> = ({
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'gray',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     height: screenHeight,
@@ -164,15 +166,16 @@ const styles = StyleSheet.create({
   line: {
     width: 50,
     height: 6,
-    backgroundColor: 'red',
     borderRadius: 20,
   },
-  scrollContent:{
-    paddingBottom: 40
+  scrollContent: {
+    paddingBottom: 65,
   },
-  text:{
-    padding:10
-  }
+  text: {
+    padding: 10,
+    fontFamily: 'poppins',
+    color: 'whitesmoke'
+  },
 });
 
-export default BottomSheet;
+export default BottomSheetScrollView;

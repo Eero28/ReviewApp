@@ -4,13 +4,13 @@ import StarRating from 'react-native-star-rating-widget';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { FontAwesome } from '@expo/vector-icons';
 import { screenHeight } from '../helpers/dimensions';
-import BottomSheet from '../components/BottomSheet';
 import UserComment from '../components/UserComment'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Comment } from '../interfaces/Comment';
 import axios from 'axios';
 //@ts-ignore
 import { API_URL } from '@env';
+import BottomSheetFlatList from '../components/BottomSheetFlatlist';
 
 interface ReviewDetailsProps {
   route: any;
@@ -41,6 +41,13 @@ const ReviewDetails: FC<ReviewDetailsProps> = ({ route }) => {
     getReviewComments();
   }, [item.id_review]);
 
+
+  const EmptyList = () => (
+    <View style={styles.emptyListContainer}>
+      <Text style={styles.emptyListText}>No Comments yet. Be the first to comment! 😊</Text>
+    </View>
+  );
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.cardContainer}>
@@ -67,23 +74,16 @@ const ReviewDetails: FC<ReviewDetailsProps> = ({ route }) => {
           </TouchableOpacity>
         </View>
       </ScrollView>
-      
-      <BottomSheet
-      isOpen={isOpen}
-      snapPoints={['80%','50%','0%']} 
-      backgroundColor="gray"
-      onClose={toggleSheet}
-      >
-      {comments.length > 0 ? (
-      comments.map((comment, index) => (
-        <UserComment key={index} item={comment} />
-      ))
-    ) : (
-      <Text style={{ textAlign: 'center', marginVertical: 20 }}>
-        No comments yet.
-      </Text>
-    )}
-      </BottomSheet>
+      <BottomSheetFlatList
+        renderItem={({ item }) => <UserComment item={item} />}
+        data={comments}
+        ListEmptyComponent={EmptyList}
+        onClose={toggleSheet}
+        snapPoints={['100%','30%','20%']}
+        backgroundColor="#121314"
+        isOpen={isOpen}
+        handleTitle='Comments'
+      />
     </SafeAreaView>
   );
 };
@@ -146,6 +146,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 10,
     backgroundColor: '#eef2f7',
+  },
+  emptyListContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  emptyListText: {
+    fontSize: 16,
+    color: '#888',
   },
 });
 

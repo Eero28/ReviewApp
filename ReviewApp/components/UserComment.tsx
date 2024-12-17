@@ -21,10 +21,10 @@ const styles = StyleSheet.create({
   commentContainer: {
     marginBottom: 10,
     padding: 10,
-    backgroundColor: '#f9f9f9', // Ensure visibility
+    backgroundColor: '#f9f9f9', 
     borderRadius: 8,
-    borderWidth: 1, // Temporary border for debugging
-    borderColor: '#ccc', // Temporary border for debugging
+    flex:1
+  
   },
   commentUser: {
     fontWeight: 'bold',

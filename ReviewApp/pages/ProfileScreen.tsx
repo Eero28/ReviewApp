@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
 import { useAuth } from "../ContexApi";
 import { useNavigation } from "@react-navigation/native";
-import BottomSheet from "../components/BottomSheet";
-import { screenHeight } from "../helpers/dimensions";
+import BottomSheetScrollView from "../components/BottomSheetScrollView";
+
+
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const { handleLogout, userInfo } = useAuth();
@@ -36,7 +37,12 @@ const ProfileScreen = () => {
         <Text style={styles.logoutButtonText}>Logout</Text>
       </TouchableOpacity>
 
-      <BottomSheet snapPoints={[0,screenHeight * 0.50]} onClose={toggleSheet} isOpen={isOpen} >
+      <BottomSheetScrollView
+      isOpen={isOpen}
+      backgroundColor="#111213"
+      onClose={toggleSheet}
+      snapPoints={['40%','30%']}
+      >
         <View style={styles.sheetContent}>
           <Text style={styles.sheetTitle}>Are you sure you want to logout?</Text>
           <Text style={styles.sheetText}>
@@ -57,7 +63,7 @@ const ProfileScreen = () => {
             </TouchableOpacity>
           </View>
         </View>
-      </BottomSheet>
+        </BottomSheetScrollView>
     </View>
   );
 };
