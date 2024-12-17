@@ -7,11 +7,16 @@ const Stack = createStackNavigator();
 
 const MainNavigation = () => {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={{
+      headerStyle: {
+        backgroundColor: '#003366'
+      },
+      headerTintColor: '#ffffff'
+    }}>
       <Stack.Screen
         name="MainApp"
-        component={DrawerNavigator} 
-        options={{ headerShown: false }} 
+        component={DrawerNavigator}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="ReviewDetails"
