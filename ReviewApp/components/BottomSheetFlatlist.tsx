@@ -1,5 +1,5 @@
-import React, { FC, useEffect } from 'react';
-import { ScrollView, StyleSheet, View, Text } from 'react-native';
+import React, { FC, useEffect, useState, useRef } from 'react';
+import { StyleSheet, View, Text, TextInput} from 'react-native';
 import { screenHeight } from '../helpers/dimensions'; // Use screen height
 import Animated, {
   useSharedValue,
@@ -13,11 +13,10 @@ import {
   Gesture,
   GestureDetector,
 } from 'react-native-gesture-handler';
-import { Comment } from '../interfaces/Comment';
 
 interface BottomSheetProps {
   isOpen: boolean;
-  snapPoints: string[]; 
+  snapPoints: string[];
   backgroundColor: string;
   handleColor?: string;
   onClose: () => void;
@@ -25,6 +24,9 @@ interface BottomSheetProps {
   renderItem: any;
   ListEmptyComponent: any;
   handleTitle?: string;
+  ListHeaderComponent?: any;
+  ListFooterComponent?: any;
+  commentInput?: boolean;
 }
 
 const BottomSheetFlatList: FC<BottomSheetProps> = ({
@@ -36,7 +38,9 @@ const BottomSheetFlatList: FC<BottomSheetProps> = ({
   data,
   renderItem,
   ListEmptyComponent,
-  handleTitle = ""
+  handleTitle = "",
+  ListHeaderComponent,
+  commentInput
 }) => {
   const snapPositions = snapPoints.map((point) => parseFloat(point.replace('%', '')) / 100);
   const closeHeight = screenHeight;
@@ -54,18 +58,16 @@ const BottomSheetFlatList: FC<BottomSheetProps> = ({
     translateY.value = withSpring(targetHeight, { damping: 100, stiffness: 400 });
   }, [isOpen]);
 
-  // Pan gesture handler
   const pan = Gesture.Pan()
     .onBegin(() => {
       context.value = translateY.value;
     })
     .onUpdate((event) => {
       const newTranslateY = context.value + event.translationY;
-      
+
       translateY.value = Math.max(newTranslateY, 0);
     })
     .onEnd(() => {
-      // Adjust responsiveness for fast drags by using `withTiming` instead of `withSpring`
       const closestSnap = snapPositions.reduce((prev, curr) => {
         const prevDistance = Math.abs(translateY.value - (screenHeight - screenHeight * prev));
         const currDistance = Math.abs(translateY.value - (screenHeight - screenHeight * curr));
@@ -73,17 +75,16 @@ const BottomSheetFlatList: FC<BottomSheetProps> = ({
       });
 
       translateY.value = withTiming(screenHeight - screenHeight * closestSnap, {
-        duration: 200, 
-        easing: (t) => t, 
+        duration: 200,
+        easing: (t) => t,
       });
 
       const lowestPosition = Math.min(...snapPositions);
       if (closestSnap === lowestPosition) {
-        runOnJS(onClose)(); 
+        runOnJS(onClose)();
       }
     });
 
-  // Scroll gesture handler
   const onScroll = useAnimatedScrollHandler({
     onBeginDrag: (event) => {
       scrollBegin.value = event.contentOffset.y;
@@ -93,13 +94,11 @@ const BottomSheetFlatList: FC<BottomSheetProps> = ({
     },
   });
 
-  // Pan gesture handler for scroll interaction
   const panScroll = Gesture.Pan()
     .onBegin(() => {
       context.value = translateY.value;
     })
     .onUpdate((event) => {
-      // Only allow the pan gesture if scrollY is 0 or negative
       if (scrollY.value <= 0 && event.translationY > 0) {
         const newTranslateY = context.value + event.translationY;
         translateY.value = Math.max(newTranslateY, 0);
@@ -115,30 +114,43 @@ const BottomSheetFlatList: FC<BottomSheetProps> = ({
 
         translateY.value = withTiming(screenHeight - screenHeight * closestSnap, {
           duration: 200,
-          easing: (t) => t, 
+          easing: (t) => t,
         });
         const lowestPosition = Math.min(...snapPositions);
         if (closestSnap === lowestPosition) {
-          runOnJS(onClose)(); 
+          runOnJS(onClose)();
         }
       }
     });
 
   const scrollViewGesture = Gesture.Native();
 
-  // Animated style for the bottom sheet container
   const animatedStyle = useAnimatedStyle(() => {
     return {
       transform: [{ translateY: translateY.value }],
     };
   });
 
+  const [commentText, setCommentText] = useState<string>('');
+
+  const commentInputRef = useRef<TextInput | null>(null);
+
+  const openKeyboard = () => {
+    if (commentInput && commentInputRef.current) {
+      commentInputRef.current.focus();
+    }
+  };
+
+  useEffect(() => {
+    openKeyboard()
+  }, [commentInput]); 
+
+
   return (
     <GestureDetector gesture={pan}>
       <Animated.View style={[styles.container, animatedStyle, { backgroundColor }]}>
-
         <View style={styles.lineContainer}>
-          <View style={[styles.line,{backgroundColor: handleColor}]} />
+          <View style={[styles.line, { backgroundColor: handleColor }]} />
           <Text style={styles.text}>{handleTitle}</Text>
         </View>
         <GestureDetector
@@ -149,12 +161,28 @@ const BottomSheetFlatList: FC<BottomSheetProps> = ({
             bounces={false}
             onScroll={onScroll}
             contentContainerStyle={styles.scrollContent}
-            renderItem={renderItem} 
+            renderItem={renderItem}
             data={data}
             ListEmptyComponent={ListEmptyComponent}
+            ListHeaderComponent={ListHeaderComponent}
           >
           </Animated.FlatList>
         </GestureDetector>
+        {commentInput && (
+          <View style={styles.footerContainer}>
+          <TextInput
+            ref={commentInputRef}
+            value={commentText}
+            onChangeText={(val) => setCommentText(val)}
+            style={styles.inputField}
+            placeholder="Type your comment..."
+            keyboardType="default"
+            returnKeyType="done"
+            onFocus={() => {}}
+            onBlur={() => {}}
+          />
+        </View>
+        )}
       </Animated.View>
     </GestureDetector>
   );
@@ -165,7 +193,10 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    height: screenHeight,
+    height: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between', 
   },
   lineContainer: {
     alignItems: 'center',
@@ -177,12 +208,27 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   scrollContent: {
-    paddingBottom: 65,
+    paddingBottom: 0,  
   },
   text: {
     padding: 10,
     fontFamily: 'poppins',
     color: 'whitesmoke'
+  },
+  footerContainer: {
+    padding: 10,
+    backgroundColor: '#121314',
+    borderTopWidth: 1, 
+    borderTopColor: 'gray',
+  },
+  inputField: {
+    backgroundColor: 'white',
+    height: 40,
+    margin: 10,
+    borderWidth: 1,
+    borderColor: 'gray',
+    paddingLeft: 10,
+    borderRadius: 5,
   },
 });
 

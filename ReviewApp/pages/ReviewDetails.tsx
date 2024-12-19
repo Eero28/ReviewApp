@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, TextInput, KeyboardAvoidingView } from 'react-native';
 import StarRating from 'react-native-star-rating-widget';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { FontAwesome } from '@expo/vector-icons';
@@ -20,6 +20,8 @@ const ReviewDetails: FC<ReviewDetailsProps> = ({ route }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const { item } = route.params;
 
+  const [text, setText] = useState<string>('')
+
   //bottomSheet
   const [isOpen, setIsOpen] = useState(false);
   const toggleSheet = () => {
@@ -39,9 +41,9 @@ const ReviewDetails: FC<ReviewDetailsProps> = ({ route }) => {
 
   useEffect(() => {
     getReviewComments();
-  }, [item.id_review]);
+  }, []);
 
-
+  console.log("details update")
   const EmptyList = () => (
     <View style={styles.emptyListContainer}>
       <Text style={styles.emptyListText}>No Comments yet. Be the first to comment! 😊</Text>
@@ -74,15 +76,18 @@ const ReviewDetails: FC<ReviewDetailsProps> = ({ route }) => {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
       <BottomSheetFlatList
         renderItem={({ item }) => <UserComment item={item} />}
         data={comments}
         ListEmptyComponent={EmptyList}
         onClose={toggleSheet}
-        snapPoints={['100%','30%','20%']}
+        snapPoints={['100%', '30%', '20%']}
         backgroundColor="#121314"
         isOpen={isOpen}
         handleTitle='Comments'
+        ListHeaderComponent={() => { return (<Text style={styles.text}>Hello</Text>) }}
+        commentInput
       />
     </SafeAreaView>
   );
@@ -156,6 +161,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#888',
   },
+  flatlistFooterText: {
+    color: 'whitesmoke',
+    fontFamily: 'poppins'
+  },
+  textInputField: {
+    backgroundColor: 'white',
+    height: 40,
+    margin: 12,
+    borderWidth: 1,
+    padding: 10,
+  }
 });
 
 export default ReviewDetails;
