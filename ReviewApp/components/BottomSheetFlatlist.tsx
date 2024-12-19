@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState, useRef } from 'react';
-import { StyleSheet, View, Text, TextInput} from 'react-native';
+import { StyleSheet, View, Text, TextInput, Button} from 'react-native';
 import { screenHeight } from '../helpers/dimensions'; // Use screen height
 import Animated, {
   useSharedValue,
@@ -13,7 +13,10 @@ import {
   Gesture,
   GestureDetector,
 } from 'react-native-gesture-handler';
-
+import axios from 'axios';
+import { useAuth } from '../ContexApi';
+//@ts-ignore
+import { API_URL } from '@env';
 interface BottomSheetProps {
   isOpen: boolean;
   snapPoints: string[];
@@ -27,6 +30,8 @@ interface BottomSheetProps {
   ListHeaderComponent?: any;
   ListFooterComponent?: any;
   commentInput?: boolean;
+  id_review?: number;
+  getReviewComments: () => void;
 }
 
 const BottomSheetFlatList: FC<BottomSheetProps> = ({
@@ -40,8 +45,14 @@ const BottomSheetFlatList: FC<BottomSheetProps> = ({
   ListEmptyComponent,
   handleTitle = "",
   ListHeaderComponent,
-  commentInput
+  commentInput,
+  id_review,
+  getReviewComments
 }) => {
+
+  const {userInfo} = useAuth()
+
+
   const snapPositions = snapPoints.map((point) => parseFloat(point.replace('%', '')) / 100);
   const closeHeight = screenHeight;
   const translateY = useSharedValue(closeHeight);
@@ -131,16 +142,27 @@ const BottomSheetFlatList: FC<BottomSheetProps> = ({
     };
   });
 
+  //comments
+
   const [commentText, setCommentText] = useState<string>('');
-
   const commentInputRef = useRef<TextInput | null>(null);
-
   const openKeyboard = () => {
     if (commentInput && commentInputRef.current) {
       commentInputRef.current.focus();
     }
   };
 
+  const makeComment = async() =>{
+    const data = {
+      id_user: userInfo?.id_user,
+      id_review: id_review,
+      text: commentText
+
+    }
+    await axios.post(`${API_URL}/comments`,data)
+    getReviewComments()
+    setCommentText('')
+  }
   useEffect(() => {
     openKeyboard()
   }, [commentInput]); 
@@ -176,11 +198,8 @@ const BottomSheetFlatList: FC<BottomSheetProps> = ({
             onChangeText={(val) => setCommentText(val)}
             style={styles.inputField}
             placeholder="Type your comment..."
-            keyboardType="default"
-            returnKeyType="done"
-            onFocus={() => {}}
-            onBlur={() => {}}
           />
+          <Button onPress={makeComment} title='+'></Button>
         </View>
         )}
       </Animated.View>

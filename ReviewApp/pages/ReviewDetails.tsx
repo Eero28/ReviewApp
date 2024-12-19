@@ -20,8 +20,6 @@ const ReviewDetails: FC<ReviewDetailsProps> = ({ route }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const { item } = route.params;
 
-  const [text, setText] = useState<string>('')
-
   //bottomSheet
   const [isOpen, setIsOpen] = useState(false);
   const toggleSheet = () => {
@@ -43,7 +41,6 @@ const ReviewDetails: FC<ReviewDetailsProps> = ({ route }) => {
     getReviewComments();
   }, []);
 
-  console.log("details update")
   const EmptyList = () => (
     <View style={styles.emptyListContainer}>
       <Text style={styles.emptyListText}>No Comments yet. Be the first to comment! 😊</Text>
@@ -88,6 +85,8 @@ const ReviewDetails: FC<ReviewDetailsProps> = ({ route }) => {
         handleTitle='Comments'
         ListHeaderComponent={() => { return (<Text style={styles.text}>Hello</Text>) }}
         commentInput
+        id_review={item.id_review}
+        getReviewComments={getReviewComments}
       />
     </SafeAreaView>
   );
