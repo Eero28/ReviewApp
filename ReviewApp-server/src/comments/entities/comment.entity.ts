@@ -1,6 +1,7 @@
 import { Review } from "src/review/entities/review.entity";
 import { User } from "src/users/entities/user.entity";
-import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn, UpdateDateColumn } from "typeorm";
+import {Reply} from '../../reply/entities/reply.entity'
+import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn, UpdateDateColumn, OneToMany } from "typeorm";
 
 @Entity()
 export class Comment {
@@ -18,9 +19,13 @@ export class Comment {
 
     // Many comments can belong to one review
     @ManyToOne(() => Review, (review) => review.comments, { eager: true, onDelete: "CASCADE" })
-    review: Review; 
-    
+    review: Review;
+
     // Many comments can belong to one user
     @ManyToOne(() => User, (user) => user.comments, { eager: true })
     user: User;
+
+    // One comment can have many replies
+    @OneToMany(() => Reply, (reply) => reply.comment)
+    replies: Reply[];
 }

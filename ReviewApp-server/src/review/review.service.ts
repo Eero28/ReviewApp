@@ -38,56 +38,24 @@ export class ReviewService {
         return this.reviewRepository.save(review);
     }
 
-    async findAllReviews(): Promise<GetReviewDto[]> {
+    async findAllReviews(): Promise<Review[]> {
         const reviews = await this.reviewRepository.find({
-            relations: ['user', 'likes', 'likes.user', 'comments', 'comments.user'],
-            order:{
-                createdAt: 'DESC'
-            }
+          relations: [
+            'user',
+            'likes',
+            'likes.user',
+            'comments',
+            'comments.user',
+            'comments.replies',        // Add replies relation for each comment
+            'comments.replies.user',   // Add user for each reply
+          ],
+          order: {
+            createdAt: 'DESC',
+          },
         });
-
-        const mapUser = (user: GetUserDto) => ({
-            id_user: user.id_user,
-            username: user.username,
-        });
-
-        const mapLike = (like: GetLikeDto) => ({
-            id_like: like.id_like,
-            user: mapUser(like.user),
-        });
-
-        const mapComment = (comment: GetCommentDto) => ({
-            id_comment: comment.id_comment,
-            text: comment.text,
-            user: mapUser(comment.user),
-        });
-        //format date
-        const dateFormat = (date: Date) =>{
-            const formattedDate = new Intl.DateTimeFormat("en-US", {
-                day: "numeric",
-                month: "short",
-                year: "numeric",
-                hour: "numeric",
-                minute: "numeric",
-                hour12: true,
-                timeZone: "UTC"
-              }).format(new Date(date));
-            return formattedDate
-        }
-
-        return reviews.map(review => ({
-            id_review: review.id_review,
-            reviewname: review.reviewname,
-            reviewRating: review.reviewRating,
-            reviewDescription: review.reviewDescription,
-            imageUrl: review.imageUrl,
-            createdAt: dateFormat(review.createdAt),
-            category: review.category,
-            user: mapUser(review.user),
-            likes: review.likes?.map(mapLike),
-            comments: review.comments?.map(mapComment),
-        }));
-    }
+      
+        return reviews;
+      }
 
 
     async getReviewsByCategory(category: string): Promise<Review[]> {

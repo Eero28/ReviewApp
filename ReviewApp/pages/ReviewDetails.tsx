@@ -75,7 +75,7 @@ const ReviewDetails: FC<ReviewDetailsProps> = ({ route }) => {
       </ScrollView>
 
       <BottomSheetFlatList
-        renderItem={({ item }) => <UserComment item={item} />}
+        renderItem={({ item }) => <UserComment getReviewComments={getReviewComments} item={item} />}
         data={comments}
         ListEmptyComponent={EmptyList}
         onClose={toggleSheet}
