@@ -1,5 +1,13 @@
 # Project Overview
 
+## **Key Technologies Used:**
+
+- **`Back-end`**:
+  - eweewe
+
+- **`Front-end`**:
+  - ewew
+
 ## Database Schema
 
 This section describes the key entities and their relationships in the application’s PostgreSQL database.
