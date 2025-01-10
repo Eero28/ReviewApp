@@ -2,11 +2,16 @@
 
 ## **Key Technologies Used:**
 
-- **`Back-end`**:
-  - eweewe
+- **Back-end**:
+  - TypeScript
+  - NestJS with passport (JWT strategy)
+  - PostgreSQL Database
+  - TypeORM
 
-- **`Front-end`**:
-  - ewew
+- **Front-end**:
+  - TypeScript
+  - Expo
+  - React Native
 
 ## Database Schema
 
