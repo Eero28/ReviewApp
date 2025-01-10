@@ -27,15 +27,15 @@ The `User` entity represents a user in the application.
 
 ### **Review Entity**
 
-The `Review` entity represents a review posted by a user about a product or service.
+The `Review` entity represents a review posted by a user about a product.
 
 - **Columns**:
   - `id_review`: A unique, auto-generated identifier for each review.
   - `reviewname`: The name/title of the review.
   - `reviewDescription`: A detailed description of the review.
-  - `reviewRating`: The rating given by the user (usually a decimal value).
+  - `reviewRating`: The rating given by the user.
   - `imageUrl`: A URL pointing to an image associated with the review.
-  - `category`: The category of the review (e.g., product, service, etc.).
+  - `category`: The category of the review (e.g., beer, wine, etc.).
 
 - **Relationships**:
 
