@@ -4,14 +4,14 @@
 
 - **Back-end**:
   - TypeScript
-  - NestJS with passport (JWT strategy)
-  - PostgreSQL Database
-  - TypeORM
+  - [NestJS](https://docs.nestjs.com/) with passport (JWT strategy)
+  - [PostgreSQL](https://www.postgresql.org/) Database
+  - [TypeORM](https://typeorm.io/)
 
 - **Front-end**:
   - TypeScript
-  - Expo
-  - React Native
+  - [Expo](https://expo.dev/): Expo camera
+  - [React Native](https://reactnative.dev/): Reanimated, Async storage, [React navigation](https://reactnavigation.org/)
 
 ## Database Schema
 
