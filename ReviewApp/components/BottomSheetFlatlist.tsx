@@ -51,7 +51,7 @@ const BottomSheetFlatList: FC<BottomSheetProps> = ({
   getReviewComments
 }) => {
 
-  const { userInfo } = useAuth()
+  const { userInfo, handleLogout } = useAuth()
 
 
   const snapPositions = snapPoints.map((point) => parseFloat(point.replace('%', '')) / 100);
@@ -154,15 +154,24 @@ const BottomSheetFlatList: FC<BottomSheetProps> = ({
   };
 
   const makeComment = async () => {
-    const data = {
-      id_user: userInfo?.id_user,
-      id_review: id_review,
-      text: commentText
-
+    try{
+      const data = {
+        id_user: userInfo?.id_user,
+        id_review: id_review,
+        text: commentText
+  
+      }
+      await axios.post(`${API_URL}/comments`, data)
+      getReviewComments()
+      setCommentText('')
     }
-    await axios.post(`${API_URL}/comments`, data)
-    getReviewComments()
-    setCommentText('')
+    catch(error){
+      console.log(error)
+      if (error.response && error.response.status === 401) {
+        alert("Token expired or invalid. Logging out...");
+        await handleLogout();
+    }
+    }
   }
   useEffect(() => {
     openKeyboard()
@@ -201,9 +210,13 @@ const BottomSheetFlatList: FC<BottomSheetProps> = ({
               placeholder="Type your comment..."
               placeholderTextColor="whitesmoke"
             />
-            <TouchableOpacity style={styles.addCommentButton} onPress={makeComment}>
-              <Icon size={35} name='upArrow'/>
+            {commentText ? <TouchableOpacity style={styles.addCommentButton} onPress={makeComment}>
+              <Icon size={35} name='upArrow' />
             </TouchableOpacity>
+              :
+              ''
+            }
+
           </View>
         )}
       </Animated.View>

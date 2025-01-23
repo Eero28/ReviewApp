@@ -15,7 +15,7 @@ type Props = {
 
 const UserComment: FC<Props> = ({ item, getReviewComments, disableCommentDelete }) => {
 
-  const { userInfo } = useAuth()
+  const { userInfo, handleLogout } = useAuth()
   const [showDialogModal, setShowDialogModal] = useState<boolean>(false);
 
 
@@ -30,7 +30,7 @@ const UserComment: FC<Props> = ({ item, getReviewComments, disableCommentDelete 
   
 
   const deleteComment = async () => {
-    console.log(item)
+    console.log('Comment deleted')
     try {
       await axios.delete(`${API_URL}/comments/${item.id_comment}`, {
         headers: {
@@ -45,6 +45,10 @@ const UserComment: FC<Props> = ({ item, getReviewComments, disableCommentDelete 
     }
     catch (error) {
       console.log(error)
+      if (error.response && error.response.status === 401) {
+        alert("Token expired or invalid. Logging out...");
+        await handleLogout();
+    }
     }
   }
   return (
