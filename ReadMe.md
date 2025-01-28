@@ -19,6 +19,8 @@ This project was designed to deepen my understanding of NestJS and React Native 
 
 ## Database Schema
 
+![My Image](assets/Database.PNG)
+
 This section describes the key entities and their relationships in the application’s PostgreSQL database.
 
 ### **User Entity**
