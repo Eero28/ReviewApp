@@ -11,6 +11,7 @@ import axios from 'axios';
 //@ts-ignore
 import { API_URL } from '@env';
 import BottomSheetFlatList from '../components/BottomSheetFlatlist';
+import { calculateDate } from '../helpers/date';
 
 interface ReviewDetailsProps {
   route: any;
@@ -19,7 +20,7 @@ interface ReviewDetailsProps {
 const ReviewDetails: FC<ReviewDetailsProps> = ({ route }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const { item } = route.params;
-
+  
   //bottomSheet
   const [isOpen, setIsOpen] = useState(false);
   const toggleSheet = () => {
@@ -46,7 +47,7 @@ const ReviewDetails: FC<ReviewDetailsProps> = ({ route }) => {
       <Text style={styles.emptyListText}>No Comments yet. Be the first to comment! 😊</Text>
     </View>
   );
-
+ 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.cardContainer}>
@@ -57,7 +58,8 @@ const ReviewDetails: FC<ReviewDetailsProps> = ({ route }) => {
           <Text style={styles.ratingText}>({item.reviewRating})</Text>
         </View>
         <Text style={styles.text}>{item.reviewDescription}</Text>
-        <Text style={styles.text}>Reviewed: {item.createdAt}</Text>
+        <Text style={styles.text}>Reviewed: {calculateDate(item.createdAt)}</Text>
+        <Text style={styles.text}>Reviewed By: {item.user.username}</Text>
         <View style={styles.statsContainer}>
           <TouchableOpacity onPress={toggleSheet} style={styles.pressable}>
             <Text style={styles.text}>

@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState, useRef } from 'react';
-import { StyleSheet, View, Text, TextInput, Button} from 'react-native';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { screenHeight } from '../helpers/dimensions'; // Use screen height
 import Animated, {
   useSharedValue,
@@ -15,6 +15,7 @@ import {
 } from 'react-native-gesture-handler';
 import axios from 'axios';
 import { useAuth } from '../ContexApi';
+import Icon from '../components/Icon'
 //@ts-ignore
 import { API_URL } from '@env';
 interface BottomSheetProps {
@@ -50,7 +51,7 @@ const BottomSheetFlatList: FC<BottomSheetProps> = ({
   getReviewComments
 }) => {
 
-  const {userInfo} = useAuth()
+  const { userInfo, handleLogout } = useAuth()
 
 
   const snapPositions = snapPoints.map((point) => parseFloat(point.replace('%', '')) / 100);
@@ -152,20 +153,29 @@ const BottomSheetFlatList: FC<BottomSheetProps> = ({
     }
   };
 
-  const makeComment = async() =>{
-    const data = {
-      id_user: userInfo?.id_user,
-      id_review: id_review,
-      text: commentText
-
+  const makeComment = async () => {
+    try{
+      const data = {
+        id_user: userInfo?.id_user,
+        id_review: id_review,
+        text: commentText
+  
+      }
+      await axios.post(`${API_URL}/comments`, data)
+      getReviewComments()
+      setCommentText('')
     }
-    await axios.post(`${API_URL}/comments`,data)
-    getReviewComments()
-    setCommentText('')
+    catch(error){
+      console.log(error)
+      if (error.response && error.response.status === 401) {
+        alert("Token expired or invalid. Logging out...");
+        await handleLogout();
+    }
+    }
   }
   useEffect(() => {
     openKeyboard()
-  }, [commentInput]); 
+  }, [commentInput]);
 
 
   return (
@@ -192,15 +202,22 @@ const BottomSheetFlatList: FC<BottomSheetProps> = ({
         </GestureDetector>
         {commentInput && (
           <View style={styles.footerContainer}>
-          <TextInput
-            ref={commentInputRef}
-            value={commentText}
-            onChangeText={(val) => setCommentText(val)}
-            style={styles.inputField}
-            placeholder="Type your comment..."
-          />
-          <Button onPress={makeComment} title='+'></Button>
-        </View>
+            <TextInput
+              ref={commentInputRef}
+              value={commentText}
+              onChangeText={(val) => setCommentText(val)}
+              style={styles.inputField}
+              placeholder="Type your comment..."
+              placeholderTextColor="whitesmoke"
+            />
+            {commentText ? <TouchableOpacity style={styles.addCommentButton} onPress={makeComment}>
+              <Icon size={35} name='upArrow' />
+            </TouchableOpacity>
+              :
+              ''
+            }
+
+          </View>
         )}
       </Animated.View>
     </GestureDetector>
@@ -215,7 +232,7 @@ const styles = StyleSheet.create({
     height: 'auto',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'space-between', 
+    justifyContent: 'space-between',
   },
   lineContainer: {
     alignItems: 'center',
@@ -227,7 +244,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   scrollContent: {
-    paddingBottom: 0,  
+    paddingBottom: 0,
   },
   text: {
     padding: 10,
@@ -235,20 +252,24 @@ const styles = StyleSheet.create({
     color: 'whitesmoke'
   },
   footerContainer: {
-    padding: 10,
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     backgroundColor: '#121314',
-    borderTopWidth: 1, 
-    borderTopColor: 'gray',
   },
   inputField: {
-    backgroundColor: 'white',
+    flex: 1,
+    backgroundColor: '#121314',
+    color: 'whitesmoke',
     height: 40,
     margin: 10,
-    borderWidth: 1,
-    borderColor: 'gray',
     paddingLeft: 10,
     borderRadius: 5,
   },
+  addCommentButton: {
+    padding: 10,
+    borderRadius: 10,
+  }
 });
 
 export default BottomSheetFlatList;

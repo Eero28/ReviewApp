@@ -7,9 +7,10 @@ import HotBeverage from '../assets/svg/hot-beverage.svg';
 import Cocktail from '../assets/svg/cocktail.svg';
 import Other from '../assets/svg/other.svg';
 import All from '../assets/svg/all.svg';
+import UpArrow from '../assets/svg/up.svg'
 
 
-type IconName = 'beer' | 'wine' | 'softdrink' | 'hotbeverage' | 'cocktail' | 'soda' | 'other' | 'all';
+type IconName = 'beer' | 'wine' | 'softdrink' | 'hotbeverage' | 'cocktail' | 'soda' | 'other' | 'all' | 'upArrow';
 
 type IconProps = {
     name: IconName;
@@ -33,6 +34,8 @@ const Icon: React.FC<IconProps> = ({ name, size = 24, }) => {
             return <Other width={size} height={size} />;
         case 'all':
             return <All width={size} height={size} />;
+        case 'upArrow':
+            return <UpArrow width={size} height={size} />
         default:
             return null;
     }
