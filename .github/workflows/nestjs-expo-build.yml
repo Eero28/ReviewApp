@@ -33,5 +33,5 @@ jobs:
           token: ${{ secrets.EXPO_TOKEN }}
 
       - name: Build on EAS
-        run: cd ReviewApp && eas build --platform all --non-interactive --no-wait
+        run: cd ReviewApp && eas build --platform android
 
