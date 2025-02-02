@@ -4,6 +4,14 @@
 
 This project was designed to deepen my understanding of NestJS and React Native by building a full-stack application. I wanted to gain hands-on experience with NestJS for the back-end and React Native for the front-end, allowing me to enhance my skills in both areas. Through this project, I have been able to explore these technologies in a practical context, creating something functional that I can continue to expand and refine as I learn and grow.
 
+- **Key Features**:
+
+  - User Login and register
+  - Add reviews by filling a form
+  - Add comments to reviews
+  - Liking system
+  - Modals
+
 ## **Key Technologies Used:**
 
 - **Back-end**:

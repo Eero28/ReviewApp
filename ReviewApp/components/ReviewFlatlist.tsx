@@ -19,25 +19,23 @@ import NoReviewsMade from './NoReviewsMade';
 type Props = {
     reviews: ReviewItemIf[];
     disableLongPress?: boolean;
-}
+};
 
-const ReviewFlatlist: FC<Props> = ({reviews, disableLongPress = false}) => {
+const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false }) => {
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [animatedWidth] = useState(new Animated.Value(50));
+
     if (reviews.length <= 0) {
-        return (
-            <NoReviewsMade/>
-        );
+        return <NoReviewsMade />;
     }
 
     // Filter reviews based on the search term
     const filteredReviews = reviews.filter((val) => {
-        const searchResult =
+        return (
             val.reviewname.toLowerCase().trim().includes(searchTerm.toLowerCase()) ||
-            val.user.username.toLowerCase().trim().includes(searchTerm.toLowerCase());
-
-        return searchResult;
+            val.user.username.toLowerCase().trim().includes(searchTerm.toLowerCase())
+        );
     });
 
     const toggleSearchBar = () => {
@@ -47,11 +45,11 @@ const ReviewFlatlist: FC<Props> = ({reviews, disableLongPress = false}) => {
                 duration: 300,
                 useNativeDriver: false,
             }).start(() => setIsOpen(false));
-            setSearchTerm("");  
+            setSearchTerm("");
         } else {
             setIsOpen(true);
             Animated.timing(animatedWidth, {
-                toValue: 350,  
+                toValue: 350,
                 duration: 300,
                 useNativeDriver: false,
             }).start();
@@ -86,14 +84,21 @@ const ReviewFlatlist: FC<Props> = ({reviews, disableLongPress = false}) => {
                         <AntDesign name="search1" size={24} color="black" />
                     </TouchableOpacity>
                 )}
+
                 {filteredReviews.length === 0 && !searchTerm ? (
                     <Text style={styles.noResultsText}>No search results found</Text>
                 ) : (
                     <FlatList
                         data={filteredReviews.length <= 0 ? reviews : filteredReviews}
-                        renderItem={({ item }: { item: ReviewItemIf }) => <ReviewItem disableLongPress={disableLongPress} item={item} />}
+                        renderItem={({ item }: { item: ReviewItemIf }) => (
+                            <View style={styles.itemWrapper}>
+                                <ReviewItem disableLongPress={disableLongPress} item={item} />
+                            </View>
+                        )}
                         keyExtractor={(item) => item.id_review.toString()}
                         contentContainerStyle={styles.listContainer}
+                        numColumns={2}
+                        keyboardShouldPersistTaps="handled"
                     />
                 )}
             </SafeAreaView>
@@ -105,26 +110,29 @@ export default ReviewFlatlist;
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        flex: 1, 
         backgroundColor: '#f5f5f5',
         paddingHorizontal: 16,
         paddingVertical: 8,
     },
+    itemWrapper: {
+        flex: 1,
+        padding: 5,
+    },
     listContainer: {
-        paddingBottom: 40,
+        paddingBottom: 100, 
     },
     searchbarWrapper: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'flex-end',
-        marginBottom: 10,
+        marginVertical: 5
     },
     searchbarContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: '#f2f2f2',
         borderRadius: 20,
-        paddingHorizontal: 10,
     },
     input: {
         flex: 1,

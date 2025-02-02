@@ -1,20 +1,12 @@
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
 import React, { FC, useState } from 'react';
 import Icon from './Icon';
+import { categories } from '../helpers/categories';
 
 type Props = {
     fetchReviewsWithCategory: (category?: string) => void;
 };
 
-const categories = [
-    { label: 'All', value: undefined, icon: 'all' },
-    { label: 'Beers', value: 'beer', icon: 'beer' },
-    { label: 'Wines', value: 'wine', icon: 'wine' },
-    { label: 'Softdrinks', value: 'softdrink', icon: 'soda' },
-    { label: 'Hot beverages', value: 'hot beverage', icon: 'hotbeverage' },
-    { label: 'Cocktails', value: 'cocktail', icon: "cocktail" },
-    { label: 'Others', value: 'other', icon: "other" }
-];
 
 const FilterButtons: FC<Props> = ({ fetchReviewsWithCategory }) => {
     const [activeCategory, setActiveCategory] = useState<string | undefined>(undefined);
@@ -96,7 +88,7 @@ const styles = StyleSheet.create({
     iconContainer: {
         alignItems: "center",
         justifyContent: "center",
-        padding: 10,
+        padding: 5,
         textAlign: "center"
     }
 });

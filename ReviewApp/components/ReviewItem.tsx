@@ -7,9 +7,13 @@ import { UserInfo } from '../interfaces/UserInfo';
 import { ReviewItemIf } from '../interfaces/ReviewItemIf';
 import { FontAwesome } from '@expo/vector-icons';
 import { usersLiked } from '../interfaces/UsersLiked';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import axios from 'axios';
+import StarRating from 'react-native-star-rating-widget';
 //@ts-ignore
 import { API_URL } from "@env";
+import { categories } from '../helpers/categories';
+import Icon from './Icon';
 
 type Props = {
     item: ReviewItemIf;
@@ -40,7 +44,7 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
         }
     };
 
-    
+
 
     const likeReview = async () => {
         try {
@@ -107,7 +111,16 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
         } else {
             likeReview();
         }
-        setReviewsUpdated(!reviewsUpdated) 
+        setReviewsUpdated(!reviewsUpdated)
+    };
+
+    const checkValue = (val: string) => {
+        const category = categories.find(item => item.icon === val);
+        if (!category) {
+            return null; 
+        }
+        //@ts-ignore
+        return <Icon size={20} name={category.icon} />; 
     };
 
     return (
@@ -123,23 +136,27 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
                     uri: item.imageUrl,
                 }}
             />
-            <View style={styles.textContainer}>
+            <View style={styles.cardInfo}>
                 <Text style={styles.title}>{item.reviewname}</Text>
-                <Text style={styles.description}>{item.category}</Text>
-                <Text style={styles.description}>{item.id_review}</Text>
+                <StarRating starSize={20} rating={item.reviewRating} onChange={() => { }} color="#0f3c85" />
+                <Text style={styles.description}>Category: {checkValue(item.category)}</Text>
                 <Text style={styles.description}>Reviewed by: {item.user.username}</Text>
             </View>
-            
-                <TouchableOpacity onPress={toggleLike} style={styles.iconContainer}>
+
+            <View style={styles.iconContainer}>
+                <TouchableOpacity onPress={toggleLike} style={styles.iconWrapper}>
                     <FontAwesome
                         name={likesState.isLiked ? 'heart' : 'heart-o'}
                         size={24}
                         color={likesState.isLiked ? 'blue' : '#666'}
                     />
-                    <Text style={styles.iconContainerText}>{likesState.user.length}</Text>
+                    <Text style={styles.commentCount}>{likesState.user.length}</Text>
                 </TouchableOpacity>
-            
-
+                <TouchableOpacity style={styles.iconWrapper}>
+                    <MaterialCommunityIcons name="chat-outline" size={24} color="black" />
+                    <Text style={styles.commentCount}>{item.comments.length}</Text>
+                </TouchableOpacity>
+            </View>
             <ModalDialog
                 dialogTitle={`Delete "${item.reviewname}"?`}
                 visible={showDialogModal}
@@ -154,43 +171,51 @@ export default ReviewItem;
 
 const styles = StyleSheet.create({
     container: {
-        flexDirection: 'row',
         alignItems: 'center',
-        padding: 12,
+        padding: 10,
         marginVertical: 8,
-        marginHorizontal: 16,
-        backgroundColor: '#fff',
+        backgroundColor: 'white',
         borderRadius: 8,
         shadowColor: '#000',
         shadowOpacity: 0.1,
         elevation: 3,
     },
-    image: {
-        height: 80,
-        width: 80,
-        borderRadius: 8,
-        marginRight: 12,
+    cardInfo:{
+        padding: 10,
     },
-    textContainer: {
-        flex: 1,
-        justifyContent: 'center',
+    image: {
+        height: 140,
+        width: 140,
+        borderRadius: 12,
+        objectFit: "cover",
     },
     title: {
         fontSize: 16,
         fontWeight: 'bold',
         color: '#333',
         marginBottom: 4,
-        fontFamily: 'poppins'
+        fontFamily: 'poppins',
+        textAlign: 'center'
     },
     description: {
         fontSize: 14,
         color: '#666',
-        fontFamily: 'poppins'
+        fontFamily: 'poppins',
+        marginTop: 5
     },
     iconContainer: {
         flexDirection: 'row',
-        paddingLeft: 10,
-        paddingRight: 10,
+        justifyContent: 'center',
+    },
+    iconWrapper: {
+        flexDirection: "row", 
+        alignItems: "center",
+        padding: 5 
+    },
+    commentCount: {
+        marginLeft: 4, 
+        fontSize: 16,
+        color: "#000",
     },
     iconContainerText: {
         paddingLeft: 5,

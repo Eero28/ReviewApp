@@ -12,6 +12,7 @@ import axios from 'axios';
 import { API_URL } from '@env';
 import BottomSheetFlatList from '../components/BottomSheetFlatlist';
 import { calculateDate } from '../helpers/date';
+import EmptyList from '../components/EmptyList';
 
 interface ReviewDetailsProps {
   route: any;
@@ -42,11 +43,6 @@ const ReviewDetails: FC<ReviewDetailsProps> = ({ route }) => {
     getReviewComments();
   }, []);
 
-  const EmptyList = () => (
-    <View style={styles.emptyListContainer}>
-      <Text style={styles.emptyListText}>No Comments yet. Be the first to comment! 😊</Text>
-    </View>
-  );
  
   return (
     <SafeAreaView style={styles.container}>
@@ -152,15 +148,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 10,
     backgroundColor: '#eef2f7',
-  },
-  emptyListContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  emptyListText: {
-    fontSize: 16,
-    color: '#888',
   },
   flatlistFooterText: {
     color: 'whitesmoke',
