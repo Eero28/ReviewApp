@@ -10,12 +10,10 @@ import { usersLiked } from '../interfaces/UsersLiked';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import axios from 'axios';
 import StarRating from 'react-native-star-rating-widget';
-//@ts-ignore
+// @ts-expect-error: Ignore the issue with the import from @env.
 import { API_URL } from "@env";
 import { categories } from '../helpers/categories';
 import Icon from './Icon';
-import BottomSheetFlatList from './BottomSheetFlatlist';
-import EmptyList from './EmptyList';
 
 
 type Props = {
@@ -26,7 +24,6 @@ type Props = {
 const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
     const { deleteReview, userInfo, setReviewsUpdated, reviewsUpdated } = useAuth();
     const [showDialogModal, setShowDialogModal] = useState<boolean>(false);
-    const [showBottomSheet, setShowBottomSheet] = useState<boolean>(false); 
     const [isLongPress, setIsLongPress] = useState<boolean>(false);
     const [likesState, setLikesState] = useState<usersLiked>({
         user: [],
@@ -120,7 +117,7 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
         if (!category) {
             return null;
         }
-        //@ts-ignore
+        // @ts-expect-error: fix later
         return <Icon size={20} name={category.icon} />;
     };
 
