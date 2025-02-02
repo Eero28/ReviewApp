@@ -23,19 +23,15 @@ jobs:
       - name: Install dependencies (Frontend)
         run: cd ReviewApp && npm install
 
-      - name: Cache EAS
-        uses: actions/cache@v3
-        with:
-          path: ~/.eas-cache
-          key: ${{ runner.os }}-eas-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-eas-
-
       - name: Install EAS CLI
         run: npm install -g eas-cli
 
-      - name: Authenticate with Expo
-        run: eas login --token ${{ secrets.TOKEN }}
+      - name: Setup Expo
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
 
       - name: Build on EAS
         run: cd ReviewApp && eas build --platform all --non-interactive --no-wait
