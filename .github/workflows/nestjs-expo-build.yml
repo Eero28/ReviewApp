@@ -1,17 +1,15 @@
-name: NestJS Build
+name: NestJS and Expo Build 
 
 on:
   push:
     branches:
       - master
-  pull_request:
-    branches:
-      - master
+      - dev
 
 jobs:
   build:
-    runs-on: ubuntu-latest  
-    ###ewqeq
+    runs-on: ubuntu-latest
+  
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -20,9 +18,15 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-
+    
       - name: Install dependencies (Backend)
         run: cd ReviewApp-server && npm install 
 
       - name: Run NestJS build
-        run: cd ReviewApp-server && npm run build  
+        run: cd ReviewApp-server && npm run build
+        
+      - name: Install dependencies (Frontend)
+        run: cd ReviewApp-client && npm install
+
+      - name: Run Expo build
+        run: cd ReviewApp-client && npm run build
