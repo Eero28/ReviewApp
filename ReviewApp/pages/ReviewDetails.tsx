@@ -14,6 +14,7 @@ import { calculateDate } from '../helpers/date';
 import EmptyList from '../components/EmptyList';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { ReviewItemIf } from '../interfaces/ReviewItemIf';
+import { useAuth } from '../ContexApi';
 
 
 type RootStackParamList = {
@@ -22,6 +23,7 @@ type RootStackParamList = {
 
 
 const ReviewDetails: FC = () => {
+  const {setReviewsUpdated, reviewsUpdated} = useAuth()
   const route = useRoute<RouteProp<RootStackParamList, 'ReviewDetails'>>();
   const { item } = route.params;
   
@@ -39,6 +41,7 @@ const ReviewDetails: FC = () => {
       if (response.data && response.data.data) {
         setComments(response.data.data);
       }
+      setReviewsUpdated(!reviewsUpdated);
     } catch (error) {
       console.error('Failed to fetch comments:', error);
     }
@@ -85,7 +88,6 @@ const ReviewDetails: FC = () => {
         backgroundColor="#121314"
         isOpen={isOpen}
         handleTitle='Comments'
-        ListHeaderComponent={() => { return (<Text style={styles.text}>Hello</Text>) }}
         commentInput
         id_review={item.id_review}
         getReviewComments={getReviewComments}
