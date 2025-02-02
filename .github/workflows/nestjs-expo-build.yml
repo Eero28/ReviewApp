@@ -1,4 +1,4 @@
-name: NestJS and Expo Build 
+name: Expo Build and Deploy
 
 on:
   push:
@@ -18,15 +18,16 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-    
-      - name: Install dependencies (Backend)
-        run: cd ReviewApp-server && npm install 
 
-      - name: Run NestJS build
-        run: cd ReviewApp-server && npm run build
-        
       - name: Install dependencies (Frontend)
         run: cd ReviewApp && npm install
 
-      - name: Run Expo build
-        run: cd ReviewApp && npm run build
+      - name: Install EAS CLI
+        run: npm install -g eas-cli
+
+      - name: Login to Expo
+        run: eas login --username ${{ secrets.EXPO_CLI_USERNAME }} --password ${{ secrets.EXPO_CLI_PASSWORD }}
+
+      - name: Run EAS Build for Android
+        run: eas build --platform android
+

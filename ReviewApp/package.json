@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "start": "expo start --dev-client",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "eslint .",
     "lint-fix": "eslint . --fix",
-    "build": "expo build:android"
+    "build:android": "eas build --platform android"
   },
   "dependencies": {
     "@expo-google-fonts/poppins": "^0.2.3",
@@ -29,7 +29,7 @@
     "expo-status-bar": "~2.0.0",
     "react": "18.3.1",
     "react-hook-form": "^7.53.2",
-    "react-native": "0.76.1",
+    "react-native": "0.76.6",
     "react-native-config": "^1.5.3",
     "react-native-dialog": "^9.3.0",
     "react-native-dotenv": "^3.4.11",
@@ -52,6 +52,7 @@
     "@types/react-navigation": "^3.4.0",
     "@typescript-eslint/eslint-plugin": "^8.22.0",
     "@typescript-eslint/parser": "^8.22.0",
+    "eas-cli": "^14.7.1",
     "eslint": "^9.19.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-define-config": "^2.1.0",
