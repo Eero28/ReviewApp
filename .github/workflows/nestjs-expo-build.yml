@@ -26,7 +26,7 @@ jobs:
         run: cd ReviewApp-server && npm run build
         
       - name: Install dependencies (Frontend)
-        run: cd ReviewApp-client && npm install
+        run: cd ReviewApp && npm install
 
       - name: Run Expo build
-        run: cd ReviewApp-client && npm run build
+        run: cd ReviewApp && npm run build
