@@ -1,32 +1,37 @@
 import React, { FC, useEffect, useState } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, TextInput, KeyboardAvoidingView } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import StarRating from 'react-native-star-rating-widget';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { FontAwesome } from '@expo/vector-icons';
-import { screenHeight } from '../helpers/dimensions';
-import UserComment from '../components/UserComment'
+import UserComment from '../components/UserComment';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Comment } from '../interfaces/Comment';
+import { Comment } from '../interfaces/Comment'; // Assuming you've defined Comment
 import axios from 'axios';
-//@ts-ignore
+// @ts-expect-error: Ignore the issue with the import from @env.
 import { API_URL } from '@env';
 import BottomSheetFlatList from '../components/BottomSheetFlatlist';
 import { calculateDate } from '../helpers/date';
 import EmptyList from '../components/EmptyList';
+import { RouteProp, useRoute } from '@react-navigation/native';
+import { ReviewItemIf } from '../interfaces/ReviewItemIf';
 
-interface ReviewDetailsProps {
-  route: any;
-}
 
-const ReviewDetails: FC<ReviewDetailsProps> = ({ route }) => {
-  const [comments, setComments] = useState<Comment[]>([]);
+type RootStackParamList = {
+  ReviewDetails: { item: ReviewItemIf };
+};
+
+
+const ReviewDetails: FC = () => {
+  const route = useRoute<RouteProp<RootStackParamList, 'ReviewDetails'>>();
   const { item } = route.params;
   
-  //bottomSheet
+  const [comments, setComments] = useState<Comment[]>([]);
+
+  // Bottom Sheet
   const [isOpen, setIsOpen] = useState(false);
   const toggleSheet = () => {
     setIsOpen(!isOpen);
-  }
+  };
 
   const getReviewComments = async () => {
     try {
@@ -43,7 +48,6 @@ const ReviewDetails: FC<ReviewDetailsProps> = ({ route }) => {
     getReviewComments();
   }, []);
 
- 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.cardContainer}>
@@ -73,7 +77,7 @@ const ReviewDetails: FC<ReviewDetailsProps> = ({ route }) => {
       </ScrollView>
 
       <BottomSheetFlatList
-        renderItem={({ item }) => <UserComment getReviewComments={getReviewComments} item={item} />}
+        renderItem={({ item }: { item: Comment }) => <UserComment getReviewComments={getReviewComments} item={item} />}
         data={comments}
         ListEmptyComponent={EmptyList}
         onClose={toggleSheet}

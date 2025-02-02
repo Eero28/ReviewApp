@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-native';
 import React, { FC, useState } from 'react';
 import Icon from './Icon';
 import { categories } from '../helpers/categories';
@@ -34,7 +34,7 @@ const FilterButtons: FC<Props> = ({ fetchReviewsWithCategory }) => {
                     >
                         <View style={styles.iconContainer}>
                             <Icon
-                                //@ts-ignore
+                                // @ts-expect-error: Fix later
                                 name={category.icon}
                                 size={30}
                                 color={activeCategory === category.value ? '#007AFF' : 'black'}

@@ -1,5 +1,4 @@
 import React, { FC } from "react";
-import { StyleSheet, View } from "react-native";
 import Dialog from "react-native-dialog";
 
 type ModalDialogProps = {
@@ -24,13 +23,3 @@ const ModalDialog: FC<ModalDialogProps> = ({dialogTitle, visible, onCancel, onDe
 
 export default ModalDialog;
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#fff",
-        alignItems: "center",
-        justifyContent: "center",
-        borderWidth: 2,
-        borderColor: "red", 
-    },
-});

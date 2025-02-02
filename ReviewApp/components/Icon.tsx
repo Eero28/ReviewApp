@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React from 'react';
 
 import BeerLogo from '../assets/svg/beer.svg';
 import Wine from '../assets/svg/wine.svg';

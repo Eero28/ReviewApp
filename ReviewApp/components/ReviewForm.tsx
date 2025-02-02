@@ -4,16 +4,16 @@ import { useForm, Controller } from 'react-hook-form';
 import CameraComponent from "../components/CameraComponent";
 import { NavigationProp } from '@react-navigation/native';
 import RNPickerSelect from 'react-native-picker-select';
-import axios from "axios"
-//@ts-ignore
-import {API_URL} from "@env"
+import axios, { AxiosError } from "axios";
+// @ts-expect-error: Ignore the issue with the import from @env.
+import { API_URL } from "@env";
 import { useAuth } from '../ContexApi';
 
 interface BeerFormValues {
   reviewName: string;
-  reviewRating: number | null; 
+  reviewRating: number | null;
   reviewText: string;
-  category: string | null; 
+  category: string | null;
 }
 
 interface NavigationProps {
@@ -24,14 +24,13 @@ const ReviewForm: React.FC<NavigationProps> = ({ navigation }) => {
   const { control, handleSubmit, reset, formState: { errors } } = useForm<BeerFormValues>();
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
-  const {userInfo, getReviews, allReviewsFetch} = useAuth()
+  const { userInfo, getReviews, allReviewsFetch } = useAuth();
 
   const onImageCaptured = (url: string) => {
     setImageUrl(url);
   };
 
   const onSubmit = async (data: BeerFormValues) => {
-    
     try {
       const reviewData = {
         reviewname: data.reviewName,
@@ -39,17 +38,21 @@ const ReviewForm: React.FC<NavigationProps> = ({ navigation }) => {
         reviewRating: data.reviewRating,
         category: data.category,
         imageUrl: imageUrl,
-        id_user: userInfo?.id_user
+        id_user: userInfo?.id_user,
       };
-      console.log(reviewData)
+      console.log(reviewData);
       await axios.post(`${API_URL}/review`, reviewData);
       reset();
       setImageUrl(null);
-      navigation.goBack()
-      getReviews()
-      allReviewsFetch()
-    } catch (error: any) {
-      console.error(error.response.data);
+      navigation.goBack();
+      getReviews();
+      allReviewsFetch();
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        console.error(error.response?.data);
+      } else {
+        console.error('Unexpected error', error);
+      }
     }
   };
 
@@ -144,7 +147,7 @@ const ReviewForm: React.FC<NavigationProps> = ({ navigation }) => {
               { label: 'Softdrink', value: 'softdrink' },
               { label: 'Hot beverage', value: 'hotbeverage' },
               { label: 'Cocktail', value: 'cocktail' },
-              { label: 'Other', value: 'other' }
+              { label: 'Other', value: 'other' },
             ]}
             placeholder={{ label: "Select a category", value: null }}
           />

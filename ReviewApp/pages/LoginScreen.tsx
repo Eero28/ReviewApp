@@ -1,9 +1,9 @@
-import { StyleSheet, Text, View, TextInput, Button, Alert } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Button } from 'react-native';
 import React, { FC } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { useAuth } from '../ContexApi';
 
-type Props = {};
+
 
 interface LoginData {
   email: string;

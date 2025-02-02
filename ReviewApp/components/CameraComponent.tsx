@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Alert, SafeAreaView, Text, Image, StyleSheet } from 'react-native';
+import { Alert, SafeAreaView } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useFocusEffect } from '@react-navigation/native';
 import { NavigationProp } from '@react-navigation/native';
@@ -65,19 +65,6 @@ const CameraComponent: React.FC<CameraComponentProps> = ({ navigation, onImageCa
   );
 };
 
-const styles = StyleSheet.create({
-  safeAreaContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'red',
-  },
-  imagePreview: {
-    width: 200,
-    height: 200,
-    borderRadius: 10,
-    marginBottom: 20,
-  },
-});
+
 
 export default CameraComponent;

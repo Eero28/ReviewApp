@@ -16,7 +16,7 @@ import {
 import axios from 'axios';
 import { useAuth } from '../ContexApi';
 import Icon from '../components/Icon'
-//@ts-ignore
+// @ts-expect-error: Ignore the issue with the import from @env.
 import { API_URL } from '@env';
 interface BottomSheetProps {
   isOpen: boolean;
@@ -25,14 +25,14 @@ interface BottomSheetProps {
   handleColor?: string;
   onClose: () => void;
   data: any;
-  renderItem: any;
-  ListEmptyComponent: any;
+  renderItem: React.FC;
+  ListEmptyComponent: React.FC;
   handleTitle?: string;
-  ListHeaderComponent?: any;
-  ListFooterComponent?: any;
+  ListHeaderComponent?: React.FC;
+  ListFooterComponent?: React.FC;
   commentInput?: boolean;
   id_review?: number;
-  getReviewComments: any;
+  getReviewComments: () => void;
 }
 
 const BottomSheetFlatList: FC<BottomSheetProps> = ({

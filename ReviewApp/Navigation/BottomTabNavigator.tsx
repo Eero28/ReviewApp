@@ -1,4 +1,3 @@
-import { StyleSheet, Text, View } from 'react-native'
 import React, { FC } from 'react'
 import { useAuth } from '../ContexApi';
 import MainTabs from './MainTabs';
@@ -11,4 +10,3 @@ const BottomTabNavigator:FC = () => {
 
 export default BottomTabNavigator
 
-const styles = StyleSheet.create({})

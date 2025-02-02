@@ -1,4 +1,3 @@
-import { StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -8,10 +7,9 @@ import AllReviews from '../pages/AllReviews';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-type Props = {};
 const Tab = createBottomTabNavigator();
 
-const MainTabs = (props: Props) => {
+const MainTabs = () => {
     return (
         <Tab.Navigator
             screenOptions={{
@@ -69,4 +67,3 @@ const MainTabs = (props: Props) => {
 
 export default MainTabs;
 
-const styles = StyleSheet.create({});

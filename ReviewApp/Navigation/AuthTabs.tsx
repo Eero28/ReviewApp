@@ -1,12 +1,10 @@
-import { StyleSheet, Text, View } from 'react-native'
 import React, { FC } from 'react'
 import LoginScreen from '../pages/LoginScreen'
 import RegisterScreen from '../pages/RegisterScreen'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-type Props = {}
 const Tab = createBottomTabNavigator();
-const AuthTabs: FC = (props: Props) => {
+const AuthTabs: FC = () => {
   return (
     <Tab.Navigator>
     <Tab.Screen
@@ -34,5 +32,3 @@ const AuthTabs: FC = (props: Props) => {
 }
 
 export default AuthTabs
-
-const styles = StyleSheet.create({})

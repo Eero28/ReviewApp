@@ -1,5 +1,5 @@
 import React, { FC, useEffect } from 'react';
-import { ScrollView, StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import { screenHeight } from '../helpers/dimensions'; // Use screen height
 import Animated, {
   useSharedValue,

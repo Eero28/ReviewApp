@@ -1,19 +1,15 @@
-import { StyleSheet, Text, View, TextInput, Button, Alert } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Button } from 'react-native';
 import React from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import axios from 'axios';
-//@ts-ignore
+// @ts-expect-error: Ignore the issue with the import from @env.
 import { API_URL } from "@env";
 import { useNavigation } from "@react-navigation/native";
-type Props = {};
 
-interface RegisterData {
-    username: string;
-    email: string;
-    password: string;
-}
 
-const RegisterScreen = (props: Props) => {
+
+
+const RegisterScreen = () => {
     const { control, handleSubmit, formState: { errors } } = useForm();
     const navigation = useNavigation();
     const onSubmit = async (data) => {
