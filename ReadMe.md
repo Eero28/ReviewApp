@@ -1,5 +1,7 @@
 # Project ReviewApp Overview (Not Ready!)
 
+![My Image](assets/app.jpg)
+
 ## What this project is about?
 
 This project was designed to deepen my understanding of NestJS and React Native by building a full-stack application. I wanted to gain hands-on experience with NestJS for the back-end and React Native for the front-end, allowing me to enhance my skills in both areas. Through this project, I have been able to explore these technologies in a practical context, creating something functional that I can continue to expand and refine as I learn and grow.

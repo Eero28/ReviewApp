@@ -32,7 +32,7 @@ interface BottomSheetProps {
   ListFooterComponent?: any;
   commentInput?: boolean;
   id_review?: number;
-  getReviewComments: () => void;
+  getReviewComments: any;
 }
 
 const BottomSheetFlatList: FC<BottomSheetProps> = ({
@@ -52,7 +52,6 @@ const BottomSheetFlatList: FC<BottomSheetProps> = ({
 }) => {
 
   const { userInfo, handleLogout } = useAuth()
-
 
   const snapPositions = snapPoints.map((point) => parseFloat(point.replace('%', '')) / 100);
   const closeHeight = screenHeight;

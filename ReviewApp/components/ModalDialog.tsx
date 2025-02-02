@@ -6,7 +6,7 @@ type ModalDialogProps = {
   visible: boolean;
   dialogTitle: string;
   onCancel: () => void;
-  onDelete: () => void;
+  onDelete?: () => void;
 };
 
 const ModalDialog: FC<ModalDialogProps> = ({dialogTitle, visible, onCancel, onDelete }) => {
@@ -17,7 +17,7 @@ const ModalDialog: FC<ModalDialogProps> = ({dialogTitle, visible, onCancel, onDe
         Do you want to delete this review? You cannot undo this action.
       </Dialog.Description>
       <Dialog.Button label="Cancel" onPress={onCancel} />
-      <Dialog.Button label="Delete" onPress={onDelete} />
+      <Dialog.Button label="Delete" onPress={onDelete ? onDelete : () => console.log("deleted")} />
     </Dialog.Container>
   );
 };

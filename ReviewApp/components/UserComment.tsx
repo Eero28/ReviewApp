@@ -9,7 +9,7 @@ import { API_URL } from '@env';
 import axios from 'axios';
 type Props = {
   item: Comment,
-  getReviewComments?: () => void;
+  getReviewComments?: any;
   disableCommentDelete?: boolean;
 }
 

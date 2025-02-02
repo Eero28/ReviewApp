@@ -14,6 +14,9 @@ import StarRating from 'react-native-star-rating-widget';
 import { API_URL } from "@env";
 import { categories } from '../helpers/categories';
 import Icon from './Icon';
+import BottomSheetFlatList from './BottomSheetFlatlist';
+import EmptyList from './EmptyList';
+
 
 type Props = {
     item: ReviewItemIf;
@@ -23,6 +26,7 @@ type Props = {
 const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
     const { deleteReview, userInfo, setReviewsUpdated, reviewsUpdated } = useAuth();
     const [showDialogModal, setShowDialogModal] = useState<boolean>(false);
+    const [showBottomSheet, setShowBottomSheet] = useState<boolean>(false); 
     const [isLongPress, setIsLongPress] = useState<boolean>(false);
     const [likesState, setLikesState] = useState<usersLiked>({
         user: [],
@@ -44,12 +48,9 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
         }
     };
 
-
-
     const likeReview = async () => {
         try {
             await axios.post(`${API_URL}/likes/like/review/${item.id_review}`, { id_user: userInfo?.id_user });
-
             getReviewLikes();
         } catch (error) {
             console.error('Error liking the review:', error);
@@ -59,7 +60,6 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
     const deleteLike = async () => {
         try {
             await axios.delete(`${API_URL}/likes/unlike/review/${item.id_review}/user/${userInfo?.id_user}`);
-
             getReviewLikes();
         } catch (error) {
             console.error('Error unliking the review:', error);
@@ -75,6 +75,7 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
     const showModal = () => {
         setShowDialogModal(true);
     };
+
     const closeModal = () => {
         setShowDialogModal(false);
     };
@@ -111,16 +112,16 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
         } else {
             likeReview();
         }
-        setReviewsUpdated(!reviewsUpdated)
+        setReviewsUpdated(!reviewsUpdated);
     };
 
     const checkValue = (val: string) => {
         const category = categories.find(item => item.icon === val);
         if (!category) {
-            return null; 
+            return null;
         }
         //@ts-ignore
-        return <Icon size={20} name={category.icon} />; 
+        return <Icon size={20} name={category.icon} />;
     };
 
     return (
@@ -157,12 +158,14 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
                     <Text style={styles.commentCount}>{item.comments.length}</Text>
                 </TouchableOpacity>
             </View>
+            
             <ModalDialog
                 dialogTitle={`Delete "${item.reviewname}"?`}
                 visible={showDialogModal}
                 onCancel={closeModal}
                 onDelete={handleDelete}
             />
+
         </TouchableOpacity>
     );
 };
@@ -180,7 +183,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         elevation: 3,
     },
-    cardInfo:{
+    cardInfo: {
         padding: 10,
     },
     image: {
@@ -208,12 +211,12 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     iconWrapper: {
-        flexDirection: "row", 
+        flexDirection: "row",
         alignItems: "center",
-        padding: 5 
+        padding: 5
     },
     commentCount: {
-        marginLeft: 4, 
+        marginLeft: 4,
         fontSize: 16,
         color: "#000",
     },

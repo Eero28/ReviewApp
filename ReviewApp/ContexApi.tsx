@@ -5,6 +5,7 @@ import { API_URL } from "@env";
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 import { UserInfo } from './interfaces/UserInfo';
 import { ReviewItemIf } from './interfaces/ReviewItemIf';
+import { Comment } from './interfaces/Comment';
 
 
 interface AuthContextProps {
@@ -23,6 +24,7 @@ interface AuthContextProps {
     reviewsWithCategoryAll: (category?: string | undefined) => void;
     setReviewsUpdated: Dispatch<SetStateAction<boolean>>;
     reviewsUpdated: boolean;
+    
 }
 
 
@@ -161,6 +163,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
         
     }
+   
+    
 
     return (
         <AuthContext.Provider
@@ -179,7 +183,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 reviewsWithCategory,
                 reviewsWithCategoryAll,
                 setReviewsUpdated,
-                reviewsUpdated
+                reviewsUpdated,
             }}
         >
             {children}
