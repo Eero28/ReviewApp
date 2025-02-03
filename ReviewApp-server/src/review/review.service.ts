@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { User } from 'src/users/entities/user.entity';
 import { UpdateReviewDto } from './dto/update-review.dto';
-import { GetCommentDto, GetLikeDto, GetReviewDto, GetUserDto } from './dto/get-review.dto';
+import { TensorflowService } from 'src/tensorflow/tensorflow.service';
 
 @Injectable()
 export class ReviewService {
@@ -15,8 +15,8 @@ export class ReviewService {
 
         @InjectRepository(User)
         private userRepository: Repository<User>,
-    ) { }
 
+    ) { }
 
 
     async createReview(createReviewDto: CreateReviewDto): Promise<Review> {
@@ -40,22 +40,22 @@ export class ReviewService {
 
     async findAllReviews(): Promise<Review[]> {
         const reviews = await this.reviewRepository.find({
-          relations: [
-            'user',
-            'likes',
-            'likes.user',
-            'comments',
-            'comments.user',
-            'comments.replies',        // Add replies relation for each comment
-            'comments.replies.user',   // Add user for each reply
-          ],
-          order: {
-            createdAt: 'DESC',
-          },
+            relations: [
+                'user',
+                'likes',
+                'likes.user',
+                'comments',
+                'comments.user',
+                'comments.replies',        // Add replies relation for each comment
+                'comments.replies.user',   // Add user for each reply
+            ],
+            order: {
+                createdAt: 'DESC',
+            },
         });
-      
+
         return reviews;
-      }
+    }
 
 
     async getReviewsByCategory(category: string): Promise<Review[]> {
@@ -63,15 +63,15 @@ export class ReviewService {
             where: { category },
             relations: ['user'],
         });
-    
+
         if (reviews.length === 0) {
-            return []; 
+            return [];
         }
-    
+
         return reviews;
     }
 
-    async getUserReviewsByCategory(id_user: number): Promise<Review[]> {
+    async getUserReviewsByid(id_user: number): Promise<Review[]> {
         if (!id_user) {
             throw new NotFoundException(`User with ID ${id_user} not found`);
         }
@@ -90,7 +90,7 @@ export class ReviewService {
     async findAllByUserIdWithCategory(id_user: number, category?: string): Promise<Review[]> {
         let userReviews;
 
-        if(!id_user){
+        if (!id_user) {
             throw new NotFoundException(`User with ID ${id_user} not found`);
         }
 
@@ -162,16 +162,16 @@ export class ReviewService {
 
     async deleteReview(id_review: number, req: any): Promise<void> {
         const user: User = req.user;
-        
+
         const review = await this.reviewRepository.findOne({ where: { id_review } });
         if (!review) {
             throw new NotFoundException(`Review with ID ${id_review} not found`);
         }
-    
+
         if (review.user.id_user !== user.id_user) {
             throw new ForbiddenException('You can only delete your own reviews');
         }
-    
+
         const result = await this.reviewRepository.delete(id_review);
         if (result.affected === 0) {
             throw new NotFoundException(`Review with ID ${id_review} not found`);

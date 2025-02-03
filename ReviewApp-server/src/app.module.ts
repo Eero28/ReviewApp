@@ -10,6 +10,7 @@ import { LikeModule } from './like/like.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ReplyModule } from './reply/reply.module';
+import { TensorflowModule } from './tensorflow/tensorflow.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ReplyModule } from './reply/reply.module';
     CommentsModule,
     LikeModule,
     ReplyModule,
+    TensorflowModule,
   ],
   controllers: [AppController],
   providers: [

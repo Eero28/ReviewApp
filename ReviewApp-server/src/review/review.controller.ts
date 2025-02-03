@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Request, UseGuards, HttpException, HttpStatus } from '@nestjs/common';
 import { ReviewService } from './review.service';
 import { Review } from './entities/review.entity';
 import { CreateReviewDto } from './dto/create-review.dto';
@@ -25,7 +25,7 @@ export class ReviewController {
 
     @Get('user/:id_user')
     async getUserReviewsByCategory(@Param('id_user') id_user: number): Promise<Review[]> {
-        return this.reviewService.getUserReviewsByCategory(id_user);
+        return this.reviewService.getUserReviewsByid(id_user);
     }
 
     @Get('users/:id_user/reviews')

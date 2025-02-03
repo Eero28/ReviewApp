@@ -33,6 +33,7 @@ const ProfileScreen = () => {
       />
       <Text style={styles.userName}>{userInfo?.username}</Text>
       <Text style={styles.userEmail}>{userInfo?.email}</Text>
+      <Text style={styles.userEmail}>ID{userInfo?.id_user}</Text>
       <TouchableOpacity style={styles.logoutButton} onPress={toggleSheet}>
         <Text style={styles.logoutButtonText}>Logout</Text>
       </TouchableOpacity>
