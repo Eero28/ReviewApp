@@ -1,13 +1,21 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
 import { useAuth } from "../ContexApi";
 import { useNavigation } from "@react-navigation/native";
 import BottomSheetScrollView from "../components/BottomSheetScrollView";
+import CarouselComponent from "../components/CarouselComponent";
+import axios from "axios";
+// @ts-expect-error: Ignore the issue with the import from @env.
+import { API_URL } from "@env";
+import { ReviewItemIf } from "../interfaces/ReviewItemIf";
+
 
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const { handleLogout, userInfo } = useAuth();
+
+  const [recommendations, setRecommendations] = useState<ReviewItemIf[]>([]);
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -24,6 +32,27 @@ const ProfileScreen = () => {
   const cancelLogout = () => {
     toggleSheet();
   };
+  console.log("user", userInfo?.id_user)
+  
+
+  const getRecommendations = async (id_user: number) =>{
+
+    if(!id_user){
+      console.log("error fetching recommendations")
+      return
+    }
+    const response = await axios.get(`${API_URL}/tensorflow/recommendations/${id_user}`)
+    const reviews = response.data.data
+    setRecommendations(reviews)
+  }
+
+  useEffect(() => {
+    if (userInfo?.id_user) {
+      getRecommendations(userInfo.id_user);
+    } else {
+      console.log("No user ID available");
+    }
+  }, [userInfo]); 
 
   return (
     <View style={styles.container}>
@@ -37,7 +66,7 @@ const ProfileScreen = () => {
       <TouchableOpacity style={styles.logoutButton} onPress={toggleSheet}>
         <Text style={styles.logoutButtonText}>Logout</Text>
       </TouchableOpacity>
-
+      <CarouselComponent data={recommendations}/>
       <BottomSheetScrollView
       isOpen={isOpen}
       backgroundColor="#111213"

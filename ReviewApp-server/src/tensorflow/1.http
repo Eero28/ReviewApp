@@ -1,2 +1,2 @@
 ### Test for Recommending Reviews
-GET http://localhost:3000/tensorflow/recommendations/5
+GET http://localhost:3000/tensorflow/recommendations/4

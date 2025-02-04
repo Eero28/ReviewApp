@@ -5,7 +5,7 @@ import { API_URL } from "@env";
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 import { UserInfo } from './interfaces/UserInfo';
 import { ReviewItemIf } from './interfaces/ReviewItemIf';
-import { Comment } from './interfaces/Comment';
+
 
 
 interface AuthContextProps {
