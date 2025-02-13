@@ -13,6 +13,7 @@ This project was designed to deepen my understanding of NestJS and React Native 
   - Add comments to reviews
   - Liking system
   - Modals
+  - CI/CD Docker, Kubernetes
 
 ## **Key Technologies Used:**
 

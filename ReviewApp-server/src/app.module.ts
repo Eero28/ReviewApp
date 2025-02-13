@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { APP_INTERCEPTOR } from '@nestjs/core';
-import {GlobalResponseInterceptor} from '../Error/Interceptor'
+import { GlobalResponseInterceptor } from './Error/Interceptor';
 import { UsersModule } from './users/users.module';
 import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './auth/auth.module';
@@ -14,6 +15,7 @@ import { TensorflowModule } from './tensorflow/tensorflow.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
     UsersModule,
     DatabaseModule,
     AuthModule,
