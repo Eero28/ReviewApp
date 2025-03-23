@@ -7,7 +7,6 @@
 This project was designed to deepen my understanding of NestJS and React Native by building a full-stack application. I wanted to gain hands-on experience with NestJS for the back-end and React Native for the front-end, allowing me to enhance my skills in both areas. Through this project, I have been able to explore these technologies in a practical context, creating something functional that I can continue to expand and refine as I learn and grow.
 
 - **Key Features**:
-
   - User Login and register
   - Add reviews by filling a form
   - Add comments to reviews
@@ -20,12 +19,12 @@ This project was designed to deepen my understanding of NestJS and React Native 
 
 - **Front-end**:
   - TypeScript
-- [React Native](https://reactnative.dev/): Used for building the mobile application, ensuring a smooth and responsive user experience.
-- [Expo](https://expo.dev/): Simplifies development with features like Expo Camera.
-- State Management: Contex Api
-- Navigation: [React Navigation](https://reactnavigation.org/) for handling screens and navigations.
-- Animations: [Reanimated](https://docs.swmansion.com/react-native-reanimated/) for searchbar and modals.
-- Async Storage: Store user info.
+  - [React Native](https://reactnative.dev/): Used for building the mobile application, ensuring a smooth and responsive user experience.
+  - [Expo](https://expo.dev/): Simplifies development with features like Expo Camera.
+  - State Management: Contex Api
+  - Navigation: [React Navigation](https://reactnavigation.org/) for handling screens and navigations.
+  - Animations: [Reanimated](https://docs.swmansion.com/react-native-reanimated/) for searchbar and modals.
+  - Async Storage: Store user info.
 
 - **Back-end**:
   - TypeScript
