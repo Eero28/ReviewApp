@@ -12,10 +12,20 @@ This project was designed to deepen my understanding of NestJS and React Native 
   - Add reviews by filling a form
   - Add comments to reviews
   - Liking system
+  - Search reviews and other users
   - Modals
-  - CI/CD Docker, Kubernetes
+  - CI/CD Docker
 
 ## **Key Technologies Used:**
+
+- **Front-end**:
+  - TypeScript
+- [React Native](https://reactnative.dev/): Used for building the mobile application, ensuring a smooth and responsive user experience.
+- [Expo](https://expo.dev/): Simplifies development with features like Expo Camera.
+- State Management: Contex Api
+- Navigation: [React Navigation](https://reactnavigation.org/) for handling screens and navigations.
+- Animations: [Reanimated](https://docs.swmansion.com/react-native-reanimated/) for searchbar and modals.
+- Async Storage: Store user info.
 
 - **Back-end**:
   - TypeScript
@@ -23,10 +33,6 @@ This project was designed to deepen my understanding of NestJS and React Native 
   - [PostgreSQL](https://www.postgresql.org/)
   - [TypeORM](https://typeorm.io/)
 
-- **Front-end**:
-  - TypeScript
-  - [Expo](https://expo.dev/): Expo camera
-  - [React Native](https://reactnative.dev/): Reanimated, Async storage, [React navigation](https://reactnavigation.org/)
 
 ## Database Schema
 
