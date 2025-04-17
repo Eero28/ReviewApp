@@ -136,7 +136,12 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
             />
             <View style={styles.cardInfo}>
                 <Text style={styles.title}>{item.reviewname}</Text>
-                <StarRating starSize={20} rating={item.reviewRating} onChange={() => { }} color="#0f3c85" />
+                <StarRating
+                    starSize={20}
+                    rating={Math.round(item.reviewRating)}
+                    onChange={() => { }}
+                    color="#0f3c85"
+                />
                 <Text style={styles.description}>Category: {checkValue(item.category)}</Text>
                 <Text style={styles.description}>Reviewed by: {item.user.username}</Text>
             </View>
@@ -155,7 +160,7 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
                     <Text style={styles.commentCount}>{item.comments.length}</Text>
                 </TouchableOpacity>
             </View>
-            
+
             <ModalDialog
                 dialogTitle={`Delete "${item.reviewname}"?`}
                 visible={showDialogModal}

@@ -23,10 +23,10 @@ type RootStackParamList = {
 
 
 const ReviewDetails: FC = () => {
-  const {setReviewsUpdated, reviewsUpdated} = useAuth()
+  const { setReviewsUpdated, reviewsUpdated } = useAuth()
   const route = useRoute<RouteProp<RootStackParamList, 'ReviewDetails'>>();
   const { item } = route.params;
-  
+
   const [comments, setComments] = useState<Comment[]>([]);
 
   // Bottom Sheet
@@ -57,7 +57,12 @@ const ReviewDetails: FC = () => {
         <Text style={styles.title}>{item.reviewname}</Text>
         <Image style={styles.image} source={{ uri: item.imageUrl }} />
         <View style={styles.ratingContainer}>
-          <StarRating rating={item.reviewRating} onChange={() => { }} color="#0f3c85" />
+          <StarRating
+            starSize={20}
+            rating={Math.round(item.reviewRating)}
+            onChange={() => { }}
+            color="#0f3c85"
+          />
           <Text style={styles.ratingText}>({item.reviewRating})</Text>
         </View>
         <Text style={styles.text}>{item.reviewDescription}</Text>

@@ -1,4 +1,14 @@
+name: nestjs-expo-app
+
 services:
+  postgres:
+    image: postgres:13
+    restart: unless-stopped
+    env_file: ./ReviewApp-server/.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - nestjs-expo-app
   api:
     build:
       context: ./ReviewApp-server
@@ -12,8 +22,10 @@ services:
       - nestjs-expo-app
     ports:
       - 4000:4000
+    depends_on:
+    - postgres
 
-  expo:
+  expo: 
     build:
       context: ./ReviewApp
       dockerfile: Dockerfile
@@ -30,6 +42,9 @@ services:
     depends_on:
       - api
 
+volumes:
+  postgres_data:
 networks:
   nestjs-expo-app:
     driver: bridge
+  
