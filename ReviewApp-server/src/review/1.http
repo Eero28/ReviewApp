@@ -12,12 +12,12 @@ Content-Type: application/json
 }
 
 ### Create a new user
-POST  http://localhost:3000/users/register
+POST  https://reviewapp-d7gtbubkavccggah.germanywestcentral-01.azurewebsites.net/users/register
 Content-Type: application/json
 
 {
     "password": "S",
-    "email": "S",
+    "email": "something@something.com",
     "username": "Eero"
 }
 

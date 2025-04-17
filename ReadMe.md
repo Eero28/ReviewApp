@@ -13,7 +13,8 @@ This project was designed to deepen my understanding of NestJS and React Native 
   - Liking system
   - Search reviews and other users
   - Modals
-  - CI/CD Docker
+  - CI/CD
+  - Docker and Azure
 
 ## **Key Technologies Used:**
 
@@ -37,7 +38,9 @@ This project was designed to deepen my understanding of NestJS and React Native 
 
 ![My Image](assets/Database.PNG)
 
-This section describes the key entities and their relationships in the application’s PostgreSQL database.
+This section describes the key entities and their relationships in the application’s PostgreSQL database. Additionally, I've created Docker images and deployed them to Azure for a limited time due to cost considerations.
+
+![My Image](assets/Capture.PNG)
 
 ### **User Entity**
 

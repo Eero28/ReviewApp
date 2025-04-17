@@ -1,60 +1,41 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { Client } from 'pg';
+import { DataSource } from 'typeorm';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => {
-        const dbName = configService.get('POSTGRES_DB');
-        const dbHost = configService.get('POSTGRES_HOST');
-        const dbPort = configService.get('POSTGRES_PORT');
-        const dbUser = configService.get('POSTGRES_USER');
-        const dbPassword = configService.get('POSTGRES_PASSWORD');
-
-        const client = new Client({
-          host: dbHost,
-          port: dbPort,
-          user: dbUser,
-          password: dbPassword,
+      useFactory: async () => {
+        const dataSource = new DataSource({
+          type: 'postgres',
+          url: `postgres://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@${process.env.POSTGRES_HOST}:${process.env.POSTGRES_PORT || 5432}/${process.env.POSTGRES_DB}?sslmode=${process.env.POSTGRES_SSL_MODE || 'require'}`,
+          ssl: {
+            rejectUnauthorized: false,
+          },
+          entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+          synchronize: true,
         });
 
         try {
-          console.log('Connecting to the database...');
-          await client.connect();
-
-          // Check if the database exists
-          const res = await client.query(`
-            SELECT 1 FROM pg_database WHERE datname = '${dbName}'
-          `);
-          if (res.rowCount === 0) {
-            console.log(`Database ${dbName} does not exist. Creating...`);
-            await client.query(`CREATE DATABASE "${dbName}"`);
-            console.log(`Database ${dbName} created successfully.`);
-          }
-
-          await client.end();
-          console.log('Database check complete.');
-        } catch (error) {
-          console.error('Error connecting to the database or checking database existence:', error);
+          await dataSource.initialize();
+          console.log('Database connection is OK!');
+          await dataSource.destroy();
+        } catch (err) {
+          console.error('Failed to connect to the database:', err);
+          process.exit(1); 
         }
 
         return {
           type: 'postgres',
-          host: dbHost,
-          port: dbPort,
-          username: dbUser,
-          password: dbPassword,
-          database: dbName,
+          url: `postgres://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@${process.env.POSTGRES_HOST}:${process.env.POSTGRES_PORT || 5432}/${process.env.POSTGRES_DB}?sslmode=${process.env.POSTGRES_SSL_MODE || 'require'}`,
+          ssl: {
+            rejectUnauthorized: false,
+          },
           entities: [__dirname + '/../**/*.entity{.ts,.js}'],
           synchronize: true,
         };
       },
-      inject: [ConfigService],
     }),
   ],
 })
-export class DatabaseModule { }
+export class DatabaseModule {}

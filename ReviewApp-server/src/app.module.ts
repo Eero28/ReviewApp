@@ -15,7 +15,7 @@ import { TensorflowModule } from './tensorflow/tensorflow.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
     UsersModule,
     DatabaseModule,
     AuthModule,
