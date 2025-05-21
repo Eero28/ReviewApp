@@ -1,9 +1,7 @@
 import { StyleSheet, Text, View, TextInput, Button } from 'react-native';
-import React, { FC } from 'react';
+import React, { FC, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { useAuth } from '../ContexApi';
-
-
 
 interface LoginData {
   email: string;
@@ -11,21 +9,21 @@ interface LoginData {
 }
 
 const LoginScreen: FC<{ navigation: any }> = ({ navigation }) => {
-  const { control, handleSubmit, formState: { errors } } = useForm();
+  const { control, handleSubmit, formState: { errors } } = useForm<LoginData>();
   const { handleLogin } = useAuth();
+  const [loginError, setLoginError] = useState(false);
 
-  const onSubmit = async (data) => {
-    const loginData: LoginData = {
-      email: data.email,
-      password: data.password
-    };
-
+  const onSubmit = async ({ email, password }: LoginData) => {
+    setLoginError(false);
     try {
-      await handleLogin(loginData.email, loginData.password);
-    } catch (error: any) {
-      console.error("Login error:", error);
+      await handleLogin(email, password);
+    } catch {
+      setLoginError(true);
     }
   };
+
+  const renderError = (fieldError?: { message?: string }) =>
+    fieldError?.message ? <Text style={styles.error}>{fieldError.message}</Text> : null;
 
   return (
     <View style={styles.container}>
@@ -36,20 +34,20 @@ const LoginScreen: FC<{ navigation: any }> = ({ navigation }) => {
         <Controller
           control={control}
           rules={{ required: 'Email is required' }}
+          name="email"
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInput
               style={styles.input}
-              placeholder="Enter username"
+              placeholder="Enter email"
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
+              keyboardType="email-address"
+              autoCapitalize="none"
             />
           )}
-          name="email"
         />
-         {errors.email && (
-          <Text style={styles.error}>{(errors.email as { message?: string }).message}</Text>
-        )}
+        {renderError(errors.email)}
       </View>
 
       <View style={styles.inputContainer}>
@@ -57,6 +55,7 @@ const LoginScreen: FC<{ navigation: any }> = ({ navigation }) => {
         <Controller
           control={control}
           rules={{ required: 'Password is required' }}
+          name="password"
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInput
               style={styles.input}
@@ -65,20 +64,17 @@ const LoginScreen: FC<{ navigation: any }> = ({ navigation }) => {
               onChangeText={onChange}
               value={value}
               secureTextEntry
+              autoCapitalize="none"
             />
           )}
-          name="password"
         />
-        {errors.password && (
-          <Text style={styles.error}>{(errors.password as { message?: string }).message}</Text>
-        )}
+        {renderError(errors.password)}
       </View>
 
+      {loginError && <Text style={[styles.error, styles.errorCredentials]}>Wrong credentials!</Text>}
+
       <Button title="Login" onPress={handleSubmit(onSubmit)} />
-      <Button
-        title="Don't have an account? Register"
-        onPress={() => navigation.navigate('Register')}
-      />
+      <Button title="Don't have an account? Register" onPress={() => navigation.navigate('Register')} />
     </View>
   );
 };
@@ -110,5 +106,9 @@ const styles = StyleSheet.create({
     color: 'red',
     marginTop: 5,
     fontSize: 12,
+  },
+  errorCredentials: {
+    textAlign: 'center',
+    marginBottom: 10,
   },
 });

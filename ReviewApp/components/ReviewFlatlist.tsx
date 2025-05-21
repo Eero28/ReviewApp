@@ -85,7 +85,7 @@ const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false }) => {
                     </TouchableOpacity>
                 )}
 
-                {filteredReviews.length === 0 && !searchTerm ? (
+                {filteredReviews.length === 0 && searchTerm ? (
                     <Text style={styles.noResultsText}>No search results found</Text>
                 ) : (
                     <FlatList

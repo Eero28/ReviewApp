@@ -12,6 +12,7 @@ const FilterButtons: FC<Props> = ({ fetchReviewsWithCategory }) => {
     const [activeCategory, setActiveCategory] = useState<string | undefined>(undefined);
     
     const handlePress = (categoryValue?: string) => {
+        console.log(categoryValue)
         setActiveCategory(categoryValue);
         fetchReviewsWithCategory(categoryValue);
     };

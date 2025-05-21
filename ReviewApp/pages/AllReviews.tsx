@@ -7,6 +7,7 @@ import FilterButtons from '../components/FilterButtons'
 
 const AllReviews = () => {
   const { allReviews, reviewsWithCategoryAll } = useAuth()
+  console.log(allReviews)
   return (
     <>
       <FilterButtons fetchReviewsWithCategory={reviewsWithCategoryAll}/>

@@ -1,10 +1,10 @@
 
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '../users/entities/user.entity';
 import * as bcrypt from 'bcryptjs';
-import { LoginDto } from './dto/login.dto';// Create this DTO
+import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -25,7 +25,6 @@ export class AuthService {
         const user = await this.validateUser(loginDto.email, loginDto.password);
 
         if (!user) {
-            // Instead of throwing a generic error, send a custom message
             throw new UnauthorizedException({
                 message: 'Invalid credentials. Please check your email and password.',
             });
@@ -33,7 +32,7 @@ export class AuthService {
         const payload = { email: user.email, sub: user.id_user, role: user.role, username: user.username };
         console.log(payload)
         return {
-            access_token: this.jwtService.sign(payload, { expiresIn: '1h' }),
+            access_token: this.jwtService.sign(payload, { expiresIn: '2 days' }),
             email: user.email,
             id_user: user.id_user,
             role: user.role,

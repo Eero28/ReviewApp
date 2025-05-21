@@ -157,7 +157,7 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.iconWrapper}>
                     <MaterialCommunityIcons name="chat-outline" size={24} color="black" />
-                    <Text style={styles.commentCount}>{item.comments.length}</Text>
+                    <Text style={styles.commentCount}>{item.comments?.length ?? 0}</Text>
                 </TouchableOpacity>
             </View>
 
