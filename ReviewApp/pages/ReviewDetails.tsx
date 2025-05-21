@@ -16,16 +16,22 @@ import { RouteProp, useRoute } from '@react-navigation/native';
 import { ReviewItemIf } from '../interfaces/ReviewItemIf';
 import { useAuth } from '../ContexApi';
 
-
 type RootStackParamList = {
-  ReviewDetails: { item: ReviewItemIf };
+  ReviewDetails: {
+    item: ReviewItemIf;
+    showComment?: boolean; 
+  };
 };
+
+
 
 
 const ReviewDetails: FC = () => {
   const { setReviewsUpdated, reviewsUpdated } = useAuth()
+
+  // Get params using route
   const route = useRoute<RouteProp<RootStackParamList, 'ReviewDetails'>>();
-  const { item } = route.params;
+  const { item, showComment } = route.params;
 
   const [comments, setComments] = useState<Comment[]>([]);
 
@@ -48,6 +54,9 @@ const ReviewDetails: FC = () => {
   };
 
   useEffect(() => {
+    if(showComment){
+      toggleSheet()
+    }
     getReviewComments();
   }, []);
 
@@ -85,7 +94,7 @@ const ReviewDetails: FC = () => {
       </ScrollView>
 
       <BottomSheetFlatList
-        renderItem={({ item }: { item: Comment }) => <UserComment getReviewComments={getReviewComments} item={item} />}
+        renderItem={({ item }) => <UserComment item={item} getReviewComments={getReviewComments} />}
         data={comments}
         ListEmptyComponent={EmptyList}
         onClose={toggleSheet}

@@ -1,6 +1,13 @@
-import React, { FC, useEffect, useState, useRef } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity } from 'react-native';
-import { screenHeight } from '../helpers/dimensions'; // Use screen height
+import React, { useEffect, useState, useRef } from 'react';
+import {
+  StyleSheet,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ListRenderItem,
+} from 'react-native';
+import { screenHeight } from '../helpers/dimensions';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -15,9 +22,11 @@ import {
 } from 'react-native-gesture-handler';
 import axios from 'axios';
 import { useAuth } from '../ContexApi';
-import Icon from '../components/Icon'
-// @ts-expect-error: Ignore the issue with the import from @env.
+import Icon from './Icon';
+import { Comment } from '../interfaces/Comment';
+// @ts-expect-error
 import { API_URL } from '@env';
+
 interface BottomSheetProps {
   isOpen: boolean;
   snapPoints: string[];
@@ -25,7 +34,7 @@ interface BottomSheetProps {
   handleColor?: string;
   onClose: () => void;
   data: any;
-  renderItem: React.FC;
+  renderItem: ListRenderItem<Comment>;
   ListEmptyComponent: React.FC;
   handleTitle?: string;
   ListHeaderComponent?: React.FC;
@@ -35,7 +44,7 @@ interface BottomSheetProps {
   getReviewComments: () => void;
 }
 
-const BottomSheetFlatList: FC<BottomSheetProps> = ({
+function BottomSheetFlatList({
   isOpen,
   snapPoints,
   backgroundColor,
@@ -44,20 +53,18 @@ const BottomSheetFlatList: FC<BottomSheetProps> = ({
   data,
   renderItem,
   ListEmptyComponent,
-  handleTitle = "",
+  handleTitle = '',
   ListHeaderComponent,
   commentInput,
   id_review,
-  getReviewComments
-}) => {
-
-  const { userInfo, handleLogout } = useAuth()
+  getReviewComments,
+}: BottomSheetProps) {
+  const { userInfo, handleLogout } = useAuth();
 
   const snapPositions = snapPoints.map((point) => parseFloat(point.replace('%', '')) / 100);
   const closeHeight = screenHeight;
   const translateY = useSharedValue(closeHeight);
   const context = useSharedValue(0);
-
   const scrollBegin = useSharedValue(0);
   const scrollY = useSharedValue(0);
 
@@ -75,7 +82,6 @@ const BottomSheetFlatList: FC<BottomSheetProps> = ({
     })
     .onUpdate((event) => {
       const newTranslateY = context.value + event.translationY;
-
       translateY.value = Math.max(newTranslateY, 0);
     })
     .onEnd(() => {
@@ -85,10 +91,7 @@ const BottomSheetFlatList: FC<BottomSheetProps> = ({
         return currDistance < prevDistance ? curr : prev;
       });
 
-      translateY.value = withTiming(screenHeight - screenHeight * closestSnap, {
-        duration: 200,
-        easing: (t) => t,
-      });
+      translateY.value = withTiming(screenHeight - screenHeight * closestSnap, { duration: 200 });
 
       const lowestPosition = Math.min(...snapPositions);
       if (closestSnap === lowestPosition) {
@@ -123,10 +126,8 @@ const BottomSheetFlatList: FC<BottomSheetProps> = ({
           return currDistance < prevDistance ? curr : prev;
         });
 
-        translateY.value = withTiming(screenHeight - screenHeight * closestSnap, {
-          duration: 200,
-          easing: (t) => t,
-        });
+        translateY.value = withTiming(screenHeight - screenHeight * closestSnap, { duration: 200 });
+
         const lowestPosition = Math.min(...snapPositions);
         if (closestSnap === lowestPosition) {
           runOnJS(onClose)();
@@ -136,16 +137,13 @@ const BottomSheetFlatList: FC<BottomSheetProps> = ({
 
   const scrollViewGesture = Gesture.Native();
 
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateY: translateY.value }],
-    };
-  });
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+  }));
 
-  //comments
-
-  const [commentText, setCommentText] = useState<string>('');
+  const [commentText, setCommentText] = useState('');
   const commentInputRef = useRef<TextInput | null>(null);
+
   const openKeyboard = () => {
     if (commentInput && commentInputRef.current) {
       commentInputRef.current.focus();
@@ -153,29 +151,27 @@ const BottomSheetFlatList: FC<BottomSheetProps> = ({
   };
 
   const makeComment = async () => {
-    try{
+    try {
       const data = {
         id_user: userInfo?.id_user,
-        id_review: id_review,
-        text: commentText
-  
-      }
-      await axios.post(`${API_URL}/comments`, data)
-      getReviewComments()
-      setCommentText('')
-    }
-    catch(error){
-      console.log(error)
-      if (error.response && error.response.status === 401) {
+        id_review,
+        text: commentText,
+      };
+      await axios.post(`${API_URL}/comments`, data);
+      getReviewComments();
+      setCommentText('');
+    } catch (error: any) {
+      console.log(error);
+      if (error.response?.status === 401) {
         alert("Token expired or invalid. Logging out...");
         await handleLogout();
+      }
     }
-    }
-  }
-  useEffect(() => {
-    openKeyboard()
-  }, [commentInput]);
+  };
 
+  useEffect(() => {
+    openKeyboard();
+  }, [commentInput]);
 
   return (
     <GestureDetector gesture={pan}>
@@ -184,9 +180,7 @@ const BottomSheetFlatList: FC<BottomSheetProps> = ({
           <View style={[styles.line, { backgroundColor: handleColor }]} />
           <Text style={styles.text}>{handleTitle}</Text>
         </View>
-        <GestureDetector
-          gesture={Gesture.Simultaneous(panScroll, scrollViewGesture)}
-        >
+        <GestureDetector gesture={Gesture.Simultaneous(panScroll, scrollViewGesture)}>
           <Animated.FlatList
             scrollEventThrottle={16}
             bounces={false}
@@ -196,41 +190,35 @@ const BottomSheetFlatList: FC<BottomSheetProps> = ({
             data={data}
             ListEmptyComponent={ListEmptyComponent}
             ListHeaderComponent={ListHeaderComponent}
-          >
-          </Animated.FlatList>
+          />
         </GestureDetector>
         {commentInput && (
           <View style={styles.footerContainer}>
             <TextInput
               ref={commentInputRef}
               value={commentText}
-              onChangeText={(val) => setCommentText(val)}
+              onChangeText={setCommentText}
               style={styles.inputField}
               placeholder="Type your comment..."
               placeholderTextColor="whitesmoke"
             />
-            {commentText ? <TouchableOpacity style={styles.addCommentButton} onPress={makeComment}>
-              <Icon size={35} name='upArrow' />
-            </TouchableOpacity>
-              :
-              ''
-            }
-
+            {!!commentText && (
+              <TouchableOpacity style={styles.addCommentButton} onPress={makeComment}>
+                <Icon size={35} name="upArrow" />
+              </TouchableOpacity>
+            )}
           </View>
         )}
       </Animated.View>
     </GestureDetector>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    height: 'auto',
-    display: 'flex',
-    flexDirection: 'column',
     justifyContent: 'space-between',
   },
   lineContainer: {
@@ -242,16 +230,15 @@ const styles = StyleSheet.create({
     height: 6,
     borderRadius: 20,
   },
-  scrollContent: {
-    paddingBottom: 0,
-  },
   text: {
     padding: 10,
     fontFamily: 'poppins',
-    color: 'whitesmoke'
+    color: 'whitesmoke',
+  },
+  scrollContent: {
+    paddingBottom: 0,
   },
   footerContainer: {
-    display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
     backgroundColor: '#121314',
@@ -268,7 +255,7 @@ const styles = StyleSheet.create({
   addCommentButton: {
     padding: 10,
     borderRadius: 10,
-  }
+  },
 });
 
 export default BottomSheetFlatList;

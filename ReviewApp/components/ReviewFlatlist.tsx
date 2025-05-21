@@ -117,6 +117,7 @@ const styles = StyleSheet.create({
     },
     itemWrapper: {
         flex: 1,
+        flexWrap: "nowrap",
         padding: 5,
     },
     listContainer: {

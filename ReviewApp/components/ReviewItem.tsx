@@ -23,7 +23,7 @@ type Props = {
 
 const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
     const { deleteReview, userInfo, setReviewsUpdated, reviewsUpdated } = useAuth();
-    const [showDialogModal, setShowDialogModal] = useState<boolean>(false);
+    const [showDialogModal, setShowDialogModal] = useState<boolean>(false) ;
     const [isLongPress, setIsLongPress] = useState<boolean>(false);
     const [likesState, setLikesState] = useState<usersLiked>({
         user: [],
@@ -119,7 +119,11 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
         }
         // @ts-expect-error: fix later
         return <Icon size={20} name={category.icon} />;
-    };
+    };   
+
+    const commentSection = (item_id) =>{
+        navigation.navigate('ReviewDetails', { item: item, showComment: true });
+    }
 
     return (
         <TouchableOpacity
@@ -143,7 +147,7 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
                     color="#0f3c85"
                 />
                 <Text style={styles.description}>Category: {checkValue(item.category)}</Text>
-                <Text style={styles.description}>Reviewed by: {item.user.username}</Text>
+                <Text ellipsizeMode='tail' numberOfLines={1} style={styles.description}>Reviewed by: {item.user.username}</Text>
             </View>
 
             <View style={styles.iconContainer}>
@@ -155,7 +159,7 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
                     />
                     <Text style={styles.commentCount}>{likesState.user.length}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.iconWrapper}>
+                <TouchableOpacity onPress={() =>commentSection(item.id_review)} style={styles.iconWrapper}>
                     <MaterialCommunityIcons name="chat-outline" size={24} color="black" />
                     <Text style={styles.commentCount}>{item.comments?.length ?? 0}</Text>
                 </TouchableOpacity>
