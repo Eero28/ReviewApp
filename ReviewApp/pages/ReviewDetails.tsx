@@ -5,7 +5,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { FontAwesome } from '@expo/vector-icons';
 import UserComment from '../components/UserComment';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Comment } from '../interfaces/Comment'; // Assuming you've defined Comment
+import { Comment } from '../interfaces/Comment';
 import axios from 'axios';
 // @ts-expect-error: Ignore the issue with the import from @env.
 import { API_URL } from '@env';
@@ -15,25 +15,30 @@ import EmptyList from '../components/EmptyList';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { ReviewItemIf } from '../interfaces/ReviewItemIf';
 import { useAuth } from '../ContexApi';
+import { toggleLike, getReviewLikes } from '../helpers/services/reviewService';
+import AnimatedRecommendations from '../components/AnimatedRecommendations';
+
 
 type RootStackParamList = {
   ReviewDetails: {
     item: ReviewItemIf;
-    showComment?: boolean; 
+    showComment?: boolean;
   };
 };
 
-
-
-
 const ReviewDetails: FC = () => {
-  const { setReviewsUpdated, reviewsUpdated } = useAuth()
+  const { setReviewsUpdated, reviewsUpdated, userInfo } = useAuth();
 
   // Get params using route
   const route = useRoute<RouteProp<RootStackParamList, 'ReviewDetails'>>();
   const { item, showComment } = route.params;
 
   const [comments, setComments] = useState<Comment[]>([]);
+  const [recommendations, setRecommendations] = useState<[]>()
+  const [likesState, setLikesState] = useState<{ user: any; isLiked: boolean }>({
+    user: item.likes || [],
+    isLiked: false,
+  });
 
   // Bottom Sheet
   const [isOpen, setIsOpen] = useState(false);
@@ -41,24 +46,55 @@ const ReviewDetails: FC = () => {
     setIsOpen(!isOpen);
   };
 
+  const getRecommendations = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/tensorflow/recommendations/${userInfo?.id_user}`)
+      setRecommendations(response.data.data)
+
+    } catch (error) {
+      console.log(error)
+    }
+
+  }
+
   const getReviewComments = async () => {
     try {
       const response = await axios.get(`${API_URL}/comments/review/${item.id_review}`);
       if (response.data && response.data.data) {
         setComments(response.data.data);
       }
-      setReviewsUpdated(!reviewsUpdated);
     } catch (error) {
       console.error('Failed to fetch comments:', error);
     }
   };
 
   useEffect(() => {
-    if(showComment){
-      toggleSheet()
+    if (userInfo?.id_user) {
+      getReviewLikes(userInfo.id_user, item.id_review, setLikesState);
+      getRecommendations();
     }
+
+    if (showComment) {
+      toggleSheet();
+    }
+
     getReviewComments();
-  }, []);
+  }, [item.id_review, userInfo?.id_user]);
+
+
+  const onLikePress = async () => {
+    if (!userInfo) return;
+    await toggleLike(likesState, userInfo, item.id_review, setLikesState);
+    setReviewsUpdated(!reviewsUpdated);
+  };
+
+  const hasRecommendations = () => {
+    if(!recommendations){
+      return
+    }
+    return recommendations?.length > 0;
+  };
+  
 
   return (
     <SafeAreaView style={styles.container}>
@@ -74,34 +110,51 @@ const ReviewDetails: FC = () => {
           />
           <Text style={styles.ratingText}>({item.reviewRating})</Text>
         </View>
-        <Text style={styles.text}>{item.reviewDescription}</Text>
-        <Text style={styles.text}>Reviewed: {calculateDate(item.createdAt)}</Text>
-        <Text style={styles.text}>Reviewed By: {item.user.username}</Text>
+        <View style={styles.textContainer}>
+          <Text style={styles.text}>{item.reviewDescription}</Text>
+          <Text style={styles.text}>Reviewed: {calculateDate(item.createdAt)}</Text>
+          <Text style={styles.text}>Reviewed By: {item.user.username}</Text>
+        </View>
+
         <View style={styles.statsContainer}>
           <TouchableOpacity onPress={toggleSheet} style={styles.pressable}>
-            <Text style={styles.text}>
-              <MaterialCommunityIcons name="chat-outline" size={24} color="black" />
-              {item.comments.length}
-            </Text>
+            <MaterialCommunityIcons name="chat-outline" size={24} color="black" />
+            <Text style={styles.text}>{comments.length}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.pressable}>
-            <Text style={styles.text}>
-              <FontAwesome name="heart" size={24} color="black" />
-              {item.likes.length}
-            </Text>
+          <TouchableOpacity onPress={onLikePress} style={styles.pressable}>
+            <FontAwesome
+              name={likesState.isLiked ? 'heart' : 'heart-o'}
+              size={24}
+              color={likesState.isLiked ? 'blue' : 'black'}
+            />
+            <Text style={styles.text}>{likesState.user.length}</Text>
           </TouchableOpacity>
         </View>
+
+        <Text>You could like these!</Text>
+        {hasRecommendations() && (
+          <>
+            <Text style={{ fontSize: 18, fontWeight: 'bold', marginVertical: 10 }}>You might also like:</Text>
+            <AnimatedRecommendations recommendations={recommendations || []} />
+          </>
+        )}
+
       </ScrollView>
 
+
+
+
       <BottomSheetFlatList
-        renderItem={({ item }) => <UserComment item={item} getReviewComments={getReviewComments} />}
+        renderItem={({ item }) => (
+          <UserComment item={item} getReviewComments={getReviewComments} />
+        )}
         data={comments}
         ListEmptyComponent={EmptyList}
         onClose={toggleSheet}
         snapPoints={['100%', '30%', '20%']}
         backgroundColor="#121314"
         isOpen={isOpen}
-        handleTitle='Comments'
+        handleTitle="Comments"
         commentInput
         id_review={item.id_review}
         getReviewComments={getReviewComments}
@@ -113,8 +166,8 @@ const ReviewDetails: FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#f0f4f8',
+    padding: 5,
+    backgroundColor: '#CDF2EC',
   },
   cardContainer: {
     alignItems: 'center',
@@ -123,6 +176,10 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginBottom: 20,
   },
+  textContainer: {
+    flex: 1,
+    justifyContent: 'flex-start',
+  },
   title: {
     fontSize: 22,
     fontWeight: 'bold',
@@ -130,11 +187,9 @@ const styles = StyleSheet.create({
     color: '#0f3c85',
   },
   image: {
-    height: 250,
+    borderRadius: 20,
     width: '100%',
-    borderRadius: 15,
-    marginVertical: 10,
-    resizeMode: 'cover',
+    aspectRatio: 3 / 2,
   },
   ratingContainer: {
     flexDirection: 'row',
@@ -152,7 +207,6 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   statsContainer: {
-    flex: 1,
     flexDirection: 'row',
     paddingVertical: 15,
     paddingHorizontal: 10,
@@ -166,20 +220,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 10,
+    borderRadius: 50,
     backgroundColor: '#eef2f7',
+    gap: 5,
   },
-  flatlistFooterText: {
-    color: 'whitesmoke',
-    fontFamily: 'poppins'
-  },
-  textInputField: {
-    backgroundColor: 'white',
-    height: 40,
-    margin: 12,
-    borderWidth: 1,
-    padding: 10,
-  }
 });
 
 export default ReviewDetails;

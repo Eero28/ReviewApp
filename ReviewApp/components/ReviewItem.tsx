@@ -14,7 +14,7 @@ import StarRating from 'react-native-star-rating-widget';
 import { API_URL } from "@env";
 import { categories } from '../helpers/categories';
 import Icon from './Icon';
-
+import { getReviewLikes, deleteLike } from '../helpers/services/reviewService';
 
 type Props = {
     item: ReviewItemIf;
@@ -23,48 +23,38 @@ type Props = {
 
 const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
     const { deleteReview, userInfo, setReviewsUpdated, reviewsUpdated } = useAuth();
-    const [showDialogModal, setShowDialogModal] = useState<boolean>(false) ;
+    const [showDialogModal, setShowDialogModal] = useState<boolean>(false);
     const [isLongPress, setIsLongPress] = useState<boolean>(false);
     const [likesState, setLikesState] = useState<usersLiked>({
         user: [],
         isLiked: false,
     });
 
-    const getReviewLikes = async () => {
-        try {
-            const response = await axios.get(`${API_URL}/likes/users/review/${item.id_review}`);
-            const usersWhoLiked = response.data.data;
-            const isLikedByUser = usersWhoLiked.some((like: UserInfo) => like.id_user === userInfo?.id_user);
-
-            setLikesState({
-                user: usersWhoLiked,
-                isLiked: isLikedByUser,
-            });
-        } catch (error) {
-            console.error('Error fetching review likes:', error);
-        }
-    };
 
     const likeReview = async () => {
         try {
-            await axios.post(`${API_URL}/likes/like/review/${item.id_review}`, { id_user: userInfo?.id_user });
-            getReviewLikes();
+            if (!userInfo?.id_user) {
+                throw new Error("User ID is missing");
+            }
+
+            await axios.post(`${API_URL}/likes/like/review/${item.id_review}`, {
+                id_user: userInfo.id_user,
+            });
+
+            getReviewLikes(userInfo.id_user, item.id_review, setLikesState);
         } catch (error) {
-            console.error('Error liking the review:', error);
+            console.error("Error liking the review:", error);
         }
     };
 
-    const deleteLike = async () => {
-        try {
-            await axios.delete(`${API_URL}/likes/unlike/review/${item.id_review}/user/${userInfo?.id_user}`);
-            getReviewLikes();
-        } catch (error) {
-            console.error('Error unliking the review:', error);
-        }
-    };
+
+    
 
     useEffect(() => {
-        getReviewLikes();
+        if (userInfo?.id_user) {
+            getReviewLikes(userInfo.id_user, item.id_review, setLikesState);
+        }
+
     }, [item]);
 
     const navigation = useNavigation<any>();
@@ -104,8 +94,8 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
     };
 
     const toggleLike = () => {
-        if (likesState.isLiked) {
-            deleteLike();
+        if (likesState.isLiked && userInfo) {
+            deleteLike(userInfo?.id_user,item.id_review,setLikesState);
         } else {
             likeReview();
         }
@@ -119,9 +109,9 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
         }
         // @ts-expect-error: fix later
         return <Icon size={20} name={category.icon} />;
-    };   
+    };
 
-    const commentSection = (item_id) =>{
+    const commentSection = () => {
         navigation.navigate('ReviewDetails', { item: item, showComment: true });
     }
 
@@ -159,7 +149,7 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
                     />
                     <Text style={styles.commentCount}>{likesState.user.length}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() =>commentSection(item.id_review)} style={styles.iconWrapper}>
+                <TouchableOpacity onPress={() => commentSection()} style={styles.iconWrapper}>
                     <MaterialCommunityIcons name="chat-outline" size={24} color="black" />
                     <Text style={styles.commentCount}>{item.comments?.length ?? 0}</Text>
                 </TouchableOpacity>

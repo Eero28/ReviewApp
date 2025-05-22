@@ -59,7 +59,7 @@ function BottomSheetFlatList({
   id_review,
   getReviewComments,
 }: BottomSheetProps) {
-  const { userInfo, handleLogout } = useAuth();
+  const { userInfo, handleLogout, reviewsUpdated, setReviewsUpdated } = useAuth();
 
   const snapPositions = snapPoints.map((point) => parseFloat(point.replace('%', '')) / 100);
   const closeHeight = screenHeight;
@@ -159,6 +159,7 @@ function BottomSheetFlatList({
       };
       await axios.post(`${API_URL}/comments`, data);
       getReviewComments();
+      setReviewsUpdated(!reviewsUpdated)
       setCommentText('');
     } catch (error: any) {
       console.log(error);
@@ -202,7 +203,7 @@ function BottomSheetFlatList({
               placeholder="Type your comment..."
               placeholderTextColor="whitesmoke"
             />
-            {!!commentText && (
+            {commentText && (
               <TouchableOpacity style={styles.addCommentButton} onPress={makeComment}>
                 <Icon size={35} name="upArrow" />
               </TouchableOpacity>
