@@ -117,10 +117,6 @@ const ReviewDetails: FC = () => {
         </View>
 
         <View style={styles.statsContainer}>
-          <TouchableOpacity onPress={toggleSheet} style={styles.pressable}>
-            <MaterialCommunityIcons name="chat-outline" size={24} color="black" />
-            <Text style={styles.text}>{comments.length}</Text>
-          </TouchableOpacity>
           <TouchableOpacity onPress={onLikePress} style={styles.pressable}>
             <FontAwesome
               name={likesState.isLiked ? 'heart' : 'heart-o'}
@@ -129,9 +125,11 @@ const ReviewDetails: FC = () => {
             />
             <Text style={styles.text}>{likesState.user.length}</Text>
           </TouchableOpacity>
+          <TouchableOpacity onPress={toggleSheet} style={styles.pressable}>
+            <MaterialCommunityIcons name="chat-outline" size={24} color="black" />
+            <Text style={styles.text}>{comments.length}</Text>
+          </TouchableOpacity>
         </View>
-
-        <Text>You could like these!</Text>
         {hasRecommendations() && (
           <>
             <Text style={{ fontSize: 18, fontWeight: 'bold', marginVertical: 10 }}>You might also like:</Text>

@@ -7,7 +7,7 @@ import * as Font from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { CommentsProvider } from './CommentContextApi';
-
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -36,13 +36,15 @@ export default function App() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <AuthProvider>
-        <CommentsProvider>
-          <NavigationContainer>
-            <MainNavigation />
-          </NavigationContainer>
-        </CommentsProvider>
-      </AuthProvider>
+      <SafeAreaProvider>
+        <AuthProvider>
+          <CommentsProvider>
+            <NavigationContainer>
+              <MainNavigation />
+            </NavigationContainer>
+          </CommentsProvider>
+        </AuthProvider>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }

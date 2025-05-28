@@ -1,99 +1,97 @@
-import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
+import React, { useState } from "react";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+  SafeAreaView,
+} from "react-native";
 import { useAuth } from "../ContexApi";
 import { useNavigation } from "@react-navigation/native";
-import BottomSheetScrollView from "../components/BottomSheetScrollView";
-import CarouselComponent from "../components/CarouselComponent";
+import ConfirmationSheet from "../components/ConfirmationsSheet";
 import axios from "axios";
 // @ts-expect-error: Ignore the issue with the import from @env.
 import { API_URL } from "@env";
 import { ReviewItemIf } from "../interfaces/ReviewItemIf";
 
-
-
 const ProfileScreen = () => {
   const navigation = useNavigation();
-  const { handleLogout, userInfo } = useAuth();
+  const { handleLogout, userInfo, setUserInfo } = useAuth();
 
-  const [recommendations, setRecommendations] = useState<ReviewItemIf[]>([]);
+  if (!userInfo) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Text style={styles.userName}>YOU HAVE NO POWER HERE.....</Text>
+      </SafeAreaView>
+    );
+  }
 
   const [isOpen, setIsOpen] = useState(false);
+  const [isOpen2, setIsOpen2] = useState(false);
 
-  const toggleSheet = () => {
-    setIsOpen(!isOpen); 
-  };
+
+  const toggleSheet = () => setIsOpen((prev) => !prev);
+  const toggleSheet2 = () => setIsOpen2((prev) => !prev);
 
   const confirmLogout = () => {
     handleLogout();
     navigation.goBack();
-    toggleSheet(); 
-  };
-
-  const cancelLogout = () => {
     toggleSheet();
   };
-  console.log("user", userInfo?.id_user)
-  
 
-  const getRecommendations = async (id_user: number) =>{
-
-    if(!id_user){
-      console.log("error fetching recommendations")
-      return
+  const changeAvatar = async (id_user?: number) => {
+    console.log(id_user)
+    try {
+      await axios.patch(`${API_URL}/users/${id_user}/avatar`, {
+        avatar:
+          "https://t3.ftcdn.net/jpg/02/36/99/22/360_F_236992283_sNOxCVQeFLd5pdqaKGh8DRGMZy7P4XKm.jpg",
+      });
+      const response = await axios.get(`${API_URL}/users/${id_user}`);
+      setUserInfo(response.data.data);
+      toggleSheet2()
+    } catch (error) {
+      console.log(error);
     }
-    const response = await axios.get(`${API_URL}/tensorflow/recommendations/${id_user}`)
-    const reviews = response.data.data
-    setRecommendations(reviews)
-  }
+  };
 
-  useEffect(() => {
-    if (userInfo?.id_user) {
-      getRecommendations(userInfo.id_user);
-    } else {
-      console.log("No user ID available");
-    }
-  }, [userInfo]); 
 
   return (
-    <View style={styles.container}>
-      <Image
-        source={{ uri: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png" }}
-        style={styles.profileImage}
+    <SafeAreaView style={{ flex: 1 }}>
+      <View style={styles.container}>
+
+        <TouchableOpacity onPress={toggleSheet2}>
+          <Image source={{ uri: userInfo?.avatar }} style={styles.profileImage} />
+        </TouchableOpacity>
+
+        <Text style={styles.userName}>{userInfo?.username}</Text>
+        <Text style={styles.userEmail}>{userInfo?.email}</Text>
+
+        <TouchableOpacity style={styles.logoutButton} onPress={toggleSheet}>
+          <Text style={styles.logoutButtonText}>Logout</Text>
+        </TouchableOpacity>
+
+      </View>
+
+      <ConfirmationSheet
+        title="Are you sure you want to logout?"
+        message="You will be logged out and redirected to the previous screen."
+        isOpen={isOpen}
+        onClose={toggleSheet}
+        onCancel={toggleSheet}
+        onConfirm={confirmLogout}
       />
-      <Text style={styles.userName}>{userInfo?.username}</Text>
-      <Text style={styles.userEmail}>{userInfo?.email}</Text>
-      <TouchableOpacity style={styles.logoutButton} onPress={toggleSheet}>
-        <Text style={styles.logoutButtonText}>Logout</Text>
-      </TouchableOpacity>
-      <CarouselComponent data={recommendations}/>
-      <BottomSheetScrollView
-      isOpen={isOpen}
-      backgroundColor="#111213"
-      onClose={toggleSheet}
-      snapPoints={['40%','30%']}
-      >
-        <View style={styles.sheetContent}>
-          <Text style={styles.sheetTitle}>Are you sure you want to logout?</Text>
-          <Text style={styles.sheetText}>
-            You will be logged out and redirected to the previous screen.
-          </Text>
-          <View style={styles.sheetActions}>
-            <TouchableOpacity
-              style={[styles.sheetButton, styles.cancelButton]}
-              onPress={cancelLogout}
-            >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.sheetButton, styles.confirmButton]}
-              onPress={confirmLogout}
-            >
-              <Text style={styles.confirmButtonText}>Confirm</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-        </BottomSheetScrollView>
-    </View>
+
+      <ConfirmationSheet
+        title="Modify!!"
+        message="You will be logged out and redirected to the previous screen."
+        isOpen={isOpen2}
+        snapPoints={['100%', '50%']}
+        onClose={toggleSheet2}
+        onCancel={toggleSheet2}
+        onConfirm={() => changeAvatar(userInfo.id_user)}
+      />
+    </SafeAreaView>
   );
 };
 
@@ -134,49 +132,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#fff",
     textAlign: "center",
-  },
-  sheetContent: {
-    padding: 20,
-    alignItems: "center",
-  },
-  sheetTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 10,
-    color: "white"
-  },
-  sheetText: {
-    fontSize: 16,
-    color: "#555",
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  sheetActions: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    width: "100%",
-  },
-  sheetButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 25,
-    width: "40%",
-  },
-  cancelButton: {
-    backgroundColor: "#ddd",
-  },
-  cancelButtonText: {
-    fontSize: 16,
-    color: "#333",
-    textAlign:'center'
-  },
-  confirmButton: {
-    backgroundColor: "#ff4c4c",
-  },
-  confirmButtonText: {
-    fontSize: 16,
-    color: "#fff",
-    textAlign:'center'
   },
 });
 

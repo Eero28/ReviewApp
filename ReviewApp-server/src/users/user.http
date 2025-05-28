@@ -1,0 +1,21 @@
+### Create a new user
+POST  http://localhost:4000/users/register
+Content-Type: application/json
+
+{
+    "password": "SSS",
+    "email": "SSS",
+    "username": "SSS"
+}
+
+### Find User
+GET http://localhost:4000/users/12
+
+
+### Update avatar
+PATCH http://localhost:4000/users/12/avatar
+Content-Type: application/json
+
+{
+  "avatar": "https://cdn.pixabay.com/photo/201e5/10/05/22/37/blank-profile-picture-973460_1280.png"
+}

@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
+import { UpdateAvatarDto } from 'src/helpers/dtos/user.dto';
 
 @Injectable()
 export class UsersService {
@@ -35,14 +36,25 @@ export class UsersService {
         return await this.usersRepository.save(newUser);
     }
 
-    async updateUser(user: User, id: number | any): Promise<User> {
-        const existingUser = await this.usersRepository.findOne(id);
+    async updateUser(user: Partial<User>, id_user: number | any): Promise<User> {
+        const existingUser = await this.usersRepository.findOne(id_user);
         if (!existingUser) {
-            throw new NotFoundException(`User with ID ${id} not found`);
+            throw new NotFoundException(`User with ID ${id_user} not found`);
         }
         const updatedUser = this.usersRepository.merge(existingUser, user);
         return await this.usersRepository.save(updatedUser);
     }
+
+    async updateUserAvatar(updateAvatarDto: UpdateAvatarDto, id_user: number): Promise<User> {
+        const existingUser = await this.usersRepository.findOne({ where: { id_user: id_user } });
+        console.log(existingUser)
+        if (!existingUser) {
+          throw new NotFoundException(`User with ID ${id_user} not found`);
+        }
+      
+        const updatedUser = this.usersRepository.merge(existingUser, updateAvatarDto);
+        return this.usersRepository.save(updatedUser);
+      }
 
     async deleteUser(id: number): Promise<void> {
         const result = await this.usersRepository.delete(id);

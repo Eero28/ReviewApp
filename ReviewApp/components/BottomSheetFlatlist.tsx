@@ -6,6 +6,8 @@ import {
   TextInput,
   TouchableOpacity,
   ListRenderItem,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { screenHeight } from '../helpers/dimensions';
 import Animated, {
@@ -177,39 +179,45 @@ function BottomSheetFlatList({
   return (
     <GestureDetector gesture={pan}>
       <Animated.View style={[styles.container, animatedStyle, { backgroundColor }]}>
-        <View style={styles.lineContainer}>
-          <View style={[styles.line, { backgroundColor: handleColor }]} />
-          <Text style={styles.text}>{handleTitle}</Text>
-        </View>
-        <GestureDetector gesture={Gesture.Simultaneous(panScroll, scrollViewGesture)}>
-          <Animated.FlatList
-            scrollEventThrottle={16}
-            bounces={false}
-            onScroll={onScroll}
-            contentContainerStyle={styles.scrollContent}
-            renderItem={renderItem}
-            data={data}
-            ListEmptyComponent={ListEmptyComponent}
-            ListHeaderComponent={ListHeaderComponent}
-          />
-        </GestureDetector>
-        {commentInput && (
-          <View style={styles.footerContainer}>
-            <TextInput
-              ref={commentInputRef}
-              value={commentText}
-              onChangeText={setCommentText}
-              style={styles.inputField}
-              placeholder="Type your comment..."
-              placeholderTextColor="whitesmoke"
-            />
-            {commentText && (
-              <TouchableOpacity style={styles.addCommentButton} onPress={makeComment}>
-                <Icon size={35} name="upArrow" />
-              </TouchableOpacity>
-            )}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 50}
+        >
+          <View style={styles.lineContainer}>
+            <View style={[styles.line, { backgroundColor: handleColor }]} />
+            <Text style={styles.text}>{handleTitle}</Text>
           </View>
-        )}
+          <GestureDetector gesture={Gesture.Simultaneous(panScroll, scrollViewGesture)}>
+            <Animated.FlatList
+              scrollEventThrottle={16}
+              bounces={false}
+              onScroll={onScroll}
+              contentContainerStyle={styles.scrollContent}
+              renderItem={renderItem}
+              data={data}
+              ListEmptyComponent={ListEmptyComponent}
+              ListHeaderComponent={ListHeaderComponent}
+            />
+          </GestureDetector>
+          {commentInput && (
+            <View style={styles.footerContainer}>
+              <TextInput
+                ref={commentInputRef}
+                value={commentText}
+                onChangeText={setCommentText}
+                style={styles.inputField}
+                placeholder="Type your comment..."
+                placeholderTextColor="whitesmoke"
+              />
+              {commentText && (
+                <TouchableOpacity style={styles.addCommentButton} onPress={makeComment}>
+                  <Icon size={35} name="upArrow" />
+                </TouchableOpacity>
+              )}
+            </View>
+          )}
+        </KeyboardAvoidingView>
       </Animated.View>
     </GestureDetector>
   );
@@ -243,6 +251,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     backgroundColor: '#121314',
+    marginBottom: 40,
   },
   inputField: {
     flex: 1,

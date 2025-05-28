@@ -1,5 +1,5 @@
 // user.dto.ts
-import { IsString, IsNumber } from 'class-validator';
+import { IsString, IsNumber, IsOptional } from 'class-validator';
 
 export class UserDTO {
   @IsNumber()
@@ -16,4 +16,13 @@ export class UserDTO {
 
   @IsString()
   role: string;
+}
+
+export class UpdateAvatarDto {
+  @IsOptional()
+  @IsString()
+  avatar?: string;
+
+  @IsNumber()
+  id_user: number;
 }

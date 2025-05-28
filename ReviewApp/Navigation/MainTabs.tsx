@@ -35,7 +35,7 @@ const MainTabs = () => {
                 name="TakeImage"
                 component={TakeImageScreen}
                 options={({ route }) => ({
-                    tabBarLabel: 'Take Image',
+                    tabBarLabel: '',
                     tabBarIcon: ({ size }) => (
                         <FontAwesome name="camera" size={size} color="white" />
                     ),

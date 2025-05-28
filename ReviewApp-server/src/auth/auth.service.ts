@@ -32,14 +32,15 @@ export class AuthService {
                 message: 'Invalid credentials. Please check your email and password.',
             });
         }
-        const payload = { email: user.email, sub: user.id_user, role: user.role, username: user.username };
+        const payload = { email: user.email, sub: user.id_user, role: user.role, username: user.username, avatar: user.avatar };
         console.log(payload)
         return {
             access_token: this.jwtService.sign(payload, { expiresIn: '1h' }),
             email: user.email,
             id_user: user.id_user,
             role: user.role,
-            username: user.username
+            username: user.username,
+            avatar: user.avatar
 
         };
     }
