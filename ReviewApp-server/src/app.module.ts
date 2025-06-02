@@ -1,7 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_INTERCEPTOR } from '@nestjs/core';
-import { GlobalResponseInterceptor } from './Error/Interceptor';
 import { UsersModule } from './users/users.module';
 import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './auth/auth.module';
@@ -26,12 +24,6 @@ import { TensorflowModule } from './tensorflow/tensorflow.module';
     TensorflowModule,
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: GlobalResponseInterceptor,
-    },
-  ],
+  providers: [AppService],
 })
 export class AppModule {}

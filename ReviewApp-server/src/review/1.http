@@ -22,7 +22,7 @@ Content-Type: application/json
 }
 
 ### Get all reviews
-GET http://localhost:3000/review
+GET http://localhost:4000/review
 
 ### Get all reviews
 GET http://localhost:3000/review/all?category=softdrink
@@ -49,7 +49,7 @@ Content-Type: application/json
 }
 
 ### Delete a review
-DELETE http://localhost:3000/review/67
+DELETE http://localhost:4000/review/2
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IkUiLCJzdWIiOjEsInJvbGUiOiJ1c2VyIiwidXNlcm5hbWUiOiJFIiwiaWF0IjoxNzMxODQwOTQ3LCJleHAiOjE3MzE4NzY5NDd9.V4oE7kgtPlKCaMr8eQnF2iCAtNUXGfhEGp8e_arZFFU
 
 ###Login

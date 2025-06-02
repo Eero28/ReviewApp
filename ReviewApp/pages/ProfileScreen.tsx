@@ -13,12 +13,10 @@ import ConfirmationSheet from "../components/ConfirmationsSheet";
 import axios from "axios";
 // @ts-expect-error: Ignore the issue with the import from @env.
 import { API_URL } from "@env";
-import { ReviewItemIf } from "../interfaces/ReviewItemIf";
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const { handleLogout, userInfo, setUserInfo } = useAuth();
-
   if (!userInfo) {
     return (
       <SafeAreaView style={styles.container}>

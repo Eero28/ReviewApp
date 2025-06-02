@@ -1,16 +1,17 @@
 // src/users/users.controller.ts
-import { Controller, Get, Post, Body, Param, Put, Delete, Patch } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, Patch, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 import { UpdateAvatarDto } from 'src/helpers/dtos/user.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 
 @Controller('users')
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
-    
     @Get()
+    @UseGuards(JwtAuthGuard)
     async findAll(): Promise<User[]> {
         return await this.usersService.findAll();
     }

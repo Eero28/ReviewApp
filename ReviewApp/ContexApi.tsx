@@ -41,6 +41,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setUserInfo(parsedUserInfo);
         }
       } catch (error) {
+        console.log("error with usersession")
         console.log(error);
       }
     };
@@ -130,7 +131,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       });
       setReviewsUpdated(!reviewsUpdated);
     } catch (error: any) {
-      console.log(error?.message);
+      console.log(error?.response.data);
     }
   };
 
