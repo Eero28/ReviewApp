@@ -12,14 +12,14 @@ This project was designed to deepen my understanding of NestJS and React Native 
 
 **Key Features:**  
 - Easy login and signup  
-- Write and submit reviews with a simple form  
-- Add comments on reviews  
+- Write, submit, and delete your own reviews  
+- Add and remove comments on reviews  
 - Like your favorite reviews and comments  
 - Search for reviews and other users  
 - Smooth pop-up modals for quick actions  
 - Smart recommendations using TensorFlow  
 - Automated CI/CD for hassle-free updates  
-- Runs in Docker and can be deployed on Azure  
+- Runs in Docker and deployed on Azure  
 
 ## **Key Technologies Used:**
 
