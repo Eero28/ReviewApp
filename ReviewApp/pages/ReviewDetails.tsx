@@ -47,15 +47,22 @@ const ReviewDetails: FC = () => {
   };
 
   const getRecommendations = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/tensorflow/recommendations/${userInfo?.id_user}`)
-      setRecommendations(response.data.data)
+  try {
+    const response = await axios.get(`${API_URL}/tensorflow/recommendations/${userInfo?.id_user}`);
 
-    } catch (error) {
-      console.log(error)
-    }
+    // Filter out recommendations with the same id_review as the current item
+    const filteredRecommendations = response.data.data.filter(recommendation => {
+      return recommendation.review.id_review !== item.id_review;
+    });
 
+    setRecommendations(filteredRecommendations);
+  } catch (error) {
+    console.log(error);
   }
+};
+
+
+
 
   const getReviewComments = async () => {
     try {
@@ -130,18 +137,13 @@ const ReviewDetails: FC = () => {
             <Text style={styles.text}>{comments.length}</Text>
           </TouchableOpacity>
         </View>
-        {hasRecommendations() && (
+      </ScrollView>
+      {hasRecommendations() && (
           <>
             <Text style={{ fontSize: 18, fontWeight: 'bold', marginVertical: 10 }}>You might also like:</Text>
             <AnimatedRecommendations recommendations={recommendations || []} />
           </>
         )}
-
-      </ScrollView>
-
-
-
-
       <BottomSheetFlatList
         renderItem={({ item }) => (
           <UserComment item={item} getReviewComments={getReviewComments} />
@@ -192,7 +194,7 @@ const styles = StyleSheet.create({
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
+    padding:10
   },
   ratingText: {
     paddingLeft: 8,

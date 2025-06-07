@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  Image,
+  ScrollView,
+} from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import CameraComponent from "../components/CameraComponent";
 import { NavigationProp } from '@react-navigation/native';
@@ -21,9 +29,16 @@ interface NavigationProps {
 }
 
 const ReviewForm: React.FC<NavigationProps> = ({ navigation }) => {
-  const { control, handleSubmit, reset, formState: { errors } } = useForm<BeerFormValues>();
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const { control, handleSubmit, reset, formState: { errors } } = useForm<BeerFormValues>({
+    defaultValues: {
+      reviewName: '',
+      reviewText: '',
+      reviewRating: null,
+      category: null,
+    }
+  });
 
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const { userInfo, getReviews, allReviewsFetch } = useAuth();
 
   const onImageCaptured = (url: string) => {
@@ -40,7 +55,6 @@ const ReviewForm: React.FC<NavigationProps> = ({ navigation }) => {
         imageUrl: imageUrl,
         id_user: userInfo?.id_user,
       };
-      console.log(reviewData);
       await axios.post(`${API_URL}/review`, reviewData);
       reset();
       setImageUrl(null);
@@ -56,10 +70,16 @@ const ReviewForm: React.FC<NavigationProps> = ({ navigation }) => {
     }
   };
 
-  return (
-    <View style={styles.container}>
+  if (!imageUrl) {
+    return (
       <CameraComponent navigation={navigation} onImageCaptured={onImageCaptured} />
+    );
+  }
 
+  return (
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.title}>Create Your Review</Text>
+      <Image source={{ uri: imageUrl }} style={styles.imagePreview} />
       <Text style={styles.label}>Review Name</Text>
       <Controller
         control={control}
@@ -70,11 +90,12 @@ const ReviewForm: React.FC<NavigationProps> = ({ navigation }) => {
             onChangeText={onChange}
             value={value}
             placeholder="Enter review name"
+            autoCorrect={false}
+            autoCapitalize="words"
           />
         )}
         name="reviewName"
         rules={{ required: 'Review name is required' }}
-        defaultValue=""
       />
       {errors.reviewName && <Text style={styles.error}>{errors.reviewName.message}</Text>}
 
@@ -83,16 +104,16 @@ const ReviewForm: React.FC<NavigationProps> = ({ navigation }) => {
         control={control}
         render={({ field: { onChange, onBlur, value } }) => (
           <TextInput
-            style={styles.input}
+            style={[styles.input, { height: 100 }]}
             onBlur={onBlur}
             onChangeText={onChange}
             value={value}
             placeholder="Enter review text"
+            multiline
           />
         )}
         name="reviewText"
         rules={{ required: 'Review text is required' }}
-        defaultValue=""
       />
       {errors.reviewText && <Text style={styles.error}>{errors.reviewText.message}</Text>}
 
@@ -123,6 +144,11 @@ const ReviewForm: React.FC<NavigationProps> = ({ navigation }) => {
               { label: '5', value: 5 },
             ]}
             placeholder={{ label: "Select a rating", value: null }}
+            style={{
+              inputIOS: styles.pickerInput,
+              inputAndroid: styles.pickerInput,
+              placeholder: { color: '#999' },
+            }}
           />
         )}
         name="reviewRating"
@@ -130,7 +156,6 @@ const ReviewForm: React.FC<NavigationProps> = ({ navigation }) => {
           required: 'Rating is required',
           validate: (value) => value !== null || 'Please select a rating',
         }}
-        defaultValue={null}
       />
       {errors.reviewRating && <Text style={styles.error}>{errors.reviewRating.message}</Text>}
 
@@ -150,6 +175,11 @@ const ReviewForm: React.FC<NavigationProps> = ({ navigation }) => {
               { label: 'Other', value: 'other' },
             ]}
             placeholder={{ label: "Select a category", value: null }}
+            style={{
+              inputIOS: styles.pickerInput,
+              inputAndroid: styles.pickerInput,
+              placeholder: { color: '#999' },
+            }}
           />
         )}
         name="category"
@@ -157,34 +187,71 @@ const ReviewForm: React.FC<NavigationProps> = ({ navigation }) => {
           required: 'Category is required',
           validate: (value) => value !== null || 'Please select a category',
         }}
-        defaultValue={null}
       />
       {errors.category && <Text style={styles.error}>{errors.category.message}</Text>}
 
-      <Button title="Submit" onPress={handleSubmit(onSubmit)} />
-    </View>
+      <View style={styles.buttonContainer}>
+        <Button title="Submit Review" onPress={handleSubmit(onSubmit)} color="#4CAF50" />
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
+    padding: 20,
+    paddingBottom: 40,
+    backgroundColor: '#fafafa',
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: '700',
+    marginBottom: 20,
+    textAlign: 'center',
+    color: '#333',
+  },
+  imagePreview: {
+    width: '100%',
+    height: 220,
+    borderRadius: 10,
+    marginBottom: 20,
+    backgroundColor: '#ddd',
   },
   label: {
-    marginBottom: 8,
     fontSize: 16,
+    marginBottom: 6,
+    fontWeight: '600',
+    color: '#444',
   },
   input: {
-    height: 40,
-    borderColor: 'gray',
+    height: 45,
+    borderColor: '#bbb',
     borderWidth: 1,
-    marginBottom: 8,
-    padding: 10,
-    borderRadius: 5,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    marginBottom: 14,
+    backgroundColor: '#fff',
+    fontSize: 16,
+  },
+  pickerInput: {
+    fontSize: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: '#bbb',
+    borderRadius: 8,
+    color: '#333',
+    backgroundColor: '#fff',
+    marginBottom: 14,
   },
   error: {
-    color: 'red',
-    marginBottom: 8,
+    color: '#d32f2f',
+    marginBottom: 10,
+  },
+  buttonContainer: {
+    marginTop: 10,
+    borderRadius: 8,
+    overflow: 'hidden',
   },
 });
 

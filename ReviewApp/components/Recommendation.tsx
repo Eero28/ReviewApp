@@ -8,13 +8,12 @@ type Props = {
 };
 
 const Recommendation: FC<Props> = ({ item }) => {
-    console.log(item.review)
   return (
     <TouchableOpacity style={styles.container}>
       <Image
-  source={{ uri: item.review.imageUrl }}
-  style={styles.image}
-/>
+        source={{ uri: item.review.imageUrl }}
+        style={styles.image}
+      />
       <View style={styles.cardInfo}>
         <Text style={styles.title}>{item.review.reviewname}</Text>
         <Text style={styles.description}>Category: {item.review.category}</Text>
@@ -33,17 +32,17 @@ const Recommendation: FC<Props> = ({ item }) => {
 export default Recommendation;
 
 const styles = StyleSheet.create({
-    container: {
-        flexDirection: 'row',
-        backgroundColor: 'white',
-        borderRadius: 8,
-        padding: 12,
-        marginHorizontal: 10, 
-        width: 300,            
-        shadowColor: '#000',
-        shadowOpacity: 0.1,
-        elevation: 3,
-      },
+  container: {
+    flexDirection: 'row',
+    backgroundColor: 'white',
+    borderRadius: 8,
+    padding: 12,
+    marginHorizontal: 10,
+    width: 300,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    elevation: 3,
+  },
   image: {
     width: 100,
     height: 100,

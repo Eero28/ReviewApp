@@ -1,7 +1,7 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Alert, SafeAreaView } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { NavigationProp } from '@react-navigation/native';
 
 interface CameraComponentProps {
@@ -10,7 +10,8 @@ interface CameraComponentProps {
 }
 
 const CameraComponent: React.FC<CameraComponentProps> = ({ navigation, onImageCaptured }) => {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [hasOpenedCamera, setHasOpenedCamera] = useState(false);
+  const isFocused = useIsFocused();
 
   const requestPermissions = async () => {
     const { status: cameraStatus } = await ImagePicker.requestCameraPermissionsAsync();
@@ -31,7 +32,6 @@ const CameraComponent: React.FC<CameraComponentProps> = ({ navigation, onImageCa
     });
 
     if (result.canceled) {
-      console.log('Camera was canceled');
       navigation.goBack();
     } else {
       handleImageSelection(result);
@@ -39,32 +39,33 @@ const CameraComponent: React.FC<CameraComponentProps> = ({ navigation, onImageCa
   };
 
   const handleImageSelection = (result: ImagePicker.ImagePickerResult) => {
-    if (result.assets && result.assets.length > 0) {
-      const imageUrl = result.assets[0].uri;
-      setSelectedImage(imageUrl);
-      onImageCaptured(imageUrl);
-    } else {
-      Alert.alert('No Image Selected', 'Please select an image.');
-    }
-  };
+  if (result.assets && result.assets.length > 0) {
+    const imageUrl = result.assets[0].uri;
+    onImageCaptured(imageUrl);
+  } else {
+    Alert.alert('No Image Selected', 'Please select an image.');
+  }
+};
 
   useFocusEffect(
     useCallback(() => {
-      const openCameraImmediately = async () => {
-        if (await requestPermissions()) {
+      const openCameraIfAllowed = async () => {
+        if (!hasOpenedCamera && await requestPermissions()) {
+          setHasOpenedCamera(true);
           openCamera();
         }
       };
-      openCameraImmediately();
-    }, [])
+      openCameraIfAllowed();
+    }, [hasOpenedCamera])
   );
 
-  return (
-    <SafeAreaView>
-    </SafeAreaView>
-  );
+  useEffect(() => {
+    if (!isFocused) {
+      setHasOpenedCamera(false);
+    }
+  }, [isFocused]);
+
+  return <SafeAreaView />;
 };
-
-
 
 export default CameraComponent;

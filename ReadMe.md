@@ -1,6 +1,10 @@
 # Project ReviewApp Overview (Not Ready!)
 
+## Demo photos
+
 ![My Image](assets/app.jpg)
+
+![My Image](assets/demo_2.jpg)
 
 ## What this project is about?
 
