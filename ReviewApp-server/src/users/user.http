@@ -5,7 +5,8 @@ Content-Type: application/json
 {
     "password": "SSS",
     "email": "SSS",
-    "username": "SSS"
+    "username": "SSS",
+    "role": "admin"
 }
 
 ### Find User

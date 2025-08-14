@@ -8,58 +8,66 @@ import { UpdateAvatarDto } from 'src/helpers/dtos/user.dto';
 
 @Injectable()
 export class UsersService {
-    constructor(
-        @InjectRepository(User)
-        private usersRepository: Repository<User>,
-    ) {}
+  constructor(
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
+  ) {}
 
-    async findAll(): Promise<User[]> {
-        return await this.usersRepository.find();
+  async findAll(): Promise<User[]> {
+    return await this.usersRepository.find();
+  }
+
+  async findOne(id_user: number): Promise<User> {
+    const user = await this.usersRepository.findOne({ where: { id_user } });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id_user} not found`);
+    }
+    return user;
+  }
+
+  async findOneByEmail(email: string): Promise<User | undefined> {
+    return this.usersRepository.findOne({ where: { email } });
+  }
+
+  async createUser(user: User): Promise<User> {
+    user.password = await bcrypt.hash(user.password, 10);
+    user.role = user.role || 'user';
+    const newUser = this.usersRepository.create(user);
+    return await this.usersRepository.save(newUser);
+  }
+
+  async updateUser(user: Partial<User>, id_user: number | any): Promise<User> {
+    const existingUser = await this.usersRepository.findOne(id_user);
+    if (!existingUser) {
+      throw new NotFoundException(`User with ID ${id_user} not found`);
+    }
+    const updatedUser = this.usersRepository.merge(existingUser, user);
+    return await this.usersRepository.save(updatedUser);
+  }
+
+  async updateUserAvatar(
+    updateAvatarDto: UpdateAvatarDto,
+    id_user: number,
+  ): Promise<User> {
+    const existingUser = await this.usersRepository.findOne({
+      where: { id_user: id_user },
+    });
+    console.log(existingUser);
+    if (!existingUser) {
+      throw new NotFoundException(`User with ID ${id_user} not found`);
     }
 
-    async findOne(id_user: number): Promise<User> {
-        const user = await this.usersRepository.findOne({ where: { id_user } });
-        if (!user) {
-            throw new NotFoundException(`User with ID ${id_user} not found`);
-        }
-        return user;
-    }
+    const updatedUser = this.usersRepository.merge(
+      existingUser,
+      updateAvatarDto,
+    );
+    return this.usersRepository.save(updatedUser);
+  }
 
-    async findOneByEmail(email: string): Promise<User | undefined> {
-        return this.usersRepository.findOne({ where: { email } });
+  async deleteUser(id: number): Promise<void> {
+    const result = await this.usersRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException(`User with ID ${id} not found`);
     }
-
-    async createUser(user: User): Promise<User> {
-        user.password = await bcrypt.hash(user.password, 10);
-        user.role = user.role || 'user';
-        const newUser = this.usersRepository.create(user);
-        return await this.usersRepository.save(newUser);
-    }
-
-    async updateUser(user: Partial<User>, id_user: number | any): Promise<User> {
-        const existingUser = await this.usersRepository.findOne(id_user);
-        if (!existingUser) {
-            throw new NotFoundException(`User with ID ${id_user} not found`);
-        }
-        const updatedUser = this.usersRepository.merge(existingUser, user);
-        return await this.usersRepository.save(updatedUser);
-    }
-
-    async updateUserAvatar(updateAvatarDto: UpdateAvatarDto, id_user: number): Promise<User> {
-        const existingUser = await this.usersRepository.findOne({ where: { id_user: id_user } });
-        console.log(existingUser)
-        if (!existingUser) {
-          throw new NotFoundException(`User with ID ${id_user} not found`);
-        }
-      
-        const updatedUser = this.usersRepository.merge(existingUser, updateAvatarDto);
-        return this.usersRepository.save(updatedUser);
-      }
-
-    async deleteUser(id: number): Promise<void> {
-        const result = await this.usersRepository.delete(id);
-        if (result.affected === 0) {
-            throw new NotFoundException(`User with ID ${id} not found`);
-        }
-    }
+  }
 }

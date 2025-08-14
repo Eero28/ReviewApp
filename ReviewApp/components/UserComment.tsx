@@ -1,52 +1,62 @@
+import React, { FC, useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
-import React, { FC, useState } from 'react';
+import axios from 'axios';
 import ModalDialog from './ModalDialog';
+import ExpandableBox from './Expandablebox';
 import { Comment } from '../interfaces/Comment';
 import { useAuth } from '../ContexApi';
 import { calculateDate } from '../helpers/date';
-// @ts-expect-error: Ignore the issue with the import from @env.
+// @ts-expect-error: Ignore the issue with the import from @env
 import { API_URL } from '@env';
-import axios from 'axios';
 
 type Props = {
   item: Comment;
-  getReviewComments?: () => void; 
+  getReviewComments?: () => void;
   disableCommentDelete?: boolean;
 };
 
 const UserComment: FC<Props> = ({ item, getReviewComments, disableCommentDelete }) => {
   const { userInfo, handleLogout } = useAuth();
-  const [showDialogModal, setShowDialogModal] = useState<boolean>(false);
+  const [showDialogModal, setShowDialogModal] = useState(false);
+  const [replies, setReplies] = useState<Comment[]>([]);
+  const [minimizeOpen, setMinimizeOpen] = useState(true);
 
-  const showModal = () => {
-    if (disableCommentDelete) return;  
-    setShowDialogModal(true);
+  const getReplies = async () => {
+    try {
+      const { data } = await axios.get(`${API_URL}/comments/reply/${item.id_comment}`);
+      setReplies(data.data);
+    } catch (err) {
+      console.error('Failed to fetch replies:', err);
+    }
   };
 
-  const closeModal = () => {
-    setShowDialogModal(false);
-  };
+  useEffect(() => {
+    if (!minimizeOpen && replies.length === 0) getReplies();
+  }, [minimizeOpen]);
+
+  const renderReplies = (list: Comment[]) =>
+    list.map(reply => (
+      <View key={reply.id_comment} style={styles.replyContainer}>
+        <Text style={styles.commentUser}>{reply.user?.username}:</Text>
+        <Text style={styles.commentText}>{reply.text}</Text>
+        {reply.replies?.length ? renderReplies(reply.replies) : null}
+      </View>
+    ));
 
   const deleteComment = async () => {
-    console.log('Deleting comment...');
     try {
       await axios.delete(`${API_URL}/comments/${item.id_comment}`, {
-        headers: {
-          "Authorization": `Bearer ${userInfo?.access_token}`,
-        },
+        headers: { Authorization: `Bearer ${userInfo?.access_token}` },
       });
-      closeModal();
-
-      if (getReviewComments) {
-        getReviewComments();  
-      }
-    } catch (error) {
-      console.error(error);
-      if (error.response && error.response.status === 401) {
-        alert("Token expired or invalid. Logging out...");
+      setShowDialogModal(false);
+      getReviewComments?.();
+    } catch (err: any) {
+      console.error(err);
+      if (err.response?.status === 401) {
+        alert('Token expired or invalid. Logging out...');
         await handleLogout();
       } else {
-        alert("An error occurred while deleting the comment.");
+        alert('An error occurred while deleting the comment.');
       }
     }
   };
@@ -55,24 +65,28 @@ const UserComment: FC<Props> = ({ item, getReviewComments, disableCommentDelete 
     <>
       <ModalDialog
         onDelete={deleteComment}
-        onCancel={closeModal}
+        onCancel={() => setShowDialogModal(false)}
         dialogTitle="Delete Comment!"
         visible={showDialogModal}
       />
-      <TouchableOpacity onLongPress={showModal} disabled={disableCommentDelete}>
+      <TouchableOpacity
+        onLongPress={() => !disableCommentDelete && setShowDialogModal(true)}
+        disabled={disableCommentDelete}
+      >
         <View style={styles.commentContainer}>
-          <View style={styles.profileImageContainer}>
-            <Image
-              source={{
-                uri: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
-              }}
-              style={styles.profileImage}
-            />
-          </View>
+          <Image
+            source={{
+              uri: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
+            }}
+            style={styles.profileImage}
+          />
           <View style={styles.userInfoContainer}>
             <Text style={styles.commentUser}>{item.user.username}:</Text>
             <Text style={styles.commentText}>{item.text}</Text>
             <Text style={styles.dateText}>{calculateDate(item.createdAt)}</Text>
+            <ExpandableBox buttonState={minimizeOpen} setButtonState={setMinimizeOpen}>
+              {renderReplies(item.replies || [])}
+            </ExpandableBox>
           </View>
         </View>
       </TouchableOpacity>
@@ -84,13 +98,14 @@ export default UserComment;
 
 const styles = StyleSheet.create({
   commentContainer: {
-    marginBottom: 10,
-    padding: 10,
+    flexDirection: 'row',
     backgroundColor: '#f9f9f9',
     borderRadius: 8,
-    flexDirection: 'row',
+    padding: 10,
+    marginBottom: 10,
   },
   userInfoContainer: {
+    flex: 1,
     paddingLeft: 10,
   },
   commentUser: {
@@ -106,15 +121,15 @@ const styles = StyleSheet.create({
     color: '#777',
     marginTop: 5,
   },
-  profileImageContainer: {
-    marginTop: 10,
-  },
   profileImage: {
     width: 35,
     height: 35,
     borderRadius: 60,
     borderWidth: 4,
-    borderColor: "#ddd",
-    padding: 10,
+    borderColor: '#ddd',
+    marginTop: 10,
+  },
+  replyContainer: {
+    paddingLeft: 15,
   },
 });

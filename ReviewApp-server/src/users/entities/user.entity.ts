@@ -1,41 +1,44 @@
-import { Comment } from "src/comments/entities/comment.entity";
-import { Review } from "src/review/entities/review.entity";
-import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from "typeorm";
-import { Like } from "src/like/entities/like.entity";
-import {Reply} from '../../reply/entities/reply.entity'
+import { Comment } from 'src/comments/entities/comment.entity';
+import { Review } from 'src/review/entities/review.entity';
+import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Exclude } from 'class-transformer';
+import { Like } from 'src/like/entities/like.entity';
 @Entity()
 export class User {
-    @PrimaryGeneratedColumn()
-    id_user: number;
+  @PrimaryGeneratedColumn()
+  id_user: number;
 
-    @Column()
-    password: string;
-    
-    @Column({unique: true})
-    email: string;
+  @Exclude()
+  @Column()
+  password: string;
 
-    @Column()
-    username: string;
+  @Exclude()
+  @Column({ unique: true })
+  email: string;
 
-    @Column({default: "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"})
-    avatar:string;
+  @Column()
+  username: string;
 
-    @Column({default: "user"})
-    role: string;
+  @Exclude()
+  @Column({
+    default:
+      'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
+  })
+  avatar: string;
 
-    // one user can have many reviews
-    @OneToMany(() => Review, (review) => review.user)
-    reviews: Review[];
+  @Exclude()
+  @Column({ default: 'user' })
+  role: string;
 
-    // one user can have many comments 
-    @OneToMany(() => Comment, (comment) => comment.user)
-    comments: Comment[];
+  // one user can have many reviews
+  @OneToMany(() => Review, (review) => review.user)
+  reviews: Review[];
 
-    // One user can have many replies
-    @OneToMany(() => Reply, (reply) => reply.user)
-    replies: Reply[]; // Add this property to store the replies the user has made
+  // one user can have many comments
+  @OneToMany(() => Comment, (comment) => comment.user)
+  comments: Comment[];
 
-    // A user can like many reviews
-    @OneToMany(() => Like, (like) => like.user)
-    likes: Like[];
+  // A user can like many reviews
+  @OneToMany(() => Like, (like) => like.user)
+  likes: Like[];
 }

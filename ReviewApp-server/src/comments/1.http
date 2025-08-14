@@ -1,5 +1,5 @@
 
-POST http://localhost:3000/comments
+POST http://localhost:4000/comments
 Content-Type: application/json
 
 {
@@ -7,36 +7,31 @@ Content-Type: application/json
   "id_user": 1,
   "id_review": 1
 }
-### reply
-POST http://localhost:3000/comments/reply/33
+### reply (parentId)
+POST http://localhost:4000/comments/reply/2
 Content-Type: application/json
 
 {
-    "text": "This is a reply to a comment",
-    "id_review": 11,
-    "id_user": 1,
-    "parentCommentId": 33
+    "text": "Reply reply",
+    "id_review": 1,
+    "id_user": 1
 }
 
+### Get replies of parent comment!
+GET http://localhost:4000/comments/reply/1
 
-### get review comments
-GET http://localhost:3000/comments/review/1
-###
-GET http://localhost:3000/comments/review/5/replies
 
 ### delete
 DELETE http://localhost:4000/comments/4
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IkplZSIsInN1YiI6NCwicm9sZSI6InVzZXIiLCJ1c2VybmFtZSI6IkplZSIsImlhdCI6MTczNDYxOTk4MSwiZXhwIjoxNzM0NjIzNTgxfQ.j2cnHC0fIHusp16OLUC4nnbKU6_FetxCwcQ1ngYUnYA
 
+### get all comments
+GET http://localhost:4000/comments/
+
 ###
-GET http://localhost:3000/comments/2
 
+GET http://localhost:4000/comments/review/1
 
-###
-GET http://localhost:3000/users/2
-
-### Get one dood reviews
-GET http://localhost:3000/review/user/1
 
 ### Get all reviews
-GET http://localhost:3000/review
+GET http://localhost:4000/review

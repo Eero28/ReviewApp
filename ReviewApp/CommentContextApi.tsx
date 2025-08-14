@@ -19,7 +19,7 @@ export const CommentsProvider: React.FC<{ children: ReactNode }> = ({ children }
     try {
       const response = await axios.get(`${API_URL}/comments/review/${review.id_review}`);
       if (response.data && response.data.data) {
-        setComments(response.data.data);
+
       }
     } catch (error) {
       console.error('Failed to fetch comments:', error);
@@ -27,7 +27,7 @@ export const CommentsProvider: React.FC<{ children: ReactNode }> = ({ children }
   };
 
   return (
-    <CommentsContext.Provider value={{ comments,getReviewComments }}>
+    <CommentsContext.Provider value={{ comments, getReviewComments }}>
       {children}
     </CommentsContext.Provider>
   );

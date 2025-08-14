@@ -39,13 +39,13 @@ const CameraComponent: React.FC<CameraComponentProps> = ({ navigation, onImageCa
   };
 
   const handleImageSelection = (result: ImagePicker.ImagePickerResult) => {
-  if (result.assets && result.assets.length > 0) {
-    const imageUrl = result.assets[0].uri;
-    onImageCaptured(imageUrl);
-  } else {
-    Alert.alert('No Image Selected', 'Please select an image.');
-  }
-};
+    if (result.assets && result.assets.length > 0) {
+      const imageUrl = result.assets[0].uri;
+      onImageCaptured(imageUrl);
+    } else {
+      Alert.alert('No Image Selected', 'Please select an image.');
+    }
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -65,7 +65,7 @@ const CameraComponent: React.FC<CameraComponentProps> = ({ navigation, onImageCa
     }
   }, [isFocused]);
 
-  return <SafeAreaView />;
+  return null;
 };
 
 export default CameraComponent;
