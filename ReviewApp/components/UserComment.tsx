@@ -18,21 +18,7 @@ type Props = {
 const UserComment: FC<Props> = ({ item, getReviewComments, disableCommentDelete }) => {
   const { userInfo, handleLogout } = useAuth();
   const [showDialogModal, setShowDialogModal] = useState(false);
-  const [replies, setReplies] = useState<Comment[]>([]);
   const [minimizeOpen, setMinimizeOpen] = useState(true);
-
-  const getReplies = async () => {
-    try {
-      const { data } = await axios.get(`${API_URL}/comments/reply/${item.id_comment}`);
-      setReplies(data.data);
-    } catch (err) {
-      console.error('Failed to fetch replies:', err);
-    }
-  };
-
-  useEffect(() => {
-    if (!minimizeOpen && replies.length === 0) getReplies();
-  }, [minimizeOpen]);
 
   const renderReplies = (list: Comment[]) =>
     list.map(reply => (

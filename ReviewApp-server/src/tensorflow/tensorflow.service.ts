@@ -115,12 +115,10 @@ export class TensorflowService implements OnModuleInit {
       recommendations.sort(
         (a, b) => b.adjustedSimilarityScore - a.adjustedSimilarityScore,
       );
-      return recommendations
-        .slice(0, 5)
-        .map((item) => ({
-          review: item.review,
-          similarityScore: item.adjustedSimilarityScore,
-        }));
+      return recommendations.slice(0, 5).map((item) => ({
+        review: item.review,
+        similarityScore: item.adjustedSimilarityScore,
+      }));
     } catch (error) {
       console.error('Error during recommendation calculation:', error);
       return [];

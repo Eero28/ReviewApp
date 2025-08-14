@@ -38,191 +38,144 @@ export class CommentsService {
       throw new NotFoundException(`User with ID ${dto.id_user} not found`);
     }
 
-    let parent: Comment = null;
+    let parentComment: Comment = null;
     if (dto.parentCommentId) {
-      parent = await this.commentRepository.findOne({
+      parentComment = await this.commentRepository.findOne({
         where: { id_comment: dto.parentCommentId },
         relations: ['review'],
       });
-      if (!parent) throw new NotFoundException(`Parent comment not found`);
-      if (parent.review.id_review !== dto.id_review) {
+      if (!parentComment) {
+        throw new NotFoundException(`Parent comment not found`);
+      }
+      if (parentComment.review.id_review !== dto.id_review) {
         throw new ForbiddenException(
           'Parent comment must belong to the same review',
         );
       }
     }
 
-    const comment = this.commentRepository.create({
+    const newComment = this.commentRepository.create({
       text: dto.text,
       review,
       user,
-      parent,
+      parent: parentComment,
     });
 
-    return this.commentRepository.save(comment);
+    return this.commentRepository.save(newComment);
   }
 
-  async findReviewComments(id_review: number): Promise<any[]> {
-    const comments = await this.commentRepository.find({
-      where: { review: { id_review } },
-      relations: ['user', 'parent'],
-      order: { createdAt: 'ASC' },
-    });
-
-    const commentMap = new Map<number, any[]>();
+  private buildCommentTree(comments: Comment[], rootCommentId?: number) {
+    const commentRepliesMap = new Map<number, any[]>();
     const topLevelComments: any[] = [];
 
-    for (const comment of comments) {
-      const mapped = {
-        id_comment: comment.id_comment,
-        text: comment.text,
-        isParent: !comment.parent,
-        user: comment.user
-          ? { id_user: comment.user.id_user, username: comment.user.username }
-          : null,
-        replies: [],
-      };
-
-      if (comment.parent) {
-        const parentReplies = commentMap.get(comment.parent.id_comment) || [];
-        parentReplies.push(mapped);
-        commentMap.set(comment.parent.id_comment, parentReplies);
-      } else {
-        topLevelComments.push(mapped);
-      }
-    }
-
-    const attachReplies = (comment: any) => {
-      const replies = commentMap.get(comment.id_comment) || [];
-      comment.replies = replies.map(attachReplies);
-      return comment;
-    };
-
-    return topLevelComments.map(attachReplies);
-  }
-
-  async findCommentsReplies(id_comment: number) {
-    const comment = await this.commentRepository.findOne({
-      where: { id_comment },
-      relations: ['user', 'parent'],
-    });
-
-    if (!comment) {
-      throw new NotFoundException(`Comment with ID ${id_comment} not found`);
-    }
-
-    const comments = await this.commentRepository.find({
-      relations: ['user', 'parent'],
-      order: { createdAt: 'ASC' },
-    });
-
-    const commentMap = new Map<number, any[]>();
-
-    for (const commentItem of comments) {
-      const mapped = {
-        id_comment: commentItem.id_comment,
-        text: commentItem.text,
-        isParent: !commentItem.parent,
-        user: commentItem.user
+    for (const commentEntity of comments) {
+      const mappedComment = {
+        id_comment: commentEntity.id_comment,
+        text: commentEntity.text,
+        isParent: !commentEntity.parent,
+        user: commentEntity.user
           ? {
-              id_user: commentItem.user.id_user,
-              username: commentItem.user.username,
+              id_user: commentEntity.user.id_user,
+              username: commentEntity.user.username,
             }
           : null,
         replies: [],
       };
 
-      if (commentItem.parent) {
-        const parentReplies =
-          commentMap.get(commentItem.parent.id_comment) || [];
-        parentReplies.push(mapped);
-        commentMap.set(commentItem.parent.id_comment, parentReplies);
+      if (commentEntity.parent) {
+        const existingReplies =
+          commentRepliesMap.get(commentEntity.parent.id_comment) || [];
+        existingReplies.push(mappedComment);
+        commentRepliesMap.set(commentEntity.parent.id_comment, existingReplies);
+      } else {
+        topLevelComments.push(mappedComment);
       }
     }
 
-    const attachReplies = (commentNode: any) => {
-      const replies = commentMap.get(commentNode.id_comment) || [];
-      commentNode.replies = replies.map(attachReplies);
-      return commentNode;
+    const attachRepliesRecursively = (mappedCommentNode: any) => {
+      const replies = commentRepliesMap.get(mappedCommentNode.id_comment) || [];
+      mappedCommentNode.replies = replies.map(attachRepliesRecursively);
+      return mappedCommentNode;
     };
 
-    const mappedRoot = {
-      id_comment: comment.id_comment,
-      text: comment.text,
-      isParent: !comment.parent,
-      user: comment.user
-        ? { id_user: comment.user.id_user, username: comment.user.username }
-        : null,
-      replies: [],
-    };
-
-    return [attachReplies(mappedRoot)];
-  }
-
-  async deleteComment(
-    id_comment: number,
-    request: { user: User },
-  ): Promise<void> {
-    const comment = await this.commentRepository.findOne({
-      where: { id_comment },
-      relations: ['user'],
-    });
-
-    if (!comment) {
-      throw new NotFoundException(`Comment not found`);
+    if (rootCommentId) {
+      const rootCommentEntity = comments.find(
+        (entity) => entity.id_comment === rootCommentId,
+      );
+      if (!rootCommentEntity) return [];
+      const mappedRootComment = {
+        id_comment: rootCommentEntity.id_comment,
+        text: rootCommentEntity.text,
+        isParent: !rootCommentEntity.parent,
+        user: rootCommentEntity.user
+          ? {
+              id_user: rootCommentEntity.user.id_user,
+              username: rootCommentEntity.user.username,
+            }
+          : null,
+        replies: [],
+      };
+      return [attachRepliesRecursively(mappedRootComment)];
     }
 
-    if (comment.user.id_user !== request.user.id_user) {
-      throw new ForbiddenException('Cannot delete others comments');
-    }
-
-    await this.commentRepository.remove(comment);
+    return topLevelComments.map(attachRepliesRecursively);
   }
 
-  async findOne(id_comment: number): Promise<Comment> {
-    const comment = await this.commentRepository.findOne({
-      where: { id_comment },
+  async findReviewComments(reviewId: number) {
+    const comments = await this.commentRepository.find({
+      where: { review: { id_review: reviewId } },
       relations: ['user', 'parent'],
+      order: { createdAt: 'ASC' },
     });
-    if (!comment) throw new NotFoundException(`Comment not found`);
-    return comment;
+    return this.buildCommentTree(comments);
   }
 
-  async findAll(): Promise<any[]> {
+  async findCommentsReplies(commentId: number) {
+    const comments = await this.commentRepository.find({
+      relations: ['user', 'parent'],
+      order: { createdAt: 'ASC' },
+    });
+    return this.buildCommentTree(comments, commentId);
+  }
+
+  async findAll() {
     const comments = await this.commentRepository.find({
       relations: ['user', 'parent'],
       order: { createdAt: 'ASC' },
     });
 
-    const commentMap = new Map<number, any[]>();
-    const topLevelComments: any[] = [];
+    // If all comments have parent, pick any root candidates
+    return this.buildCommentTree(comments.filter((c) => !c.parent));
+  }
 
-    for (const comment of comments) {
-      const mapped = {
-        id_comment: comment.id_comment,
-        text: comment.text,
-        isParent: !comment.parent,
-        user: comment.user
-          ? { id_user: comment.user.id_user, username: comment.user.username }
-          : null,
-        replies: [],
-      };
+  async deleteComment(
+    commentId: number,
+    request: { user: User },
+  ): Promise<void> {
+    const commentEntity = await this.commentRepository.findOne({
+      where: { id_comment: commentId },
+      relations: ['user'],
+    });
 
-      if (comment.parent) {
-        const parentReplies = commentMap.get(comment.parent.id_comment) || [];
-        parentReplies.push(mapped);
-        commentMap.set(comment.parent.id_comment, parentReplies);
-      } else {
-        topLevelComments.push(mapped);
-      }
+    if (!commentEntity) {
+      throw new NotFoundException(`Comment not found`);
     }
 
-    const attachReplies = (commentNode: any) => {
-      const replies = commentMap.get(commentNode.id_comment) || [];
-      commentNode.replies = replies.map(attachReplies);
-      return commentNode;
-    };
+    if (commentEntity.user.id_user !== request.user.id_user) {
+      throw new ForbiddenException('Cannot delete others comments');
+    }
 
-    return topLevelComments.map(attachReplies);
+    await this.commentRepository.remove(commentEntity);
+  }
+
+  async findOne(commentId: number): Promise<Comment> {
+    const commentEntity = await this.commentRepository.findOne({
+      where: { id_comment: commentId },
+      relations: ['user', 'parent'],
+    });
+    if (!commentEntity) {
+      throw new NotFoundException(`Comment not found`);
+    }
+    return commentEntity;
   }
 }
