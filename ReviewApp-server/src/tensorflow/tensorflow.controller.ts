@@ -8,8 +8,9 @@ export class TensorflowController {
   // Endpoint to get the top 5 interesting reviews for a user
   @Get('recommendations/:id_user')
   async getRecommendations(@Param('id_user') id_user: number) {
-    const convertIdUser = Number(id_user)
-    const recommendations = await this.tensorflowService.recommendInterestingReviews(convertIdUser);
+    const convertIdUser = Number(id_user);
+    const recommendations =
+      await this.tensorflowService.recommendInterestingReviews(convertIdUser);
     return recommendations;
   }
 }

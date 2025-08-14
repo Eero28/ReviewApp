@@ -12,11 +12,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
       secretOrKey: process.env.JWT_SECRET,
-      passReqToCallback: true, 
+      passReqToCallback: true,
     });
   }
 
-  async validate(req: any, payload: { sub: number; email: string }): Promise<User> {
+  async validate(
+    req: any,
+    payload: { sub: number; email: string },
+  ): Promise<User> {
     try {
       const token = req.headers.authorization?.split(' ')[1];
       if (!token) {
@@ -24,7 +27,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       }
       jwt.verify(token, process.env.JWT_SECRET);
 
-      
       const user = await this.usersService.findOne(payload.sub);
       if (!user) {
         throw new UnauthorizedException('Invalid token: user not found');

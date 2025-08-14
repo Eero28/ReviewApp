@@ -6,9 +6,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Review } from 'src/review/entities/review.entity';
 import { User } from 'src/users/entities/user.entity';
 
-
 @Module({
-  imports: [forwardRef(() => ReviewModule), TypeOrmModule.forFeature([Review, User])],
+  imports: [
+    forwardRef(() => ReviewModule),
+    TypeOrmModule.forFeature([Review, User]),
+  ],
   providers: [TensorflowService],
   controllers: [TensorflowController],
 })

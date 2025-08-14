@@ -9,6 +9,6 @@ import { Review } from 'src/review/entities/review.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([Like, User, Review])],
   controllers: [LikeController],
-  providers: [LikeService]
+  providers: [LikeService],
 })
 export class LikeModule {}
