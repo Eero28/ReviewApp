@@ -1,7 +1,7 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { Alert, SafeAreaView } from 'react-native';
+import React, { useCallback } from 'react';
+import { Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { useFocusEffect, useIsFocused } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import { NavigationProp } from '@react-navigation/native';
 
 interface CameraComponentProps {
@@ -10,8 +10,6 @@ interface CameraComponentProps {
 }
 
 const CameraComponent: React.FC<CameraComponentProps> = ({ navigation, onImageCaptured }) => {
-  const [hasOpenedCamera, setHasOpenedCamera] = useState(false);
-  const isFocused = useIsFocused();
 
   const requestPermissions = async () => {
     const { status: cameraStatus } = await ImagePicker.requestCameraPermissionsAsync();
@@ -50,20 +48,13 @@ const CameraComponent: React.FC<CameraComponentProps> = ({ navigation, onImageCa
   useFocusEffect(
     useCallback(() => {
       const openCameraIfAllowed = async () => {
-        if (!hasOpenedCamera && await requestPermissions()) {
-          setHasOpenedCamera(true);
+        if (await requestPermissions()) {
           openCamera();
         }
       };
       openCameraIfAllowed();
-    }, [hasOpenedCamera])
+    }, [])
   );
-
-  useEffect(() => {
-    if (!isFocused) {
-      setHasOpenedCamera(false);
-    }
-  }, [isFocused]);
 
   return null;
 };
