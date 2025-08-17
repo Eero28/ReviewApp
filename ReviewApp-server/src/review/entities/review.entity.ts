@@ -32,11 +32,9 @@ export class Review {
   @Column()
   category: string;
 
-  @Exclude()
   @CreateDateColumn()
   createdAt: Date;
 
-  @Exclude()
   @UpdateDateColumn()
   updatedAt: Date;
 

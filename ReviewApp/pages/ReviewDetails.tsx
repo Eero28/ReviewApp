@@ -47,19 +47,19 @@ const ReviewDetails: FC = () => {
   };
 
   const getRecommendations = async () => {
-  try {
-    const response = await axios.get(`${API_URL}/tensorflow/recommendations/${userInfo?.id_user}`);
+    try {
+      const response = await axios.get(`${API_URL}/tensorflow/recommendations/${userInfo?.id_user}`);
 
-    // Filter out recommendations with the same id_review as the current item
-    const filteredRecommendations = response.data.data.filter(recommendation => {
-      return recommendation.review.id_review !== item.id_review;
-    });
+      // Filter out recommendations with the same id_review as the current item
+      const filteredRecommendations = response.data.data.filter(recommendation => {
+        return recommendation.review.id_review !== item.id_review;
+      });
 
-    setRecommendations(filteredRecommendations);
-  } catch (error) {
-    console.log(error);
-  }
-};
+      setRecommendations(filteredRecommendations);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
 
 
@@ -96,12 +96,12 @@ const ReviewDetails: FC = () => {
   };
 
   const hasRecommendations = () => {
-    if(!recommendations){
+    if (!recommendations) {
       return
     }
     return recommendations?.length > 0;
   };
-  
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -139,11 +139,11 @@ const ReviewDetails: FC = () => {
         </View>
       </ScrollView>
       {hasRecommendations() && (
-          <>
-            <Text style={{ fontSize: 18, fontWeight: 'bold', marginVertical: 10 }}>You might also like:</Text>
-            <AnimatedRecommendations recommendations={recommendations || []} />
-          </>
-        )}
+        <>
+          <Text style={{ fontSize: 18, fontWeight: 'bold', marginVertical: 10 }}>You might also like:</Text>
+          <AnimatedRecommendations recommendations={recommendations || []} />
+        </>
+      )}
       <BottomSheetFlatList
         renderItem={({ item }) => (
           <UserComment item={item} getReviewComments={getReviewComments} />
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding:10
+    padding: 10
   },
   ratingText: {
     paddingLeft: 8,
