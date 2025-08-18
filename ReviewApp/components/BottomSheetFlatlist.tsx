@@ -18,10 +18,7 @@ import Animated, {
   runOnJS,
   useAnimatedScrollHandler,
 } from 'react-native-reanimated';
-import {
-  Gesture,
-  GestureDetector,
-} from 'react-native-gesture-handler';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import axios from 'axios';
 import { useAuth } from '../ContexApi';
 import Icon from './Icon';
@@ -43,6 +40,7 @@ interface BottomSheetProps {
   ListFooterComponent?: React.FC;
   commentInput?: boolean;
   id_review?: number;
+  review_name?: string;
   getReviewComments: () => void;
 }
 
@@ -59,6 +57,7 @@ function BottomSheetFlatList({
   ListHeaderComponent,
   commentInput,
   id_review,
+  review_name,
   getReviewComments,
 }: BottomSheetProps) {
   const { userInfo, handleLogout, reviewsUpdated, setReviewsUpdated } = useAuth();
@@ -67,7 +66,6 @@ function BottomSheetFlatList({
   const closeHeight = screenHeight;
   const translateY = useSharedValue(closeHeight);
   const context = useSharedValue(0);
-  const scrollBegin = useSharedValue(0);
   const scrollY = useSharedValue(0);
 
   useEffect(() => {
@@ -78,66 +76,58 @@ function BottomSheetFlatList({
     translateY.value = withSpring(targetHeight, { damping: 100, stiffness: 400 });
   }, [isOpen]);
 
-  const pan = Gesture.Pan()
+  const panHandle = Gesture.Pan()
     .onBegin(() => {
       context.value = translateY.value;
     })
     .onUpdate((event) => {
-      const newTranslateY = context.value + event.translationY;
-      translateY.value = Math.max(newTranslateY, 0);
+      translateY.value = Math.min(Math.max(context.value + event.translationY, 0), closeHeight);
     })
     .onEnd(() => {
+      // snap to closest snap point
       const closestSnap = snapPositions.reduce((prev, curr) => {
         const prevDistance = Math.abs(translateY.value - (screenHeight - screenHeight * prev));
         const currDistance = Math.abs(translateY.value - (screenHeight - screenHeight * curr));
         return currDistance < prevDistance ? curr : prev;
       });
-
       translateY.value = withTiming(screenHeight - screenHeight * closestSnap, { duration: 200 });
-
-      const lowestPosition = Math.min(...snapPositions);
-      if (closestSnap === lowestPosition) {
-        runOnJS(onClose)();
-      }
+      if (closestSnap === Math.min(...snapPositions)) runOnJS(onClose)();
     });
 
   const onScroll = useAnimatedScrollHandler({
-    onBeginDrag: (event) => {
-      scrollBegin.value = event.contentOffset.y;
-    },
     onScroll: (event) => {
       scrollY.value = event.contentOffset.y;
     },
   });
 
-  const panScroll = Gesture.Pan()
+  // list part
+  const panList = Gesture.Pan()
     .onBegin(() => {
       context.value = translateY.value;
     })
     .onUpdate((event) => {
+      // Only drag the sheet down if the list is scrolled to top
       if (scrollY.value <= 0 && event.translationY > 0) {
-        const newTranslateY = context.value + event.translationY;
-        translateY.value = Math.max(newTranslateY, 0);
+        translateY.value = Math.min(Math.max(context.value + event.translationY, 0), closeHeight);
       }
     })
     .onEnd(() => {
       if (scrollY.value <= 0) {
+        // snap to closest snap point
         const closestSnap = snapPositions.reduce((prev, curr) => {
           const prevDistance = Math.abs(translateY.value - (screenHeight - screenHeight * prev));
           const currDistance = Math.abs(translateY.value - (screenHeight - screenHeight * curr));
           return currDistance < prevDistance ? curr : prev;
         });
-
         translateY.value = withTiming(screenHeight - screenHeight * closestSnap, { duration: 200 });
-
-        const lowestPosition = Math.min(...snapPositions);
-        if (closestSnap === lowestPosition) {
-          runOnJS(onClose)();
-        }
+        if (closestSnap === Math.min(...snapPositions)) runOnJS(onClose)();
       }
     });
 
   const scrollViewGesture = Gesture.Native();
+
+  // allow both gestures to work the same time
+  const combinedGestures = Gesture.Simultaneous(panList, scrollViewGesture)
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }],
@@ -161,7 +151,7 @@ function BottomSheetFlatList({
       };
       await axios.post(`${API_URL}/comments`, data);
       getReviewComments();
-      setReviewsUpdated(!reviewsUpdated)
+      setReviewsUpdated(!reviewsUpdated);
       setCommentText('');
     } catch (error: any) {
       console.log(error);
@@ -177,49 +167,51 @@ function BottomSheetFlatList({
   }, [commentInput]);
 
   return (
-    <GestureDetector gesture={pan}>
-      <Animated.View style={[styles.container, animatedStyle, { backgroundColor }]}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={{ flex: 1 }}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 50}
-        >
+    <Animated.View style={[styles.container, animatedStyle, { backgroundColor }]}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 50}
+      >
+        <GestureDetector gesture={panHandle}>
           <View style={styles.lineContainer}>
             <View style={[styles.line, { backgroundColor: handleColor }]} />
             <Text style={styles.text}>{handleTitle}</Text>
           </View>
-          <GestureDetector gesture={Gesture.Simultaneous(panScroll, scrollViewGesture)}>
-            <Animated.FlatList
-              scrollEventThrottle={16}
-              bounces={false}
-              onScroll={onScroll}
-              contentContainerStyle={styles.scrollContent}
-              renderItem={renderItem}
-              data={data}
-              ListEmptyComponent={ListEmptyComponent}
-              ListHeaderComponent={ListHeaderComponent}
+        </GestureDetector>
+
+        <GestureDetector gesture={combinedGestures}>
+          <Animated.FlatList
+            scrollEventThrottle={16}
+            bounces={false}
+            onScroll={onScroll}
+            contentContainerStyle={styles.scrollContent}
+            renderItem={renderItem}
+            data={data}
+            ListEmptyComponent={ListEmptyComponent}
+            ListHeaderComponent={ListHeaderComponent}
+          />
+        </GestureDetector>
+
+        {commentInput && (
+          <View style={styles.footerContainer}>
+            <TextInput
+              ref={commentInputRef}
+              value={commentText}
+              onChangeText={setCommentText}
+              style={styles.inputField}
+              placeholder={`Type your comment for review ${review_name}`}
+              placeholderTextColor="whitesmoke"
             />
-          </GestureDetector>
-          {commentInput && (
-            <View style={styles.footerContainer}>
-              <TextInput
-                ref={commentInputRef}
-                value={commentText}
-                onChangeText={setCommentText}
-                style={styles.inputField}
-                placeholder="Type your comment..."
-                placeholderTextColor="whitesmoke"
-              />
-              {commentText && (
-                <TouchableOpacity style={styles.addCommentButton} onPress={makeComment}>
-                  <Icon size={35} name="upArrow" />
-                </TouchableOpacity>
-              )}
-            </View>
-          )}
-        </KeyboardAvoidingView>
-      </Animated.View>
-    </GestureDetector>
+            {commentText && (
+              <TouchableOpacity style={styles.addCommentButton} onPress={makeComment}>
+                <Icon size={35} name="upArrow" />
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
+      </KeyboardAvoidingView>
+    </Animated.View>
   );
 }
 

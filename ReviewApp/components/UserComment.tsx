@@ -1,5 +1,5 @@
-import React, { FC, useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
+import { FC, useState } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, Image, Button } from 'react-native';
 import axios from 'axios';
 import ModalDialog from './ModalDialog';
 import ExpandableBox from './Expandablebox';
@@ -13,21 +13,33 @@ type Props = {
   item: Comment;
   getReviewComments?: () => void;
   disableCommentDelete?: boolean;
+  id_review: number;
 };
 
-const UserComment: FC<Props> = ({ item, getReviewComments, disableCommentDelete }) => {
+const UserComment: FC<Props> = ({ item, getReviewComments, disableCommentDelete, id_review }) => {
   const { userInfo, handleLogout } = useAuth();
   const [showDialogModal, setShowDialogModal] = useState(false);
   const [minimizeOpen, setMinimizeOpen] = useState(true);
 
-  const renderReplies = (list: Comment[]) =>
-    list.map(reply => (
-      <View key={reply.id_comment} style={styles.replyContainer}>
-        <Text style={styles.commentUser}>{reply.user?.username}:</Text>
-        <Text style={styles.commentText}>{reply.text}</Text>
-        {reply.replies?.length ? renderReplies(reply.replies) : null}
-      </View>
-    ));
+  // Recursive replies with depth
+  const renderReplies = (list: Comment[] = [], depth = 1) => {
+    return list.map((reply) => {
+      return (
+        <View
+          key={reply.id_comment}
+          style={[styles.replyContainer, { paddingLeft: depth * 15 }]}
+        >
+          <Text style={styles.commentUser}>{reply.user?.username ?? 'Anonymous'}:</Text>
+          <Text style={styles.commentText}>{reply.text}</Text>
+          <Text style={styles.dateText}>{calculateDate(reply.createdAt)}</Text>
+          {reply.replies && reply.replies.length > 0 && (
+            <View>{renderReplies(reply.replies, depth + 1)}</View>
+          )}
+        </View>
+      );
+    });
+  };
+
 
   const deleteComment = async () => {
     try {
@@ -47,6 +59,14 @@ const UserComment: FC<Props> = ({ item, getReviewComments, disableCommentDelete 
     }
   };
 
+  const replyToComment = async () => {
+    try {
+      await axios.post(`${API_URL}/comments/reply/${item.id_comment}`, { text: "client!", id_review: id_review, id_user: userInfo?.id_user })
+      getReviewComments?.();
+    } catch (error: any) {
+
+    }
+  }
   return (
     <>
       <ModalDialog
@@ -70,9 +90,17 @@ const UserComment: FC<Props> = ({ item, getReviewComments, disableCommentDelete 
             <Text style={styles.commentUser}>{item.user.username}:</Text>
             <Text style={styles.commentText}>{item.text}</Text>
             <Text style={styles.dateText}>{calculateDate(item.createdAt)}</Text>
-            <ExpandableBox buttonState={minimizeOpen} setButtonState={setMinimizeOpen}>
-              {renderReplies(item.replies || [])}
-            </ExpandableBox>
+            <TouchableOpacity onPress={replyToComment}>
+              <Text style={{ padding: 12 }}>Reply</Text>
+            </TouchableOpacity>
+            {item.replies && item.replies.length > 0 && (
+              <ExpandableBox
+                buttonState={minimizeOpen}
+                setButtonState={setMinimizeOpen}
+              >
+                {renderReplies(item.replies)}
+              </ExpandableBox>
+            )}
           </View>
         </View>
       </TouchableOpacity>
@@ -116,6 +144,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   replyContainer: {
-    paddingLeft: 15,
+    marginTop: 8,
   },
 });

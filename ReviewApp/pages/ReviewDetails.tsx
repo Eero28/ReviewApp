@@ -49,7 +49,6 @@ const ReviewDetails: FC = () => {
   const getRecommendations = async () => {
     try {
       const response = await axios.get(`${API_URL}/tensorflow/recommendations/${userInfo?.id_user}`);
-
       // Filter out recommendations with the same id_review as the current item
       const filteredRecommendations = response.data.data.filter(recommendation => {
         return recommendation.review.id_review !== item.id_review;
@@ -60,9 +59,6 @@ const ReviewDetails: FC = () => {
       console.log(error);
     }
   };
-
-
-
 
   const getReviewComments = async () => {
     try {
@@ -146,17 +142,22 @@ const ReviewDetails: FC = () => {
       )}
       <BottomSheetFlatList
         renderItem={({ item }) => (
-          <UserComment item={item} getReviewComments={getReviewComments} />
+          <UserComment
+            id_review={route.params.item.id_review}
+            item={item}
+            getReviewComments={getReviewComments}
+          />
         )}
         data={comments}
         ListEmptyComponent={EmptyList}
         onClose={toggleSheet}
-        snapPoints={['100%', '30%', '20%']}
+        snapPoints={['100%', '80%']}
         backgroundColor="#121314"
         isOpen={isOpen}
         handleTitle="Comments"
         commentInput
         id_review={item.id_review}
+        review_name={item.reviewname}
         getReviewComments={getReviewComments}
       />
     </SafeAreaView>

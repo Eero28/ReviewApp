@@ -19,7 +19,6 @@ export class Comment {
   @Column()
   text: string;
 
-  @Exclude()
   @CreateDateColumn()
   createdAt: Date;
 
