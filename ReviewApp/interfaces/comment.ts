@@ -8,5 +8,5 @@ export interface Comment {
   createdAt: string;
   review: ReviewItemIf;
   user: UserInfo;
-  replies?: Comment[]; // recursive replies
+  replies: Comment[]; // recursive replies
 }

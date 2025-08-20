@@ -6,6 +6,7 @@ import ExpandableBox from './Expandablebox';
 import { Comment } from '../interfaces/Comment';
 import { useAuth } from '../ContexApi';
 import { calculateDate } from '../helpers/date';
+import ReplyItem from './ReplyItem';
 // @ts-expect-error
 import { API_URL } from '@env';
 
@@ -21,25 +22,6 @@ const UserComment: FC<Props> = ({ item, getReviewComments, id_review }) => {
   const [minimizeOpen, setMinimizeOpen] = useState(true);
   const [replying, setReplying] = useState(false);
   const [replyText, setReplyText] = useState('');
-
-  const renderReplies = (list: Comment[] = [], depth = 1) => {
-    return list.map((reply) => (
-      <View key={reply.id_comment} style={[{ marginLeft: depth * 20 }, styles.replyContainer]}>
-        <Image
-          source={{
-            uri: item.user?.avatar || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
-          }}
-          style={styles.profileImage}
-        />
-        <View style={styles.replyTextContainer}>
-          <Text style={styles.commentUser}>{reply.user?.username ?? 'Anonymous'}:</Text>
-          <Text style={styles.commentText}>{reply.text}</Text>
-          <Text style={styles.dateText}>{calculateDate(reply.createdAt)}</Text>
-          {reply.replies && reply.replies.length > 0 && renderReplies(reply.replies, depth + 1)}
-        </View>
-      </View>
-    ));
-  };
 
   const deleteComment = async () => {
     try {
@@ -64,17 +46,21 @@ const UserComment: FC<Props> = ({ item, getReviewComments, id_review }) => {
     try {
       await axios.post(`${API_URL}/comments/reply/${item.id_comment}`, {
         text: replyText,
-        id_review: id_review,
+        id_review,
         id_user: userInfo?.id_user,
       });
       setReplyText('');
       setReplying(false);
       getReviewComments?.();
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
     }
   };
-  console.log(item)
+
+  // Bottom Sheet
+  const toggleSheet = () => {
+    setShowDialogModal(!showDialogModal);
+  };
 
   return (
     <>
@@ -85,43 +71,54 @@ const UserComment: FC<Props> = ({ item, getReviewComments, id_review }) => {
         visible={showDialogModal}
       />
 
-      <View style={styles.commentWrapper}>
-        <Image
-          source={{
-            uri: item.user?.avatar || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
-          }}
-          style={styles.profileImage}
-        />
-        <View style={{ flex: 1, marginLeft: 10 }}>
-          <Text style={styles.commentUser}>{item.user.username}</Text>
-          <Text style={styles.commentText}>{item.text}</Text>
-          <Text style={styles.dateText}>{calculateDate(item.createdAt)}</Text>
+      <TouchableOpacity onLongPress={toggleSheet}>
+        <View style={styles.commentWrapper}>
+          <Image
+            source={{
+              uri:
+                item.user?.avatar ||
+                'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
+            }}
+            style={styles.profileImage}
+          />
+          <View style={{ flex: 1, marginLeft: 10 }}>
+            <Text style={styles.commentUser}>{item.user.username}</Text>
+            <Text style={styles.commentText}>{item.text}</Text>
+            <Text style={styles.dateText}>{calculateDate(item.createdAt)}</Text>
 
-          <TouchableOpacity onPress={() => setReplying(!replying)} style={styles.replyButton}>
-            <Text style={styles.replyButtonText}>Reply</Text>
-          </TouchableOpacity>
+            <TouchableOpacity onPress={() => setReplying(!replying)} style={styles.replyButton}>
+              <Text style={styles.replyButtonText}>Reply</Text>
+            </TouchableOpacity>
 
-          {replying && (
-            <View style={{ marginTop: 8, flexDirection: 'row', alignItems: 'center' }}>
-              <TextInput
-                style={styles.replyInput}
-                placeholder="Write a reply..."
-                value={replyText}
-                onChangeText={setReplyText}
-              />
-              <TouchableOpacity onPress={replyToComment} style={styles.submitButton}>
-                <Text style={styles.submitButtonText}>Send</Text>
-              </TouchableOpacity>
-            </View>
-          )}
+            {replying && (
+              <View style={{ marginTop: 8, flexDirection: 'row', alignItems: 'center' }}>
+                <TextInput
+                  style={styles.replyInput}
+                  placeholder="Write a reply..."
+                  value={replyText}
+                  onChangeText={setReplyText}
+                />
+                <TouchableOpacity onPress={replyToComment} style={styles.submitButton}>
+                  <Text style={styles.submitButtonText}>Send</Text>
+                </TouchableOpacity>
+              </View>
+            )}
 
-          {item.replies && item.replies.length > 0 && (
-            <ExpandableBox buttonState={minimizeOpen} setButtonState={setMinimizeOpen}>
-              {renderReplies(item.replies)}
-            </ExpandableBox>
-          )}
+            {item.replies?.length > 0 && (
+              <ExpandableBox buttonState={minimizeOpen} setButtonState={setMinimizeOpen}>
+                {item.replies.map((reply) => (
+                  <ReplyItem
+                    key={reply.id_comment}
+                    reply={reply}
+                    id_review={id_review}
+                    getReviewComments={getReviewComments}
+                  />
+                ))}
+              </ExpandableBox>
+            )}
+          </View>
         </View>
-      </View>
+      </TouchableOpacity>
     </>
   );
 };
@@ -146,11 +143,6 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 24,
   },
-  replyContainer: {
-    flexDirection: "row",
-    marginTop: 8,
-  }
-  ,
   commentUser: {
     fontWeight: '700',
     fontSize: 15,
@@ -166,9 +158,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#999',
     marginTop: 2,
-  },
-  replyTextContainer: {
-    marginLeft: 10
   },
   replyButton: {
     marginTop: 6,
@@ -202,9 +191,5 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '600',
     fontSize: 14,
-  },
-  commentTextSmall: {
-    fontSize: 13,
-    color: '#555',
   },
 });
