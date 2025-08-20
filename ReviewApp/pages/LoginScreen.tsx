@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, TextInput, Button } from 'react-native';
-import React, { FC, useState } from 'react';
+import { FC, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { useAuth } from '../ContexApi';
 

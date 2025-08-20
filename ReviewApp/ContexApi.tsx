@@ -22,6 +22,7 @@ interface AuthContextProps {
   reviewsWithCategoryAll: (category?: string) => void;
   setReviewsUpdated: Dispatch<SetStateAction<boolean>>;
   reviewsUpdated: boolean;
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -31,6 +32,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [userReviews, setUserReviews] = useState<ReviewItemIf[]>([]);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [reviewsUpdated, setReviewsUpdated] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const checkUserSession = async () => {
@@ -41,12 +43,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setUserInfo(parsedUserInfo);
         }
       } catch (error) {
-        console.log("error with usersession")
-        console.log(error);
+        console.log("Error with user session", error);
+      } finally {
+        setLoading(false);
       }
     };
     checkUserSession();
   }, []);
+
 
   useEffect(() => {
     if (userInfo) {
@@ -153,6 +157,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         reviewsWithCategoryAll,
         setReviewsUpdated,
         reviewsUpdated,
+        loading
       }}
     >
       {children}
