@@ -71,6 +71,7 @@ export class CommentsService {
     for (const commentEntity of comments) {
       const mappedComment = {
         id_comment: commentEntity.id_comment,
+        createdAt: commentEntity.createdAt,
         text: commentEntity.text,
         isParent: !commentEntity.parent,
         user: commentEntity.user

@@ -14,19 +14,18 @@ const ExpandableBox = ({ buttonState, setButtonState, children }: HomeProps) => 
 
     return (
         <View style={styles.containerReply}>
-            <View style={styles.headerRow}>
-                <TouchableOpacity style={styles.expandableboxButton} onPress={handleButton}>
-                    <Text style={styles.buttonText}>
-                        {buttonState ? 'Replies' : '-'}
-                    </Text>
-                </TouchableOpacity>
-            </View>
-
             {!buttonState && (
                 <View style={styles.boxContent}>
                     {children}
                 </View>
             )}
+            <View style={styles.headerRow}>
+                <TouchableOpacity style={styles.expandableboxButton} onPress={handleButton}>
+                    <Text style={styles.buttonText}>
+                        {buttonState ? 'Replies' : 'hide replies'}
+                    </Text>
+                </TouchableOpacity>
+            </View>
         </View>
     );
 };
@@ -40,7 +39,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     expandableboxButton: {
-        backgroundColor: 'red',
         paddingHorizontal: 10,
         paddingVertical: 6,
         borderRadius: 4,
@@ -51,7 +49,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     boxContent: {
-        backgroundColor: 'gray',
+        backgroundColor: '#121314',
         padding: 10,
         marginTop: 5,
     },

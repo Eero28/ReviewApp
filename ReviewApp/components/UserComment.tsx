@@ -1,45 +1,45 @@
 import { FC, useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image, Button } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image, TextInput } from 'react-native';
 import axios from 'axios';
 import ModalDialog from './ModalDialog';
 import ExpandableBox from './Expandablebox';
 import { Comment } from '../interfaces/Comment';
 import { useAuth } from '../ContexApi';
 import { calculateDate } from '../helpers/date';
-// @ts-expect-error: Ignore the issue with the import from @env
+// @ts-expect-error
 import { API_URL } from '@env';
 
 type Props = {
   item: Comment;
   getReviewComments?: () => void;
-  disableCommentDelete?: boolean;
   id_review: number;
 };
 
-const UserComment: FC<Props> = ({ item, getReviewComments, disableCommentDelete, id_review }) => {
+const UserComment: FC<Props> = ({ item, getReviewComments, id_review }) => {
   const { userInfo, handleLogout } = useAuth();
   const [showDialogModal, setShowDialogModal] = useState(false);
   const [minimizeOpen, setMinimizeOpen] = useState(true);
+  const [replying, setReplying] = useState(false);
+  const [replyText, setReplyText] = useState('');
 
-  // Recursive replies with depth
   const renderReplies = (list: Comment[] = [], depth = 1) => {
-    return list.map((reply) => {
-      return (
-        <View
-          key={reply.id_comment}
-          style={[styles.replyContainer, { paddingLeft: depth * 15 }]}
-        >
+    return list.map((reply) => (
+      <View key={reply.id_comment} style={[{ marginLeft: depth * 20 }, styles.replyContainer]}>
+        <Image
+          source={{
+            uri: item.user?.avatar || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
+          }}
+          style={styles.profileImage}
+        />
+        <View style={styles.replyTextContainer}>
           <Text style={styles.commentUser}>{reply.user?.username ?? 'Anonymous'}:</Text>
           <Text style={styles.commentText}>{reply.text}</Text>
           <Text style={styles.dateText}>{calculateDate(reply.createdAt)}</Text>
-          {reply.replies && reply.replies.length > 0 && (
-            <View>{renderReplies(reply.replies, depth + 1)}</View>
-          )}
+          {reply.replies && reply.replies.length > 0 && renderReplies(reply.replies, depth + 1)}
         </View>
-      );
-    });
+      </View>
+    ));
   };
-
 
   const deleteComment = async () => {
     try {
@@ -60,13 +60,22 @@ const UserComment: FC<Props> = ({ item, getReviewComments, disableCommentDelete,
   };
 
   const replyToComment = async () => {
+    if (!replyText.trim()) return;
     try {
-      await axios.post(`${API_URL}/comments/reply/${item.id_comment}`, { text: "client!", id_review: id_review, id_user: userInfo?.id_user })
+      await axios.post(`${API_URL}/comments/reply/${item.id_comment}`, {
+        text: replyText,
+        id_review: id_review,
+        id_user: userInfo?.id_user,
+      });
+      setReplyText('');
+      setReplying(false);
       getReviewComments?.();
     } catch (error: any) {
-
+      console.error(error);
     }
-  }
+  };
+  console.log(item)
+
   return (
     <>
       <ModalDialog
@@ -75,35 +84,44 @@ const UserComment: FC<Props> = ({ item, getReviewComments, disableCommentDelete,
         dialogTitle="Delete Comment!"
         visible={showDialogModal}
       />
-      <TouchableOpacity
-        onLongPress={() => !disableCommentDelete && setShowDialogModal(true)}
-        disabled={disableCommentDelete}
-      >
-        <View style={styles.commentContainer}>
-          <Image
-            source={{
-              uri: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
-            }}
-            style={styles.profileImage}
-          />
-          <View style={styles.userInfoContainer}>
-            <Text style={styles.commentUser}>{item.user.username}:</Text>
-            <Text style={styles.commentText}>{item.text}</Text>
-            <Text style={styles.dateText}>{calculateDate(item.createdAt)}</Text>
-            <TouchableOpacity onPress={replyToComment}>
-              <Text style={{ padding: 12 }}>Reply</Text>
-            </TouchableOpacity>
-            {item.replies && item.replies.length > 0 && (
-              <ExpandableBox
-                buttonState={minimizeOpen}
-                setButtonState={setMinimizeOpen}
-              >
-                {renderReplies(item.replies)}
-              </ExpandableBox>
-            )}
-          </View>
+
+      <View style={styles.commentWrapper}>
+        <Image
+          source={{
+            uri: item.user?.avatar || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
+          }}
+          style={styles.profileImage}
+        />
+        <View style={{ flex: 1, marginLeft: 10 }}>
+          <Text style={styles.commentUser}>{item.user.username}</Text>
+          <Text style={styles.commentText}>{item.text}</Text>
+          <Text style={styles.dateText}>{calculateDate(item.createdAt)}</Text>
+
+          <TouchableOpacity onPress={() => setReplying(!replying)} style={styles.replyButton}>
+            <Text style={styles.replyButtonText}>Reply</Text>
+          </TouchableOpacity>
+
+          {replying && (
+            <View style={{ marginTop: 8, flexDirection: 'row', alignItems: 'center' }}>
+              <TextInput
+                style={styles.replyInput}
+                placeholder="Write a reply..."
+                value={replyText}
+                onChangeText={setReplyText}
+              />
+              <TouchableOpacity onPress={replyToComment} style={styles.submitButton}>
+                <Text style={styles.submitButtonText}>Send</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {item.replies && item.replies.length > 0 && (
+            <ExpandableBox buttonState={minimizeOpen} setButtonState={setMinimizeOpen}>
+              {renderReplies(item.replies)}
+            </ExpandableBox>
+          )}
         </View>
-      </TouchableOpacity>
+      </View>
     </>
   );
 };
@@ -111,39 +129,82 @@ const UserComment: FC<Props> = ({ item, getReviewComments, disableCommentDelete,
 export default UserComment;
 
 const styles = StyleSheet.create({
-  commentContainer: {
+  commentWrapper: {
     flexDirection: 'row',
-    backgroundColor: '#f9f9f9',
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 10,
+    padding: 12,
+    marginBottom: 12,
+    backgroundColor: '#121314',
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
   },
-  userInfoContainer: {
-    flex: 1,
-    paddingLeft: 10,
+  profileImage: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
   },
+  replyContainer: {
+    flexDirection: "row",
+    marginTop: 8,
+  }
+  ,
   commentUser: {
-    fontWeight: 'bold',
-    fontSize: 14,
+    fontWeight: '700',
+    fontSize: 15,
+    color: 'white',
   },
   commentText: {
-    fontSize: 16,
-    marginTop: 5,
+    fontSize: 14,
+    marginTop: 4,
+    lineHeight: 20,
+    color: 'white',
   },
   dateText: {
     fontSize: 12,
-    color: '#777',
-    marginTop: 5,
+    color: '#999',
+    marginTop: 2,
   },
-  profileImage: {
-    width: 35,
-    height: 35,
-    borderRadius: 60,
-    borderWidth: 4,
+  replyTextContainer: {
+    marginLeft: 10
+  },
+  replyButton: {
+    marginTop: 6,
+    paddingVertical: 2,
+  },
+  replyButtonText: {
+    color: '#1e90ff',
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  replyInput: {
+    flex: 1,
+    borderWidth: 1,
     borderColor: '#ddd',
-    marginTop: 10,
+    borderRadius: 25,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    fontSize: 14,
+    backgroundColor: '#f5f5f5',
   },
-  replyContainer: {
-    marginTop: 8,
+  submitButton: {
+    marginLeft: 8,
+    backgroundColor: '#1e90ff',
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  submitButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  commentTextSmall: {
+    fontSize: 13,
+    color: '#555',
   },
 });

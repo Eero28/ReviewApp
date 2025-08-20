@@ -200,7 +200,7 @@ function BottomSheetFlatList({
               value={commentText}
               onChangeText={setCommentText}
               style={styles.inputField}
-              placeholder={`Type your comment for review ${review_name}`}
+              placeholder={`Type your comment for the review...`}
               placeholderTextColor="whitesmoke"
             />
             {commentText && (
