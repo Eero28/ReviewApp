@@ -42,7 +42,10 @@
     "react-native-snap-carousel": "^3.9.1",
     "react-native-star-rating-widget": "^1.9.1",
     "react-native-svg": "15.11.2",
-    "react-native-svg-transformer": "^1.5.0"
+    "react-native-svg-transformer": "^1.5.0",
+    "react-dom": "19.0.0",
+    "react-native-web": "^0.20.0",
+    "@expo/metro-runtime": "~5.0.4"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

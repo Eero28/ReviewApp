@@ -1,57 +1,56 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View, Text } from 'react-native';
 
-interface HomeProps {
+interface ExpandableBoxProps {
     buttonState: boolean;
     setButtonState: React.Dispatch<React.SetStateAction<boolean>>;
     children: React.ReactNode;
+    countReplies?: number;
 }
 
-const ExpandableBox = ({ buttonState, setButtonState, children }: HomeProps) => {
-    const handleButton = () => {
+const ExpandableBox = ({ buttonState, setButtonState, children, countReplies = 0 }: ExpandableBoxProps) => {
+
+    const toggleBox = () => {
         setButtonState(!buttonState);
-    };
+    }
 
     return (
-        <View style={styles.containerReply}>
-            {!buttonState && (
-                <View style={styles.boxContent}>
+        <View style={styles.container}>
+            <TouchableOpacity style={styles.headerButton} onPress={toggleBox}>
+                <Text style={styles.buttonText}>
+                    {buttonState ? `Show Replies (${countReplies})` : `Hide Replies (${countReplies})`}
+                </Text>
+            </TouchableOpacity>
+            {!buttonState && countReplies > 0 && (
+                <View style={styles.content}>
                     {children}
                 </View>
             )}
-            <View style={styles.headerRow}>
-                <TouchableOpacity style={styles.expandableboxButton} onPress={handleButton}>
-                    <Text style={styles.buttonText}>
-                        {buttonState ? 'Replies' : 'hide replies'}
-                    </Text>
-                </TouchableOpacity>
-            </View>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    containerReply: {
-        padding: 0,
+    container: {
+        marginVertical: 5,
     },
-    headerRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    expandableboxButton: {
-        paddingHorizontal: 10,
+    headerButton: {
+        paddingHorizontal: 12,
         paddingVertical: 6,
-        borderRadius: 4,
+        borderRadius: 6,
+        backgroundColor: '#1e90ff',
+        alignSelf: 'flex-start',
+        marginBottom: 4,
     },
     buttonText: {
         color: '#fff',
-        padding: 4,
-        textAlign: 'center',
+        fontWeight: '600',
+        fontSize: 13,
     },
-    boxContent: {
+    content: {
         backgroundColor: '#121314',
         padding: 10,
-        marginTop: 5,
+        borderRadius: 6,
     },
 });
 

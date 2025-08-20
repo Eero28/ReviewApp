@@ -9,6 +9,7 @@ import { calculateDate } from '../helpers/date';
 import ReplyItem from './ReplyItem';
 // @ts-expect-error
 import { API_URL } from '@env';
+import { countReplies } from '../helpers/services/commentService';
 
 type Props = {
   item: Comment;
@@ -105,9 +106,10 @@ const UserComment: FC<Props> = ({ item, getReviewComments, id_review }) => {
             )}
 
             {item.replies?.length > 0 && (
-              <ExpandableBox buttonState={minimizeOpen} setButtonState={setMinimizeOpen}>
+              <ExpandableBox countReplies={countReplies(item)} buttonState={minimizeOpen} setButtonState={setMinimizeOpen}>
                 {item.replies.map((reply) => (
                   <ReplyItem
+                    dialogOff={setShowDialogModal}
                     key={reply.id_comment}
                     reply={reply}
                     id_review={id_review}
