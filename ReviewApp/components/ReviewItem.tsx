@@ -48,8 +48,6 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
     };
 
 
-    
-
     useEffect(() => {
         if (userInfo?.id_user) {
             getReviewLikes(userInfo.id_user, item.id_review, setLikesState);
@@ -95,7 +93,7 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
 
     const toggleLike = () => {
         if (likesState.isLiked && userInfo) {
-            deleteLike(userInfo?.id_user,item.id_review,setLikesState);
+            deleteLike(userInfo?.id_user, item.id_review, setLikesState);
         } else {
             likeReview();
         }
@@ -134,7 +132,7 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
                     starSize={20}
                     rating={Math.round(item.reviewRating)}
                     onChange={() => { }}
-                    color="#0f3c85"
+                    color="black"
                 />
                 <Text style={styles.description}>Category: {checkValue(item.category)}</Text>
                 <Text ellipsizeMode='tail' numberOfLines={1} style={styles.description}>Reviewed by: {item.user.username}</Text>
@@ -161,7 +159,6 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
                 onCancel={closeModal}
                 onDelete={handleDelete}
             />
-
         </TouchableOpacity>
     );
 };

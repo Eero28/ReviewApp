@@ -17,7 +17,7 @@ import { ReviewItemIf } from '../interfaces/ReviewItemIf';
 import { useAuth } from '../ContexApi';
 import { toggleLike, getReviewLikes } from '../helpers/services/reviewService';
 import AnimatedRecommendations from '../components/AnimatedRecommendations';
-
+import { selectColor } from '../helpers/tastegroup';
 
 type RootStackParamList = {
   ReviewDetails: {
@@ -109,7 +109,7 @@ const ReviewDetails: FC = () => {
             starSize={20}
             rating={Math.round(item.reviewRating)}
             onChange={() => { }}
-            color="#0f3c85"
+            color="black"
           />
           <Text style={styles.ratingText}>({item.reviewRating})</Text>
         </View>
@@ -118,18 +118,29 @@ const ReviewDetails: FC = () => {
           <Text style={styles.text}>Reviewed: {calculateDate(item.createdAt)}</Text>
           <Text style={styles.text}>Reviewed By: {item.user.username}</Text>
         </View>
+        <View style={styles.descriptionBoxesContainer}>
+          {item.reviewTaste.map((tasteItem, index) => {
+            return (
+              <View key={index} style={[styles.descriptionBox, { backgroundColor: selectColor(tasteItem) }]}>
+                <TouchableOpacity>
+                  <Text style={styles.descriptionText}>{tasteItem}</Text>
+                </TouchableOpacity>
+              </View>
+            );
+          })}
+        </View>
 
         <View style={styles.statsContainer}>
           <TouchableOpacity onPress={onLikePress} style={styles.pressable}>
             <FontAwesome
               name={likesState.isLiked ? 'heart' : 'heart-o'}
-              size={24}
+              size={28}
               color={likesState.isLiked ? 'blue' : 'black'}
             />
             <Text style={styles.text}>{likesState.user.length}</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={toggleSheet} style={styles.pressable}>
-            <MaterialCommunityIcons name="chat-outline" size={24} color="black" />
+            <MaterialCommunityIcons name="chat-outline" size={28} color="black" />
             <Text style={styles.text}>{comments.length}</Text>
           </TouchableOpacity>
         </View>
@@ -171,6 +182,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#CDF2EC',
   },
   cardContainer: {
+    width: '100%',
     alignItems: 'center',
     padding: 15,
     backgroundColor: 'white',
@@ -178,24 +190,28 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   textContainer: {
-    flex: 1,
-    justifyContent: 'flex-start',
+    width: '100%',
+    marginTop: 10,
   },
   title: {
     fontSize: 22,
     fontWeight: 'bold',
     marginBottom: 10,
     color: '#0f3c85',
+    textAlign: 'center',
   },
   image: {
-    borderRadius: 20,
-    width: '100%',
-    aspectRatio: 3 / 2,
+    width: '65%',
+    height: 300,
+    borderRadius: 16,
+    marginVertical: 12,
+    alignSelf: 'center',
+    resizeMode: 'cover',
   },
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 10
+    marginBottom: 10,
   },
   ratingText: {
     paddingLeft: 8,
@@ -207,24 +223,47 @@ const styles = StyleSheet.create({
     color: '#555',
     marginBottom: 8,
   },
-  statsContainer: {
+  descriptionBoxesContainer: {
     flexDirection: 'row',
-    paddingVertical: 15,
-    paddingHorizontal: 10,
-    gap: 10,
-    backgroundColor: '#ffffff',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginTop: 15,
+    marginBottom: 20,
+    width: '100%',
+  },
+  descriptionBox: {
+    width: '30%',
+    paddingVertical: 12,
+    marginBottom: 10,
+    backgroundColor: '#eef2f7',
     borderRadius: 15,
     justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    elevation: 3,
+  },
+  descriptionText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#0f3c85',
+    textAlign: 'center',
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#ffffff',
+    gap: 20,
+    borderRadius: 15,
+    justifyContent: 'center',
+    width: '100%',
   },
   pressable: {
-    padding: 10,
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
     borderRadius: 50,
     backgroundColor: '#eef2f7',
-    gap: 5,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
   },
 });
+
 
 export default ReviewDetails;

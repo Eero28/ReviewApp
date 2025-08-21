@@ -32,6 +32,9 @@ export class Review {
   @Column()
   category: string;
 
+  @Column('text', { array: true })
+  reviewTaste: string[];
+
   @CreateDateColumn()
   createdAt: Date;
 

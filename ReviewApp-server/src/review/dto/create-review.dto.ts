@@ -2,11 +2,10 @@ import {
   IsNotEmpty,
   IsString,
   IsNumber,
-  IsUrl,
   Min,
   Max,
-  IsIn,
-  isString,
+  IsArray,
+  ArrayNotEmpty,
 } from 'class-validator';
 
 export class CreateReviewDto {
@@ -27,10 +26,14 @@ export class CreateReviewDto {
   @IsNotEmpty()
   imageUrl: string;
 
-  @IsIn(['softdrink', 'wine', 'beer'], {
-    message: 'Category must be one of: softdrink, wine, beer',
-  })
+  @IsString()
+  @IsNotEmpty()
   category: string;
+
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsString({ each: true })
+  reviewTaste: string[];
 
   @IsNumber()
   id_user: number;
