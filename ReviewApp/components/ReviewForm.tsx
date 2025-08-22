@@ -7,7 +7,6 @@ import {
   StyleSheet,
   Image,
   ScrollView,
-  SafeAreaView,
 } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import CameraComponent from "../components/CameraComponent";

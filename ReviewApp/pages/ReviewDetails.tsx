@@ -7,7 +7,6 @@ import UserComment from '../components/UserComment';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Comment } from '../interfaces/Comment';
 import axios from 'axios';
-// @ts-expect-error: Ignore the issue with the import from @env.
 import { API_URL } from '@env';
 import BottomSheetFlatList from '../components/BottomSheetFlatlist';
 import { calculateDate } from '../helpers/date';
@@ -226,16 +225,16 @@ const styles = StyleSheet.create({
   descriptionBoxesContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     marginTop: 15,
     marginBottom: 20,
     width: '100%',
+    gap: 10
   },
   descriptionBox: {
     width: '30%',
-    paddingVertical: 12,
+    padding: 12,
     marginBottom: 10,
-    backgroundColor: '#eef2f7',
     borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
