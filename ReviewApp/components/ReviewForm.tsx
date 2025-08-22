@@ -18,6 +18,8 @@ import axios, { AxiosError } from "axios";
 import { API_URL } from "@env";
 import { useAuth } from '../ContexApi';
 import { tasteGroupsFormValues, toggleSelectedTaste, selectColor } from '../helpers/tastegroup';
+import KeyboardAvoidContainer from './KeyboardAvoidContainer';
+
 
 interface ReviewFormValues {
   reviewName: string;
@@ -87,134 +89,132 @@ const ReviewForm: React.FC<NavigationProps> = ({ navigation }) => {
   }
 
   return (
-    <SafeAreaView>
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>Create Your Review</Text>
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.title}>Create Your Review</Text>
 
-        <Image source={{ uri: imageUrl }} style={styles.imagePreview} />
-        <Button title="Discard Image" onPress={discardImage} color="#ff4d4d" />
+      <Image source={{ uri: imageUrl }} style={styles.imagePreview} />
+      <Button title="Discard Image" onPress={discardImage} color="#ff4d4d" />
 
-        <Text style={styles.label}>Review Name</Text>
-        <Controller
-          control={control}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              style={styles.input}
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-              placeholder="Enter review name"
-            />
-          )}
-          name="reviewName"
-          rules={{ required: 'Review name is required' }}
-        />
-        {errors.reviewName && <Text style={styles.error}>{errors.reviewName.message}</Text>}
+      <Text style={styles.label}>Review Name</Text>
+      <Controller
+        control={control}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <TextInput
+            style={styles.input}
+            onBlur={onBlur}
+            onChangeText={onChange}
+            value={value}
+            placeholder="Enter review name"
+          />
+        )}
+        name="reviewName"
+        rules={{ required: 'Review name is required' }}
+      />
+      {errors.reviewName && <Text style={styles.error}>{errors.reviewName.message}</Text>}
 
-        <Text style={styles.label}>Review Text</Text>
-        <Controller
-          control={control}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              style={[styles.input, { height: 100 }]}
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-              numberOfLines={4}
-              multiline={true}
-              placeholder="Enter review text"
-            />
-          )}
-          name="reviewText"
-          rules={{ required: 'Review text is required' }}
-        />
-        {errors.reviewText && <Text style={styles.error}>{errors.reviewText.message}</Text>}
+      <Text style={styles.label}>Review Text</Text>
+      <Controller
+        control={control}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <TextInput
+            style={[styles.input, { height: 100 }]}
+            onBlur={onBlur}
+            onChangeText={onChange}
+            value={value}
+            numberOfLines={4}
+            multiline={true}
+            placeholder="Enter review text"
+          />
+        )}
+        name="reviewText"
+        rules={{ required: 'Review text is required' }}
+      />
+      {errors.reviewText && <Text style={styles.error}>{errors.reviewText.message}</Text>}
 
-        <Text style={styles.label}>Review Rating</Text>
-        <Controller
-          control={control}
-          render={({ field: { onChange, value } }) => (
-            <RNPickerSelect
-              onValueChange={onChange}
-              value={value}
-              items={[...Array(17)].map((_, i) => {
-                const v = 1 + i * 0.25;
-                return { label: v.toString(), value: v };
-              })}
-              placeholder={{ label: "Select a rating", value: null }}
-              style={{ inputIOS: styles.pickerInput, inputAndroid: styles.pickerInput }}
-            />
-          )}
-          name="reviewRating"
-          rules={{ required: 'Rating is required' }}
-        />
-        {errors.reviewRating && <Text style={styles.error}>{errors.reviewRating.message}</Text>}
+      <Text style={styles.label}>Review Rating</Text>
+      <Controller
+        control={control}
+        render={({ field: { onChange, value } }) => (
+          <RNPickerSelect
+            onValueChange={onChange}
+            value={value}
+            items={[...Array(17)].map((_, i) => {
+              const v = 1 + i * 0.25;
+              return { label: v.toString(), value: v };
+            })}
+            placeholder={{ label: "Select a rating", value: null }}
+            style={{ inputIOS: styles.pickerInput, inputAndroid: styles.pickerInput }}
+          />
+        )}
+        name="reviewRating"
+        rules={{ required: 'Rating is required' }}
+      />
+      {errors.reviewRating && <Text style={styles.error}>{errors.reviewRating.message}</Text>}
 
-        <Text style={styles.label}>Category</Text>
-        <Controller
-          control={control}
-          render={({ field: { onChange, value } }) => (
-            <RNPickerSelect
-              onValueChange={onChange}
-              value={value}
-              items={[
-                { label: 'Wine', value: 'wine' },
-                { label: 'Beer', value: 'beer' },
-                { label: 'Softdrink', value: 'softdrink' },
-                { label: 'Hot beverage', value: 'hotbeverage' },
-                { label: 'Cocktail', value: 'cocktail' },
-                { label: 'Other', value: 'other' },
-              ]}
-              placeholder={{ label: "Select a category", value: null }}
-              style={{ inputIOS: styles.pickerInput, inputAndroid: styles.pickerInput }}
-            />
-          )}
-          name="category"
-          rules={{ required: 'Category is required' }}
-        />
-        {errors.category && <Text style={styles.error}>{errors.category.message}</Text>}
+      <Text style={styles.label}>Category</Text>
+      <Controller
+        control={control}
+        render={({ field: { onChange, value } }) => (
+          <RNPickerSelect
+            onValueChange={onChange}
+            value={value}
+            items={[
+              { label: 'Wine', value: 'wine' },
+              { label: 'Beer', value: 'beer' },
+              { label: 'Softdrink', value: 'softdrink' },
+              { label: 'Hot beverage', value: 'hotbeverage' },
+              { label: 'Cocktail', value: 'cocktail' },
+              { label: 'Other', value: 'other' },
+            ]}
+            placeholder={{ label: "Select a category", value: null }}
+            style={{ inputIOS: styles.pickerInput, inputAndroid: styles.pickerInput }}
+          />
+        )}
+        name="category"
+        rules={{ required: 'Category is required' }}
+      />
+      {errors.category && <Text style={styles.error}>{errors.category.message}</Text>}
 
-        <Text style={styles.label}>What does it taste like?</Text>
-        <Controller
-          control={control}
-          name="reviewTaste"
-          rules={{ required: 'Pick at least one taste' }}
-          render={({ field: { onChange, value = [] } }) => (
-            <View>
-              {tasteGroupsFormValues.map(({ group, tastes }) => (
-                <View key={group}>
-                  <Text style={styles.groupLabel}>{group}</Text>
-                  <View style={styles.tasteContainer}>
-                    {tastes.map((taste) => {
-                      const isSelected = value.includes(taste);
-                      return (
-                        <Text
-                          key={taste}
-                          style={[
-                            styles.tasteChip,
-                            { backgroundColor: isSelected ? selectColor(taste) : "#eee" },
-                          ]}
-                          onPress={() => onChange(toggleSelectedTaste(value, taste))}
-                        >
-                          <Text style={{ color: isSelected ? "#fff" : "#333" }}>
-                            {taste}
-                          </Text>
+      <Text style={styles.label}>What does it taste like?</Text>
+      <Controller
+        control={control}
+        name="reviewTaste"
+        rules={{ required: 'Pick at least one taste' }}
+        render={({ field: { onChange, value = [] } }) => (
+          <View>
+            {tasteGroupsFormValues.map(({ group, tastes }) => (
+              <View key={group}>
+                <Text style={styles.groupLabel}>{group}</Text>
+                <View style={styles.tasteContainer}>
+                  {tastes.map((taste) => {
+                    const isSelected = value.includes(taste);
+                    return (
+                      <Text
+                        key={taste}
+                        style={[
+                          styles.tasteChip,
+                          { backgroundColor: isSelected ? selectColor(taste) : "#eee" },
+                        ]}
+                        onPress={() => onChange(toggleSelectedTaste(value, taste))}
+                      >
+                        <Text style={{ color: isSelected ? "#fff" : "#333" }}>
+                          {taste}
                         </Text>
-                      );
-                    })}
-                  </View>
+                      </Text>
+                    );
+                  })}
                 </View>
-              ))}
-            </View>
-          )}
-        />
-        {errors.reviewTaste && <Text style={styles.error}>{errors.reviewTaste.message}</Text>}
+              </View>
+            ))}
+          </View>
+        )}
+      />
+      {errors.reviewTaste && <Text style={styles.error}>{errors.reviewTaste.message}</Text>}
 
-        <View style={styles.buttonContainer}>
-          <Button title="Submit Review" onPress={handleSubmit(onSubmit)} color="#4CAF50" />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+      <View style={styles.buttonContainer}>
+        <Button title="Submit Review" onPress={handleSubmit(onSubmit)} color="#4CAF50" />
+      </View>
+    </ScrollView>
   );
 };
 

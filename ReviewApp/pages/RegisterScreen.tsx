@@ -5,7 +5,7 @@ import axios from 'axios';
 // @ts-expect-error: Ignore the issue with the import from @env.
 import { API_URL } from "@env";
 import { useNavigation } from "@react-navigation/native";
-
+import KeyboardAvoidContainer from '../components/KeyboardAvoidContainer';
 
 
 
@@ -13,13 +13,13 @@ const RegisterScreen = () => {
     const { control, handleSubmit, formState: { errors } } = useForm();
     const navigation = useNavigation();
     const onSubmit = async (data) => {
-        const registerValues= {
+        const registerValues = {
             username: data.username,
             email: data.email,
             password: data.password
         }
         try {
-            await axios.post(`${API_URL}/users/register`,registerValues)
+            await axios.post(`${API_URL}/users/register`, registerValues)
             navigation.goBack()
         } catch (error) {
             console.log(error);
@@ -27,73 +27,75 @@ const RegisterScreen = () => {
     };
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.header}>Register</Text>
+        <KeyboardAvoidContainer>
+            <View style={styles.container}>
+                <Text style={styles.header}>Register</Text>
 
-            <View style={styles.inputContainer}>
-                <Text>Username</Text>
-                <Controller
-                    control={control}
-                    rules={{ required: 'Username is required' }}
-                    render={({ field: { onChange, onBlur, value } }) => (
-                        <TextInput
-                            style={styles.input}
-                            placeholder="Enter username"
-                            onBlur={onBlur}
-                            onChangeText={onChange}
-                            value={value}
-                        />
+                <View style={styles.inputContainer}>
+                    <Text>Username</Text>
+                    <Controller
+                        control={control}
+                        rules={{ required: 'Username is required' }}
+                        render={({ field: { onChange, onBlur, value } }) => (
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Enter username"
+                                onBlur={onBlur}
+                                onChangeText={onChange}
+                                value={value}
+                            />
+                        )}
+                        name="username"
+                    />
+                    {errors.username && (
+                        <Text style={styles.error}>{(errors.username as { message?: string }).message}</Text>
                     )}
-                    name="username"
-                />
-                {errors.username && (
-                    <Text style={styles.error}>{(errors.username as { message?: string }).message}</Text>
-                )}
-            </View>
-            <View style={styles.inputContainer}>
-                <Text>Email</Text>
-                <Controller
-                    control={control}
-                    rules={{ required: 'Email is required' }}
-                    render={({ field: { onChange, onBlur, value } }) => (
-                        <TextInput
-                            style={styles.input}
-                            placeholder="Enter email"
-                            onBlur={onBlur}
-                            onChangeText={onChange}
-                            value={value}
-                            keyboardType="email-address"
-                        />
+                </View>
+                <View style={styles.inputContainer}>
+                    <Text>Email</Text>
+                    <Controller
+                        control={control}
+                        rules={{ required: 'Email is required' }}
+                        render={({ field: { onChange, onBlur, value } }) => (
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Enter email"
+                                onBlur={onBlur}
+                                onChangeText={onChange}
+                                value={value}
+                                keyboardType="email-address"
+                            />
+                        )}
+                        name="email"
+                    />
+                    {errors.email && (
+                        <Text style={styles.error}>{(errors.email as { message?: string }).message}</Text>
                     )}
-                    name="email"
-                />
-                {errors.email && (
-                    <Text style={styles.error}>{(errors.email as { message?: string }).message}</Text>
-                )}
-            </View>
-            <View style={styles.inputContainer}>
-                <Text>Password</Text>
-                <Controller
-                    control={control}
-                    rules={{ required: 'Password is required' }}
-                    render={({ field: { onChange, onBlur, value } }) => (
-                        <TextInput
-                            style={styles.input}
-                            placeholder="Enter password"
-                            onBlur={onBlur}
-                            onChangeText={onChange}
-                            value={value}
-                            secureTextEntry
-                        />
+                </View>
+                <View style={styles.inputContainer}>
+                    <Text>Password</Text>
+                    <Controller
+                        control={control}
+                        rules={{ required: 'Password is required' }}
+                        render={({ field: { onChange, onBlur, value } }) => (
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Enter password"
+                                onBlur={onBlur}
+                                onChangeText={onChange}
+                                value={value}
+                                secureTextEntry
+                            />
+                        )}
+                        name="password"
+                    />
+                    {errors.password && (
+                        <Text style={styles.error}>{(errors.password as { message?: string }).message}</Text>
                     )}
-                    name="password"
-                />
-                {errors.password && (
-                    <Text style={styles.error}>{(errors.password as { message?: string }).message}</Text>
-                )}
+                </View>
+                <Button title="Register" onPress={handleSubmit(onSubmit)} />
             </View>
-            <Button title="Register" onPress={handleSubmit(onSubmit)} />
-        </View>
+        </KeyboardAvoidContainer>
     );
 };
 

@@ -2,7 +2,7 @@ import { StyleSheet, Text, View, TextInput, Button } from 'react-native';
 import { FC, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { useAuth } from '../ContexApi';
-
+import KeyboardAvoidContainer from '../components/KeyboardAvoidContainer';
 interface LoginData {
   email: string;
   password: string;
@@ -26,56 +26,58 @@ const LoginScreen: FC<{ navigation: any }> = ({ navigation }) => {
     fieldError?.message ? <Text style={styles.error}>{fieldError.message}</Text> : null;
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Login</Text>
+    <KeyboardAvoidContainer>
+      <View style={styles.container}>
+        <Text style={styles.header}>Login</Text>
 
-      <View style={styles.inputContainer}>
-        <Text>Email</Text>
-        <Controller
-          control={control}
-          rules={{ required: 'Email is required' }}
-          name="email"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              style={styles.input}
-              placeholder="Enter email"
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-          )}
-        />
-        {renderError(errors.email)}
+        <View style={styles.inputContainer}>
+          <Text>Email</Text>
+          <Controller
+            control={control}
+            rules={{ required: 'Email is required' }}
+            name="email"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styles.input}
+                placeholder="Enter email"
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            )}
+          />
+          {renderError(errors.email)}
+        </View>
+
+        <View style={styles.inputContainer}>
+          <Text>Password</Text>
+          <Controller
+            control={control}
+            rules={{ required: 'Password is required' }}
+            name="password"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styles.input}
+                placeholder="Enter password"
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                secureTextEntry
+                autoCapitalize="none"
+              />
+            )}
+          />
+          {renderError(errors.password)}
+        </View>
+
+        {loginError && <Text style={[styles.error, styles.errorCredentials]}>Wrong credentials!</Text>}
+
+        <Button title="Login" onPress={handleSubmit(onSubmit)} />
+        <Button title="Don't have an account? Register" onPress={() => navigation.navigate('Register')} />
       </View>
-
-      <View style={styles.inputContainer}>
-        <Text>Password</Text>
-        <Controller
-          control={control}
-          rules={{ required: 'Password is required' }}
-          name="password"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              style={styles.input}
-              placeholder="Enter password"
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-              secureTextEntry
-              autoCapitalize="none"
-            />
-          )}
-        />
-        {renderError(errors.password)}
-      </View>
-
-      {loginError && <Text style={[styles.error, styles.errorCredentials]}>Wrong credentials!</Text>}
-
-      <Button title="Login" onPress={handleSubmit(onSubmit)} />
-      <Button title="Don't have an account? Register" onPress={() => navigation.navigate('Register')} />
-    </View>
+    </KeyboardAvoidContainer>
   );
 };
 
