@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, useEffect, useState, useRef } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import StarRating from 'react-native-star-rating-widget';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -37,6 +37,12 @@ const ReviewDetails: FC = () => {
     user: item.likes || [],
     isLiked: false,
   });
+  const scrollRef = useRef<ScrollView | null>(null);
+
+  const scrollToTop = () => {
+    scrollRef.current?.scrollTo({ y: 0, animated: true });
+  };
+
 
   const [isOpen, setIsOpen] = useState(false);
   const toggleSheet = () => setIsOpen(!isOpen);
@@ -81,7 +87,7 @@ const ReviewDetails: FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={{ paddingBottom: 30 }}>
+      <ScrollView ref={scrollRef} contentContainerStyle={{ paddingBottom: 30 }}>
         <View style={styles.cardContainer}>
           <Text style={styles.title}>{item.reviewname}</Text>
           <Image style={styles.image} source={{ uri: item.imageUrl }} />
@@ -121,7 +127,7 @@ const ReviewDetails: FC = () => {
         {recommendations && recommendations.length > 0 && (
           <View style={styles.recommendationsContainer}>
             <Text style={{ fontSize: 18, fontWeight: 'bold', marginVertical: 10 }}>You might also like:</Text>
-            <AnimatedRecommendations recommendations={recommendations} />
+            <AnimatedRecommendations onCardPress={() => scrollToTop()} recommendations={recommendations} />
           </View>
         )}
       </ScrollView>

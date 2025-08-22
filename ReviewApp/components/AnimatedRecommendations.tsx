@@ -6,19 +6,19 @@ import { useNavigation } from '@react-navigation/native';
 
 type Props = {
     recommendations: RecommendationSuggestion[];
+    onCardPress: () => void;
 };
 
 const CARD_WIDTH = 280;
 const CARD_MARGIN = 16;
 const SNAP_INTERVAL = CARD_WIDTH + CARD_MARGIN;
 
-const AnimatedRecommendations: FC<Props> = ({ recommendations }) => {
+const AnimatedRecommendations: FC<Props> = ({ recommendations, onCardPress }) => {
     const scrollX = useRef(new Animated.Value(0)).current;
     const navigation = useNavigation<any>();
 
     // Track touch start positions for each card
     const touchStartXRefs = useRef<number[]>([]);
-
     return (
         <Animated.ScrollView
             horizontal
@@ -41,11 +41,7 @@ const AnimatedRecommendations: FC<Props> = ({ recommendations }) => {
                     extrapolate: 'clamp',
                 });
 
-                const opacity = scrollX.interpolate({
-                    inputRange,
-                    outputRange: [0.6, 1, 0.6],
-                    extrapolate: 'clamp',
-                });
+                const opacity = 1
 
                 return (
                     <Animated.View
@@ -60,6 +56,7 @@ const AnimatedRecommendations: FC<Props> = ({ recommendations }) => {
                             onTouchEnd={(e) => {
                                 const dx = Math.abs(e.nativeEvent.pageX - (touchStartXRefs.current[index] || 0));
                                 if (dx < 5) {
+                                    onCardPress();
                                     navigation.navigate('ReviewDetails', { item: item.review });
                                 }
                             }}
