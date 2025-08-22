@@ -1,9 +1,8 @@
 import { StyleSheet, Text, View, Image, TouchableOpacity, Alert } from 'react-native';
-import React, { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import ModalDialog from './ModalDialog';
 import { useAuth } from '../ContexApi';
-import { UserInfo } from '../interfaces/UserInfo';
 import { ReviewItemIf } from '../interfaces/ReviewItemIf';
 import { FontAwesome } from '@expo/vector-icons';
 import { usersLiked } from '../interfaces/UsersLiked';
