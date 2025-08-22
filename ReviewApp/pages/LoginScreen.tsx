@@ -17,7 +17,8 @@ const LoginScreen: FC<{ navigation: any }> = ({ navigation }) => {
     setLoginError(false);
     try {
       await handleLogin(email, password);
-    } catch {
+    } catch (error) {
+      console.log(error)
       setLoginError(true);
     }
   };
