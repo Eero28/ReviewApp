@@ -4,7 +4,6 @@ import axios from 'axios';
 import { Comment } from '../interfaces/Comment';
 import { useAuth } from '../ContexApi';
 import { calculateDate } from '../helpers/date';
-// @ts-expect-error
 import { API_URL } from '@env';
 import ExpandableBox from './Expandablebox';
 import ModalDialog from './ModalDialog';

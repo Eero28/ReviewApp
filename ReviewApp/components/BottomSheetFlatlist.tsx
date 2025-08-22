@@ -23,7 +23,6 @@ import axios from 'axios';
 import { useAuth } from '../ContexApi';
 import Icon from './Icon';
 import { Comment } from '../interfaces/Comment';
-// @ts-expect-error
 import { API_URL } from '@env';
 
 interface BottomSheetProps {

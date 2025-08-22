@@ -5,8 +5,9 @@
     "forceConsistentCasingInFileNames": true
   },
   "include": [
-    "src/**/*",                 
-    "node_modules/react-native/types/**/*.d.ts", 
-    "@env.d.ts"                    
+    "src/**/*",
+    "node_modules/react-native/types/**/*.d.ts",
+    "@react-native-dotenv.d.ts",
+    "svg.d.ts"
   ]
 }

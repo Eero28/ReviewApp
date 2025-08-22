@@ -7,7 +7,6 @@ import { Comment } from '../interfaces/Comment';
 import { useAuth } from '../ContexApi';
 import { calculateDate } from '../helpers/date';
 import ReplyItem from './ReplyItem';
-// @ts-expect-error
 import { API_URL } from '@env';
 import { countReplies } from '../helpers/services/commentService';
 

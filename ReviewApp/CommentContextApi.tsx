@@ -2,9 +2,7 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { ReviewItemIf } from './interfaces/ReviewItemIf';
 import axios from 'axios';
-//@ts-ignore
 import { API_URL } from "@env";
-import { Comment } from './interfaces/Comment';
 interface CommentsContextProps {
   comments: any[];
   getReviewComments: (review: ReviewItemIf) => void;

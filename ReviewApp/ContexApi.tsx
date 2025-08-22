@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect, Dispatch, SetStateAction } from 'react';
 import axios from 'axios';
-// @ts-ignore
 import { API_URL } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UserInfo } from './interfaces/UserInfo';
@@ -64,7 +63,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const handleLogin = async (email: string, password: string): Promise<UserInfo | undefined> => {
     try {
-      console.log(API_URL)
       const response = await axios.post(`${API_URL}/auth/login`, { email, password });
       const userData: UserInfo = response.data.data;
       setUserInfo(userData);

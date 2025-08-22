@@ -14,7 +14,6 @@ import CameraComponent from "../components/CameraComponent";
 import { NavigationProp } from '@react-navigation/native';
 import RNPickerSelect from 'react-native-picker-select';
 import axios, { AxiosError } from "axios";
-// @ts-expect-error
 import { API_URL } from "@env";
 import { useAuth } from '../ContexApi';
 import { tasteGroupsFormValues, toggleSelectedTaste, selectColor } from '../helpers/tastegroup';

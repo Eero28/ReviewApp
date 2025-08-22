@@ -10,7 +10,6 @@ import { usersLiked } from '../interfaces/UsersLiked';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import axios from 'axios';
 import StarRating from 'react-native-star-rating-widget';
-// @ts-expect-error: Ignore the issue with the import from @env.
 import { API_URL } from "@env";
 import { categories } from '../helpers/categories';
 import Icon from './Icon';
