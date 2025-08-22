@@ -19,6 +19,7 @@ const AnimatedRecommendations: FC<Props> = ({ recommendations, onCardPress }) =>
 
     // Track touch start positions for each card
     const touchStartXRefs = useRef<number[]>([]);
+
     return (
         <Animated.ScrollView
             horizontal
@@ -26,6 +27,10 @@ const AnimatedRecommendations: FC<Props> = ({ recommendations, onCardPress }) =>
             snapToInterval={SNAP_INTERVAL}
             decelerationRate="fast"
             scrollEventThrottle={16}
+            onScroll={Animated.event(
+                [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+                { useNativeDriver: true }
+            )}
             contentContainerStyle={styles.scrollContainer}
         >
             {recommendations.map((item, index) => {
@@ -35,18 +40,17 @@ const AnimatedRecommendations: FC<Props> = ({ recommendations, onCardPress }) =>
                     (index + 1) * SNAP_INTERVAL,
                 ];
 
-                const scale = scrollX.interpolate({
+                // Scale only width for carousel effect
+                const scaleX = scrollX.interpolate({
                     inputRange,
                     outputRange: [0.9, 1, 0.9],
                     extrapolate: 'clamp',
                 });
 
-                const opacity = 1
-
                 return (
                     <Animated.View
                         key={index}
-                        style={[styles.cardWrapper, { transform: [{ scale }], opacity }]}
+                        style={[styles.cardWrapper, { transform: [{ scaleX }] }]}
                     >
                         <Pressable
                             style={{ borderRadius: 16 }}
@@ -54,7 +58,9 @@ const AnimatedRecommendations: FC<Props> = ({ recommendations, onCardPress }) =>
                                 touchStartXRefs.current[index] = e.nativeEvent.pageX;
                             }}
                             onTouchEnd={(e) => {
-                                const dx = Math.abs(e.nativeEvent.pageX - (touchStartXRefs.current[index] || 0));
+                                const dx = Math.abs(
+                                    e.nativeEvent.pageX - (touchStartXRefs.current[index] || 0)
+                                );
                                 if (dx < 5) {
                                     onCardPress();
                                     navigation.navigate('ReviewDetails', { item: item.review });
@@ -86,6 +92,7 @@ const styles = StyleSheet.create({
         shadowRadius: 8,
         elevation: 6,
         overflow: 'hidden',
+        height: "auto",
     },
 });
 
