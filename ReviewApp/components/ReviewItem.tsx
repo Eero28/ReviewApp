@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, Text, View, Image, Pressable, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import ModalDialog from './ModalDialog';
 import { useAuth } from '../ContexApi';
@@ -40,11 +40,9 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
     const likeReview = async () => {
         try {
             if (!userInfo?.id_user) throw new Error("User ID is missing");
-
             await axios.post(`${API_URL}/likes/like/review/${item.id_review}`, {
                 id_user: userInfo.id_user,
             });
-
             getReviewLikes(userInfo.id_user, item.id_review, setLikesState);
         } catch (error) {
             console.error("Error liking the review:", error);
@@ -53,7 +51,7 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
 
     const toggleLike = () => {
         if (likesState.isLiked && userInfo) {
-            deleteLike(userInfo?.id_user, item.id_review, setLikesState);
+            deleteLike(userInfo.id_user, item.id_review, setLikesState);
         } else {
             likeReview();
         }
@@ -96,11 +94,14 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
     };
 
     return (
-        <TouchableOpacity
+        <Pressable
+            onPress={gotoDetails}
             onLongPress={handleLongPress}
             onPressIn={handlePressIn}
-            onPress={gotoDetails}
-            style={styles.reviewItemContainer}
+            style={({ pressed }) => [
+                styles.reviewItemContainer,
+                pressed && { opacity: 0.8 },
+            ]}
         >
             <Image
                 style={styles.reviewItemImage}
@@ -114,9 +115,11 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
                     onChange={() => { }}
                     color="black"
                 />
-                <Text style={styles.reviewItemDescription}>Category: {checkCategoryIcon(item.category)}</Text>
+                <Text style={styles.reviewItemDescription}>
+                    Category: {checkCategoryIcon(item.category)}
+                </Text>
                 <Text
-                    ellipsizeMode='tail'
+                    ellipsizeMode="tail"
                     numberOfLines={1}
                     style={styles.reviewItemDescription}
                 >
@@ -130,27 +133,29 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
                         key={index}
                         style={[styles.reviewItemTagBox, { backgroundColor: selectColor(tasteItem) }]}
                     >
-                        <TouchableOpacity>
+                        <Pressable
+                            style={({ pressed }) => [{ opacity: pressed ? 0.4 : 1 }]}
+                        >
                             <Text style={styles.reviewItemTagText}>{tasteItem}</Text>
-                        </TouchableOpacity>
+                        </Pressable>
                     </View>
                 ))}
             </View>
 
             <View style={styles.reviewItemIconsContainer}>
-                <TouchableOpacity onPress={toggleLike} style={styles.reviewItemIconWrapper}>
+                <Pressable onPress={toggleLike} style={styles.reviewItemIconWrapper}>
                     <FontAwesome
                         name={likesState.isLiked ? 'heart' : 'heart-o'}
                         size={24}
                         color={likesState.isLiked ? 'blue' : '#666'}
                     />
                     <Text style={styles.reviewItemIconCount}>{likesState.user.length}</Text>
-                </TouchableOpacity>
+                </Pressable>
 
-                <TouchableOpacity onPress={openCommentSection} style={styles.reviewItemIconWrapper}>
+                <Pressable onPress={openCommentSection} style={styles.reviewItemIconWrapper}>
                     <MaterialCommunityIcons name="chat-outline" size={24} color="black" />
                     <Text style={styles.reviewItemIconCount}>{item.comments?.length ?? 0}</Text>
-                </TouchableOpacity>
+                </Pressable>
             </View>
 
             <ModalDialog
@@ -159,7 +164,7 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
                 onCancel={closeModal}
                 onDelete={handleDelete}
             />
-        </TouchableOpacity>
+        </Pressable>
     );
 };
 
