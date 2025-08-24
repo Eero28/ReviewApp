@@ -31,12 +31,16 @@ const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false }) => {
     }
 
     // Filter reviews based on the search term
-    const filteredReviews = reviews.filter((val) => {
-        return (
-            val.reviewname.toLowerCase().trim().includes(searchTerm.toLowerCase()) ||
-            val.user.username.toLowerCase().trim().includes(searchTerm.toLowerCase())
-        );
+    const filteredReviews = reviews.filter((review) => {
+        const search = searchTerm.toLowerCase().trim();
+
+        const matchesName = review.reviewname?.toLowerCase().trim().includes(search);
+        const matchesUser = review.user?.username?.toLowerCase().trim().includes(search);
+        const matchesTaste = review.reviewTaste.some(taste => taste.toLowerCase().trim().includes(search));
+
+        return matchesName || matchesUser || matchesTaste;
     });
+
 
     const toggleSearchBar = () => {
         if (isOpen) {
@@ -89,7 +93,7 @@ const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false }) => {
                     <Text style={styles.noResultsText}>No search results found</Text>
                 ) : (
                     <FlatList
-                        data={filteredReviews.length <= 0 ? reviews : filteredReviews}
+                        data={filteredReviews}
                         renderItem={({ item }: { item: ReviewItemIf }) => (
                             <View style={styles.itemWrapper}>
                                 <ReviewItem disableLongPress={disableLongPress} item={item} />
@@ -110,7 +114,7 @@ export default ReviewFlatlist;
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1, 
+        flex: 1,
         backgroundColor: '#f5f5f5',
         paddingHorizontal: 16,
         paddingVertical: 8,
@@ -121,7 +125,7 @@ const styles = StyleSheet.create({
         padding: 5,
     },
     listContainer: {
-        paddingBottom: 100, 
+        paddingBottom: 100,
     },
     searchbarWrapper: {
         flexDirection: 'row',

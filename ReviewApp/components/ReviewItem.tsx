@@ -1,11 +1,10 @@
+import React, { FC, useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity, Alert } from 'react-native';
-import { FC, useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import ModalDialog from './ModalDialog';
 import { useAuth } from '../ContexApi';
 import { ReviewItemIf } from '../interfaces/ReviewItemIf';
 import { FontAwesome } from '@expo/vector-icons';
-import { usersLiked } from '../interfaces/UsersLiked';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import axios from 'axios';
 import StarRating from 'react-native-star-rating-widget';
@@ -13,6 +12,8 @@ import { API_URL } from "@env";
 import { categories } from '../helpers/categories';
 import Icon from './Icon';
 import { getReviewLikes, deleteLike } from '../helpers/services/reviewService';
+import { selectColor } from '../helpers/tastegroup';
+import { usersLiked } from '../interfaces/UsersLiked';
 
 type Props = {
     item: ReviewItemIf;
@@ -21,19 +22,24 @@ type Props = {
 
 const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
     const { deleteReview, userInfo, setReviewsUpdated, reviewsUpdated } = useAuth();
-    const [showDialogModal, setShowDialogModal] = useState<boolean>(false);
-    const [isLongPress, setIsLongPress] = useState<boolean>(false);
+    const [showDialogModal, setShowDialogModal] = useState(false);
+    const [isLongPress, setIsLongPress] = useState(false);
     const [likesState, setLikesState] = useState<usersLiked>({
         user: [],
         isLiked: false,
     });
 
+    const navigation = useNavigation<any>();
+
+    useEffect(() => {
+        if (userInfo?.id_user) {
+            getReviewLikes(userInfo.id_user, item.id_review, setLikesState);
+        }
+    }, [item]);
 
     const likeReview = async () => {
         try {
-            if (!userInfo?.id_user) {
-                throw new Error("User ID is missing");
-            }
+            if (!userInfo?.id_user) throw new Error("User ID is missing");
 
             await axios.post(`${API_URL}/likes/like/review/${item.id_review}`, {
                 id_user: userInfo.id_user,
@@ -42,50 +48,6 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
             getReviewLikes(userInfo.id_user, item.id_review, setLikesState);
         } catch (error) {
             console.error("Error liking the review:", error);
-        }
-    };
-
-
-    useEffect(() => {
-        if (userInfo?.id_user) {
-            getReviewLikes(userInfo.id_user, item.id_review, setLikesState);
-        }
-
-    }, [item]);
-
-    const navigation = useNavigation<any>();
-
-    const showModal = () => {
-        setShowDialogModal(true);
-    };
-
-    const closeModal = () => {
-        setShowDialogModal(false);
-    };
-
-    const gotoDetails = () => {
-        if (!isLongPress) {
-            navigation.navigate('ReviewDetails', { item: item });
-        }
-    };
-
-    const handleDelete = () => {
-        setShowDialogModal(false);
-        if (userInfo && userInfo.access_token) {
-            deleteReview(item.id_review, userInfo?.access_token);
-        } else {
-            Alert.alert("No access to delete!");
-        }
-    };
-
-    const handlePressIn = () => {
-        setIsLongPress(false);
-    };
-
-    const handleLongPress = () => {
-        if (!disableLongPress) {
-            setIsLongPress(true);
-            showModal();
         }
     };
 
@@ -98,56 +60,96 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
         setReviewsUpdated(!reviewsUpdated);
     };
 
-    const checkValue = (val: string) => {
-        const category = categories.find(item => item.icon === val);
-        if (!category) {
-            return null;
+    const showModal = () => setShowDialogModal(true);
+    const closeModal = () => setShowDialogModal(false);
+
+    const gotoDetails = () => {
+        if (!isLongPress) navigation.navigate('ReviewDetails', { item });
+    };
+
+    const handleDelete = () => {
+        setShowDialogModal(false);
+        if (userInfo?.access_token) {
+            deleteReview(item.id_review, userInfo.access_token);
+        } else {
+            Alert.alert("No access to delete!");
         }
-        // @ts-expect-error: fix later
+    };
+
+    const handlePressIn = () => setIsLongPress(false);
+    const handleLongPress = () => {
+        if (!disableLongPress) {
+            setIsLongPress(true);
+            showModal();
+        }
+    };
+
+    const checkCategoryIcon = (val: string) => {
+        const category = categories.find(cat => cat.icon === val);
+        if (!category) return null;
+        // @ts-expect-error
         return <Icon size={20} name={category.icon} />;
     };
 
-    const commentSection = () => {
-        navigation.navigate('ReviewDetails', { item: item, showComment: true });
-    }
+    const openCommentSection = () => {
+        navigation.navigate('ReviewDetails', { item, showComment: true });
+    };
 
     return (
         <TouchableOpacity
             onLongPress={handleLongPress}
             onPressIn={handlePressIn}
             onPress={gotoDetails}
-            style={styles.container}
+            style={styles.reviewItemContainer}
         >
             <Image
-                style={styles.image}
-                source={{
-                    uri: item.imageUrl,
-                }}
+                style={styles.reviewItemImage}
+                source={{ uri: item.imageUrl }}
             />
-            <View style={styles.cardInfo}>
-                <Text style={styles.title}>{item.reviewname}</Text>
+            <View style={styles.reviewItemInfo}>
+                <Text style={styles.reviewItemTitle}>{item.reviewname}</Text>
                 <StarRating
                     starSize={20}
                     rating={Math.round(item.reviewRating)}
                     onChange={() => { }}
                     color="black"
                 />
-                <Text style={styles.description}>Category: {checkValue(item.category)}</Text>
-                <Text ellipsizeMode='tail' numberOfLines={1} style={styles.description}>Reviewed by: {item.user.username}</Text>
+                <Text style={styles.reviewItemDescription}>Category: {checkCategoryIcon(item.category)}</Text>
+                <Text
+                    ellipsizeMode='tail'
+                    numberOfLines={1}
+                    style={styles.reviewItemDescription}
+                >
+                    Reviewed by: {item.user.username}
+                </Text>
             </View>
 
-            <View style={styles.iconContainer}>
-                <TouchableOpacity onPress={toggleLike} style={styles.iconWrapper}>
+            <View style={styles.reviewItemTagsContainer}>
+                {item.reviewTaste.map((tasteItem, index) => (
+                    <View
+                        key={index}
+                        style={[styles.reviewItemTagBox, { backgroundColor: selectColor(tasteItem) }]}
+                    >
+                        <TouchableOpacity>
+                            <Text style={styles.reviewItemTagText}>{tasteItem}</Text>
+                        </TouchableOpacity>
+                    </View>
+                ))}
+            </View>
+
+            <View style={styles.reviewItemIconsContainer}>
+                <TouchableOpacity onPress={toggleLike} style={styles.reviewItemIconWrapper}>
                     <FontAwesome
                         name={likesState.isLiked ? 'heart' : 'heart-o'}
                         size={24}
                         color={likesState.isLiked ? 'blue' : '#666'}
                     />
-                    <Text style={styles.commentCount}>{likesState.user.length}</Text>
+                    <Text style={styles.reviewItemIconCount}>{likesState.user.length}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => commentSection()} style={styles.iconWrapper}>
+
+                <TouchableOpacity onPress={openCommentSection} style={styles.reviewItemIconWrapper}>
                     <MaterialCommunityIcons name="chat-outline" size={24} color="black" />
-                    <Text style={styles.commentCount}>{item.comments?.length ?? 0}</Text>
+                    <Text style={styles.reviewItemIconCount}>{item.comments?.length ?? 0}</Text>
                 </TouchableOpacity>
             </View>
 
@@ -164,7 +166,8 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
 export default ReviewItem;
 
 const styles = StyleSheet.create({
-    container: {
+    reviewItemContainer: {
+        width: "100%",
         alignItems: 'center',
         padding: 10,
         marginVertical: 8,
@@ -174,45 +177,68 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         elevation: 3,
     },
-    cardInfo: {
-        padding: 10,
-    },
-    image: {
+    reviewItemImage: {
         height: 140,
         width: 140,
         borderRadius: 12,
-        objectFit: "cover",
+        resizeMode: "cover",
     },
-    title: {
+    reviewItemInfo: {
+        padding: 10,
+    },
+    reviewItemTitle: {
         fontSize: 16,
         fontWeight: 'bold',
         color: '#333',
         marginBottom: 4,
         fontFamily: 'poppins',
-        textAlign: 'center'
+        textAlign: 'center',
     },
-    description: {
+    reviewItemDescription: {
         fontSize: 14,
         color: '#666',
         fontFamily: 'poppins',
-        marginTop: 5
+        marginTop: 5,
     },
-    iconContainer: {
+    reviewItemTagsContainer: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        justifyContent: "flex-start",
+        marginVertical: 8,
+        gap: 6,
+    },
+    reviewItemTagBox: {
+        minWidth: "42%",
+        paddingVertical: 6,
+        paddingHorizontal: 8,
+        marginBottom: 8,
+        borderRadius: 12,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.08,
+        shadowRadius: 2,
+        elevation: 2,
+    },
+    reviewItemTagText: {
+        fontSize: 10,
+        fontWeight: "600",
+        color: "#0f3c85",
+        textAlign: "center",
+        fontFamily: 'poppins',
+    },
+    reviewItemIconsContainer: {
         flexDirection: 'row',
-        justifyContent: 'center',
+        justifyContent: 'space-around',
     },
-    iconWrapper: {
+    reviewItemIconWrapper: {
         flexDirection: "row",
         alignItems: "center",
-        padding: 5
+        padding: 5,
     },
-    commentCount: {
+    reviewItemIconCount: {
         marginLeft: 4,
         fontSize: 16,
         color: "#000",
+        fontFamily: 'poppins',
     },
-    iconContainerText: {
-        paddingLeft: 5,
-        fontFamily: 'poppins'
-    }
 });
