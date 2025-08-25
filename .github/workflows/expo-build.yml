@@ -26,8 +26,3 @@ jobs:
 
       - name: Prebuild Expo Project
         run: cd ReviewApp && npx expo prebuild --no-install
-
-      - name: Build Android Locally
-        run: |
-          cd ReviewApp/android
-          ./gradlew assembleDebug

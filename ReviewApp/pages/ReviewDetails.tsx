@@ -17,6 +17,8 @@ import { useAuth } from '../ContexApi';
 import { toggleLike, getReviewLikes } from '../helpers/services/reviewService';
 import AnimatedRecommendations from '../components/AnimatedRecommendations';
 import { selectColor } from '../helpers/tastegroup';
+import { categories } from '../helpers/categories';
+import Icon from '../components/Icon';
 
 type RootStackParamList = {
   ReviewDetails: {
@@ -85,21 +87,41 @@ const ReviewDetails: FC = () => {
     setReviewsUpdated(!reviewsUpdated);
   };
 
+  const checkCategoryIcon = (val: string) => {
+    const category = categories.find(cat => cat.icon === val);
+    if (!category) return null;
+    return <Icon size={20} name={category.icon} />;
+  };
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView ref={scrollRef} contentContainerStyle={{ paddingBottom: 30 }}>
         <View style={styles.cardContainer}>
           <Text style={styles.title}>{item.reviewname}</Text>
-          <Image style={styles.image} source={{ uri: item.imageUrl }} />
+          <View style={styles.imageWrapper}>
+            <Image
+              style={styles.reviewItemImage}
+              source={{ uri: item.imageUrl }}
+            />
+            <View style={styles.categoryBadge}>
+              {checkCategoryIcon(item.category)}
+            </View>
+          </View>
           <View style={styles.ratingContainer}>
-            <StarRating starSize={20} rating={Math.round(item.reviewRating)} onChange={() => { }} color="black" />
+            <StarRating maxStars={5} enableHalfStar starSize={20} rating={item.reviewRating} onChange={() => { }} color="black" />
             <Text style={styles.ratingText}>({item.reviewRating})</Text>
           </View>
+          <Text style={styles.aboutTitle}>About the product</Text>
+          <Text style={styles.textDescription}>{item.reviewDescription}</Text>
           <View style={styles.textContainer}>
-            <Text style={styles.text}>{item.reviewDescription}</Text>
+            <Text style={styles.textDescription}>Category: {item.category}</Text>
+
             <Text style={styles.text}>Reviewed: {calculateDate(item.createdAt)}</Text>
-            <Text style={styles.text}>Reviewed By: {item.user.username}</Text>
+            <View style={styles.reviewerContainer}>
+              <Text style={styles.text}>By: {item.user.username}</Text>
+              <Image source={{ uri: userInfo?.avatar }} style={styles.profileImage} />
+            </View>
           </View>
+          <Text style={styles.flavorTitle}>Flavor profile</Text>
           <View style={styles.descriptionBoxesContainer}>
             {item.reviewTaste.map((tasteItem, index) => (
               <View key={index} style={[styles.descriptionBox, { backgroundColor: selectColor(tasteItem) }]}>
@@ -153,116 +175,154 @@ const ReviewDetails: FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#FAF9F6',
+    backgroundColor: '#F8F9FA',
   },
-
   cardContainer: {
     width: '95%',
     alignSelf: 'center',
-    alignItems: 'center',
-    padding: 15,
-    backgroundColor: 'white',
+    backgroundColor: '#fff',
     borderRadius: 20,
+    padding: 20,
     marginBottom: 20,
+    shadowColor: '#000',
+    elevation: 5,
   },
-
-  textContainer: {
-    width: '100%',
-    marginTop: 10,
+  reviewerContainer: {
+    flexDirection: "row",
+    gap: 5
   },
-
   title: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#0f3c85',
+    color: '#1F3C88',
+    marginBottom: 15,
     textAlign: 'center',
   },
-
-  image: {
-    width: '65%',
-    height: 300,
+  flavorTitle: {
+    fontFamily: "poppins",
+    marginTop: 12,
+    fontWeight: 600,
+    fontSize: 15
+  },
+  imageWrapper: {
+    position: 'relative',
+    alignItems: 'center',
+  },
+  reviewItemImage: {
+    width: '100%',
+    height: 340,
     borderRadius: 16,
-    marginVertical: 12,
-    alignSelf: 'center',
     resizeMode: 'cover',
   },
-
+  profileImage: {
+    width: 25,
+    height: 25,
+    borderRadius: 14,
+  },
+  categoryBadge: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: '#fff',
+    padding: 6,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 3,
+  },
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
+    marginVertical: 12,
+    justifyContent: 'center',
   },
-
   ratingText: {
-    paddingLeft: 8,
-    fontSize: 16,
-    color: '#444',
-  },
-
-  text: {
     fontSize: 16,
     color: '#555',
+    marginLeft: 8,
+  },
+  textContainer: {
+    marginTop: 20,
+    backgroundColor: '#F0F4FF',
+    padding: 15,
+    borderRadius: 16,
+  },
+
+  textDescription: {
+    fontSize: 16,
+    fontWeight: '600',
     marginBottom: 8,
   },
 
+  aboutTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#1F3C88',
+    marginTop: 15,
+    marginBottom: 10,
+    textAlign: 'left',
+  },
+  text: {
+    fontSize: 14,
+    color: '#4A4A4A',
+    marginBottom: 6,
+  },
+  reviewMeta: {
+    marginTop: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  reviewMetaText: {
+    fontSize: 13,
+    color: '#7B7B7B',
+    fontFamily: 'poppins',
+  },
   descriptionBoxesContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'flex-start',
-    marginTop: 15,
-    marginBottom: 20,
-    width: '100%',
     gap: 10,
+    marginVertical: 15,
   },
-
   descriptionBox: {
-    width: '30%',
-    padding: 12,
-    marginBottom: 10,
+    width: '28%',
+    paddingVertical: 10,
+    paddingHorizontal: 5,
     borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
     elevation: 3,
   },
-
   descriptionText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#0f3c85',
+    color: '#1F3C88',
     textAlign: 'center',
   },
-
   statsContainer: {
     flexDirection: 'row',
-    backgroundColor: '#ffffff',
-    gap: 20,
-    borderRadius: 15,
     justifyContent: 'center',
-    width: '100%',
-    paddingVertical: 8,
+    gap: 15,
+    marginTop: 15,
+    paddingVertical: 10,
+    borderRadius: 20,
   },
-
   pressable: {
     flexDirection: 'row',
-    borderRadius: 50,
-    backgroundColor: '#eef2f7',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
     alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 50,
+    backgroundColor: '#E3E8EF',
   },
-
   recommendationsContainer: {
     width: '100%',
     paddingHorizontal: 15,
-    marginBottom: 20,
+    marginTop: 10,
   },
 });
+
 
 
 export default ReviewDetails;
