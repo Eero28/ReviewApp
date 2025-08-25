@@ -31,3 +31,15 @@ jobs:
           expo-version: latest
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Run Preview / Test Build
+        if: github.ref == 'refs/heads/dev'
+        run: |
+          cd ReviewApp
+          eas build --platform android --profile preview --skip-credentials --non-interactive
+
+      - name: Run Production Build
+        if: github.ref == 'refs/heads/master'
+        run: |
+          cd ReviewApp
+          eas build --platform android --profile production --non-interactive
