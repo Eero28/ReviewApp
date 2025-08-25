@@ -1,4 +1,4 @@
-name: Expo Local Build
+name: Frontend Build (Expo)
 
 on:
   push:
@@ -20,9 +20,7 @@ jobs:
           node-version: "20"
 
       - name: Install dependencies
-        run: |
-          cd ReviewApp
-          npm install
+        run: cd ReviewApp && npm install
 
-      - name: Prebuild Expo Project
+      - name: Build Expo Project
         run: cd ReviewApp && npx expo prebuild --no-install
