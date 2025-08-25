@@ -7,19 +7,34 @@ import HotBeverage from '../assets/svg/hot-beverage.svg';
 import Cocktail from '../assets/svg/cocktail.svg';
 import Other from '../assets/svg/other.svg';
 import All from '../assets/svg/all.svg';
-import UpArrow from '../assets/svg/up.svg'
+import UpArrow from '../assets/svg/up.svg';
 
+export type IconName = 'beer' | 'wine' | 'hotbeverage' | 'cocktail' | 'softdrink' | 'other' | 'all' | 'upArrow';
 
-type IconName = 'beer' | 'wine' | 'hotbeverage' | 'cocktail' | 'softdrink' | 'other' | 'all' | 'upArrow';
-
-type IconProps = {
-    name: IconName;
+export type IconProps = {
+    name: string; // accept string from item.category
     size?: number;
     color?: string;
 };
 
-const Icon: React.FC<IconProps> = ({ name, size = 24, }) => {
-    switch (name) {
+// Mapping from string → IconName
+const categoryStringToIconName: Record<string, IconName> = {
+    beer: 'beer',
+    wine: 'wine',
+    hotbeverage: 'hotbeverage',
+    cocktail: 'cocktail',
+    softdrink: 'softdrink',
+    other: 'other',
+    all: 'all',
+    uparrow: 'upArrow', // note lowercase
+};
+
+const Icon: React.FC<IconProps> = ({ name, size = 24 }) => {
+    // Map string to valid IconName
+    const iconName: IconName | undefined = categoryStringToIconName[name.toLowerCase()];
+    if (!iconName) return null; // fallback if unknown
+
+    switch (iconName) {
         case 'beer':
             return <BeerLogo width={size} height={size} />;
         case 'wine':
@@ -35,7 +50,7 @@ const Icon: React.FC<IconProps> = ({ name, size = 24, }) => {
         case 'all':
             return <All width={size} height={size} />;
         case 'upArrow':
-            return <UpArrow width={size} height={size} />
+            return <UpArrow width={size} height={size} />;
         default:
             return null;
     }

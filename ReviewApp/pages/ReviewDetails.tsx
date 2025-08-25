@@ -154,7 +154,7 @@ const ReviewDetails: FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#CDF2EC',
+    backgroundColor: '#FAF9F6',
   },
 
   cardContainer: {

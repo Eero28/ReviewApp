@@ -85,7 +85,6 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
     const checkCategoryIcon = (val: string) => {
         const category = categories.find(cat => cat.icon === val);
         if (!category) return null;
-        // @ts-expect-error
         return <Icon size={20} name={category.icon} />;
     };
 
@@ -103,10 +102,16 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
                 pressed && { opacity: 0.8 },
             ]}
         >
-            <Image
-                style={styles.reviewItemImage}
-                source={{ uri: item.imageUrl }}
-            />
+            <View style={styles.imageWrapper}>
+                <Image
+                    style={styles.reviewItemImage}
+                    source={{ uri: item.imageUrl }}
+                />
+                <View style={styles.categoryBadge}>
+                    {checkCategoryIcon(item.category)}
+                </View>
+            </View>
+
             <View style={styles.reviewItemInfo}>
                 <Text style={styles.reviewItemTitle}>{item.reviewname}</Text>
                 <StarRating
@@ -115,9 +120,6 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
                     onChange={() => { }}
                     color="black"
                 />
-                <Text style={styles.reviewItemDescription}>
-                    Category: {checkCategoryIcon(item.category)}
-                </Text>
                 <Text
                     ellipsizeMode="tail"
                     numberOfLines={1}
@@ -127,20 +129,22 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
                 </Text>
             </View>
 
+            <View style={{ flexGrow: 1 }} />
+
             <View style={styles.reviewItemTagsContainer}>
                 {item.reviewTaste.map((tasteItem, index) => (
                     <View
                         key={index}
                         style={[styles.reviewItemTagBox, { backgroundColor: selectColor(tasteItem) }]}
                     >
-                        <Pressable
-                            style={({ pressed }) => [{ opacity: pressed ? 0.4 : 1 }]}
-                        >
+                        <Pressable style={({ pressed }) => [{ opacity: pressed ? 0.4 : 1 }]}>
                             <Text style={styles.reviewItemTagText}>{tasteItem}</Text>
                         </Pressable>
                     </View>
                 ))}
+                <View style={{ flexGrow: 1 }} />
             </View>
+
 
             <View style={styles.reviewItemIconsContainer}>
                 <Pressable onPress={toggleLike} style={styles.reviewItemIconWrapper}>
@@ -172,21 +176,40 @@ export default ReviewItem;
 
 const styles = StyleSheet.create({
     reviewItemContainer: {
-        width: "100%",
         alignItems: 'center',
         padding: 10,
         marginVertical: 8,
-        backgroundColor: 'white',
+        backgroundColor: '#ffff',
         borderRadius: 8,
         shadowColor: '#000',
         shadowOpacity: 0.1,
         elevation: 3,
+        minHeight: 400,
+        borderWidth: 5,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        borderColor: "white",
+        justifyContent: "flex-start"
+    },
+    imageWrapper: {
+        position: 'relative',
     },
     reviewItemImage: {
         height: 140,
         width: 140,
         borderRadius: 12,
         resizeMode: "cover",
+    },
+    categoryBadge: {
+        position: 'absolute',
+        top: 8,
+        right: 8,
+        backgroundColor: '#fff',
+        padding: 4,
+        borderRadius: 12,
+        elevation: 2,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     reviewItemInfo: {
         padding: 10,
@@ -211,9 +234,11 @@ const styles = StyleSheet.create({
         justifyContent: "flex-start",
         marginVertical: 8,
         gap: 6,
+        borderBottomColor: "#eee",
+        borderBottomWidth: 1,
+        minHeight: 90,
     },
     reviewItemTagBox: {
-        minWidth: "42%",
         paddingVertical: 6,
         paddingHorizontal: 8,
         marginBottom: 8,
@@ -223,6 +248,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.08,
         shadowRadius: 2,
         elevation: 2,
+        flexShrink: 1,
     },
     reviewItemTagText: {
         fontSize: 10,
@@ -234,6 +260,7 @@ const styles = StyleSheet.create({
     reviewItemIconsContainer: {
         flexDirection: 'row',
         justifyContent: 'space-around',
+        marginTop: 10
     },
     reviewItemIconWrapper: {
         flexDirection: "row",

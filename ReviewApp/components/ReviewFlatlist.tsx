@@ -26,6 +26,10 @@ const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false }) => {
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [animatedWidth] = useState(new Animated.Value(50));
 
+    const dismissKeyboard = () => {
+        Keyboard.dismiss();
+    };
+
     if (reviews.length <= 0) {
         return <NoReviewsMade />;
     }
@@ -33,14 +37,13 @@ const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false }) => {
     // Filter reviews based on the search term
     const filteredReviews = reviews.filter((review) => {
         const search = searchTerm.toLowerCase().trim();
-
         const matchesName = review.reviewname?.toLowerCase().trim().includes(search);
         const matchesUser = review.user?.username?.toLowerCase().trim().includes(search);
-        const matchesTaste = review.reviewTaste.some(taste => taste.toLowerCase().trim().includes(search));
-
+        const matchesTaste = review.reviewTaste.some(taste =>
+            taste.toLowerCase().trim().includes(search)
+        );
         return matchesName || matchesUser || matchesTaste;
     });
-
 
     const toggleSearchBar = () => {
         if (isOpen) {
@@ -49,7 +52,7 @@ const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false }) => {
                 duration: 300,
                 useNativeDriver: false,
             }).start(() => setIsOpen(false));
-            setSearchTerm("");
+            setSearchTerm('');
         } else {
             setIsOpen(true);
             Animated.timing(animatedWidth, {
@@ -60,38 +63,28 @@ const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false }) => {
         }
     };
 
-    const dismissKeyboard = () => {
-        Keyboard.dismiss();
-    };
-
     return (
-        <TouchableWithoutFeedback onPress={dismissKeyboard}>
-            <SafeAreaView style={styles.container}>
+        <SafeAreaView style={styles.container}>
+            <View style={styles.searchWrapper}>
                 {isOpen && (
-                    <View style={styles.searchbarWrapper}>
-                        <Animated.View style={[styles.searchbarContainer, { width: animatedWidth }]}>
-                            <TextInput
-                                style={styles.input}
-                                onChangeText={(val) => setSearchTerm(val.toLowerCase())}
-                                placeholder="Search"
-                                autoFocus={true}
-                                placeholderTextColor="#999"
-                            />
-                        </Animated.View>
-                        <TouchableOpacity onPress={toggleSearchBar} style={styles.iconWrapper}>
-                            <AntDesign name={isOpen ? "close" : "search1"} size={24} color="black" />
-                        </TouchableOpacity>
-                    </View>
+                    <Animated.View style={[styles.searchbarContainer, { width: animatedWidth }]}>
+                        <TextInput
+                            style={styles.input}
+                            onChangeText={val => setSearchTerm(val.toLowerCase())}
+                            placeholder="Search"
+                            autoFocus={true}
+                            placeholderTextColor="#999"
+                        />
+                    </Animated.View>
                 )}
-                {!isOpen && (
-                    <TouchableOpacity onPress={toggleSearchBar} style={styles.iconWrapper}>
-                        <AntDesign name="search1" size={24} color="black" />
-                    </TouchableOpacity>
-                )}
-
-                {filteredReviews.length === 0 && searchTerm ? (
-                    <Text style={styles.noResultsText}>No search results found</Text>
-                ) : (
+                <TouchableOpacity onPress={toggleSearchBar} style={styles.iconWrapper}>
+                    <AntDesign name={isOpen ? 'close' : 'search1'} size={24} color="black" />
+                </TouchableOpacity>
+            </View>
+            {filteredReviews.length === 0 && searchTerm ? (
+                <Text style={styles.noResultsText}>No search results found</Text>
+            ) : (
+                <View style={{ flex: 1 }}>
                     <FlatList
                         data={filteredReviews}
                         renderItem={({ item }: { item: ReviewItemIf }) => (
@@ -103,10 +96,12 @@ const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false }) => {
                         contentContainerStyle={styles.listContainer}
                         numColumns={2}
                         keyboardShouldPersistTaps="handled"
+                        showsVerticalScrollIndicator={false}
                     />
-                )}
-            </SafeAreaView>
-        </TouchableWithoutFeedback>
+                </View>
+            )}
+        </SafeAreaView>
+
     );
 };
 
@@ -119,19 +114,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 8,
     },
-    itemWrapper: {
-        flex: 1,
-        flexWrap: "nowrap",
-        padding: 5,
-    },
-    listContainer: {
-        paddingBottom: 100,
-    },
-    searchbarWrapper: {
+    searchWrapper: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'flex-end',
-        marginVertical: 5
+        marginVertical: 5,
     },
     searchbarContainer: {
         flexDirection: 'row',
@@ -143,14 +130,23 @@ const styles = StyleSheet.create({
         flex: 1,
         fontSize: 16,
         color: '#333',
-        backgroundColor: "lightgray",
+        backgroundColor: 'lightgray',
         borderRadius: 10,
         height: 40,
-        letterSpacing: 0.2,
+        paddingHorizontal: 10,
     },
     iconWrapper: {
         justifyContent: 'center',
         alignItems: 'flex-end',
+        marginLeft: 8,
+    },
+    itemWrapper: {
+        flex: 1,
+        padding: 5,
+        maxWidth: '50%',
+    },
+    listContainer: {
+        paddingBottom: 100,
     },
     noResultsText: {
         textAlign: 'center',
