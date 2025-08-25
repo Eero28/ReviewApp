@@ -1,4 +1,4 @@
-name: Expo Build and Deploy
+name: Expo Local Build
 
 on:
   push:
@@ -19,27 +19,15 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Install dependencies (Frontend)
-        run: cd ReviewApp && npm install
-
-      - name: Install EAS CLI
-        run: npm install -g eas-cli
-
-      - name: Setup Expo
-        uses: expo/expo-github-action@v8
-        with:
-          expo-version: latest
-          eas-version: latest
-          token: ${{ secrets.EXPO_TOKEN }}
-
-      - name: Run Preview / Test Build
-        if: github.ref == 'refs/heads/dev'
+      - name: Install dependencies
         run: |
           cd ReviewApp
-          eas build --platform android --profile preview --skip-credentials --non-interactive
+          npm install
 
-      - name: Run Production Build
-        if: github.ref == 'refs/heads/master'
+      - name: Prebuild Expo Project
+        run: cd ReviewApp && npx expo prebuild --no-install
+
+      - name: Build Android Locally
         run: |
-          cd ReviewApp
-          eas build --platform android --profile production --non-interactive
+          cd ReviewApp/android
+          ./gradlew assembleDebug
