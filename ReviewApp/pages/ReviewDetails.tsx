@@ -19,6 +19,7 @@ import AnimatedRecommendations from '../components/AnimatedRecommendations';
 import { selectColor } from '../helpers/tastegroup';
 import { categories } from '../helpers/categories';
 import Icon from '../components/Icon';
+import { Pressable } from 'react-native-gesture-handler';
 
 type RootStackParamList = {
   ReviewDetails: {
@@ -121,6 +122,20 @@ const ReviewDetails: FC = () => {
               <Image source={{ uri: userInfo?.avatar }} style={styles.profileImage} />
             </View>
           </View>
+          <View style={styles.statsContainer}>
+            <Pressable onPress={onLikePress} style={styles.pressable}>
+              <FontAwesome
+                name={likesState.isLiked ? 'heart' : 'heart-o'}
+                size={28}
+                color={likesState.isLiked ? 'blue' : 'black'}
+              />
+              <Text style={styles.text}>{likesState.user.length}</Text>
+            </Pressable>
+            <Pressable onPress={toggleSheet} style={styles.pressable}>
+              <MaterialCommunityIcons name="chat-outline" size={28} color="black" />
+              <Text style={styles.text}>{comments.length}</Text>
+            </Pressable>
+          </View>
           <Text style={styles.flavorTitle}>Flavor profile</Text>
           <View style={styles.descriptionBoxesContainer}>
             {item.reviewTaste.map((tasteItem, index) => (
@@ -131,20 +146,7 @@ const ReviewDetails: FC = () => {
               </View>
             ))}
           </View>
-          <View style={styles.statsContainer}>
-            <TouchableOpacity onPress={onLikePress} style={styles.pressable}>
-              <FontAwesome
-                name={likesState.isLiked ? 'heart' : 'heart-o'}
-                size={28}
-                color={likesState.isLiked ? 'blue' : 'black'}
-              />
-              <Text style={styles.text}>{likesState.user.length}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={toggleSheet} style={styles.pressable}>
-              <MaterialCommunityIcons name="chat-outline" size={28} color="black" />
-              <Text style={styles.text}>{comments.length}</Text>
-            </TouchableOpacity>
-          </View>
+
         </View>
         {recommendations && recommendations.length > 0 && (
           <View style={styles.recommendationsContainer}>
