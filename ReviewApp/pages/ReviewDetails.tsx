@@ -111,8 +111,10 @@ const ReviewDetails: FC = () => {
             <StarRating maxStars={5} enableHalfStar starSize={20} rating={item.reviewRating} onChange={() => { }} color="black" />
             <Text style={styles.ratingText}>({item.reviewRating})</Text>
           </View>
-          <Text style={styles.aboutTitle}>About the product</Text>
-          <Text style={styles.textDescription}>{item.reviewDescription}</Text>
+          <View style={styles.aboutProductContainer}>
+            <Text style={styles.aboutTitle}>About the product</Text>
+            <Text style={styles.textDescription}>{item.reviewDescription}</Text>
+          </View>
           <View style={styles.textContainer}>
             <Text style={styles.textDescription}>Category: {item.category}</Text>
 
@@ -244,18 +246,20 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   textContainer: {
-    marginTop: 20,
-    backgroundColor: '#F0F4FF',
-    padding: 15,
+    marginTop: 15,
+    backgroundColor: 'white',
+    padding: 10,
     borderRadius: 16,
+    elevation: 3,
   },
-
   textDescription: {
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 8,
   },
-
+  aboutProductContainer: {
+    padding: 10,
+  },
   aboutTitle: {
     fontSize: 18,
     fontWeight: '800',

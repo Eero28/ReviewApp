@@ -34,7 +34,6 @@ const FilterButtons: FC<Props> = ({ fetchReviewsWithCategory }) => {
                     >
                         <View style={styles.iconContainer}>
                             <Icon
-                                // @ts-expect-error: Fix later
                                 name={category.icon}
                                 size={30}
                                 color={activeCategory === category.value ? '#007AFF' : 'black'}

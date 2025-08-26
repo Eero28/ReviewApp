@@ -11,7 +11,6 @@ import { useAuth } from "../ContexApi";
 import { useNavigation } from "@react-navigation/native";
 import ConfirmationSheet from "../components/ConfirmationsSheet";
 import axios from "axios";
-// @ts-expect-error: Ignore the issue with the import from @env.
 import { API_URL } from "@env";
 
 const ProfileScreen = () => {
