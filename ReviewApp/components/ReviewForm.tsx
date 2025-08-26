@@ -25,6 +25,7 @@ interface ReviewFormValues {
   reviewText: string;
   category: string | null;
   reviewTaste: string[];
+  priceRange: string
 }
 
 interface NavigationProps {
@@ -37,6 +38,7 @@ const ReviewForm: React.FC<NavigationProps> = ({ navigation }) => {
     defaultValues: {
       reviewName: '',
       reviewText: '',
+      priceRange: '',
       reviewRating: null,
       category: null,
       reviewTaste: [],
@@ -62,6 +64,7 @@ const ReviewForm: React.FC<NavigationProps> = ({ navigation }) => {
         reviewRating: data.reviewRating,
         category: data.category,
         reviewTaste: data.reviewTaste,
+        priceRange: data.priceRange,
         imageUrl: imageUrl,
         id_user: userInfo?.id_user,
       };
@@ -136,13 +139,18 @@ const ReviewForm: React.FC<NavigationProps> = ({ navigation }) => {
           <RNPickerSelect
             onValueChange={onChange}
             value={value}
-            items={[...Array(17)].map((_, i) => {
-              const v = 1 + i * 0.25;
+            items={[...Array(9)].map((_, i) => {
+              const v = 1 + i * 0.5;
               return { label: v.toString(), value: v };
             })}
             placeholder={{ label: "Select a rating", value: null }}
-            style={{ inputIOS: styles.pickerInput, inputAndroid: styles.pickerInput }}
+            style={{
+              inputIOS: styles.pickerInput,
+              inputAndroid: styles.pickerInput,
+              placeholder: { color: "#999" },
+            }}
           />
+
         )}
         name="reviewRating"
         rules={{ required: 'Rating is required' }}
@@ -172,6 +180,30 @@ const ReviewForm: React.FC<NavigationProps> = ({ navigation }) => {
         rules={{ required: 'Category is required' }}
       />
       {errors.category && <Text style={styles.error}>{errors.category.message}</Text>}
+
+      <Text style={styles.label}>Price range</Text>
+      <Controller
+        control={control}
+        render={({ field: { onChange, value } }) => (
+          <RNPickerSelect
+            onValueChange={onChange}
+            value={value}
+            items={[
+              { label: '1-5 euros', value: '1-5' },
+              { label: '5-10 euros', value: '5-10' },
+              { label: '10-20 euros', value: '10-20' },
+              { label: '20-50 euros', value: '20-50' },
+              { label: '50-100 euros', value: '50-100' },
+              { label: '+100 euros', value: '+100' },
+            ]}
+            placeholder={{ label: "Select price range", value: null }}
+            style={{ inputIOS: styles.pickerInput, inputAndroid: styles.pickerInput }}
+          />
+        )}
+        name="priceRange"
+        rules={{ required: 'Category is required' }}
+      />
+      {errors.priceRange && <Text style={styles.error}>{errors.priceRange.message}</Text>}
 
       <Text style={styles.label}>What does it taste like?</Text>
       <Controller

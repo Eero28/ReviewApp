@@ -30,6 +30,10 @@ export class CreateReviewDto {
   @IsNotEmpty()
   category: string;
 
+  @IsString()
+  @IsNotEmpty()
+  priceRange: string;
+
   @IsArray()
   @ArrayNotEmpty()
   @IsString({ each: true })

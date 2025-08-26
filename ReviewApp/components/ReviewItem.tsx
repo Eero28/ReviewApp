@@ -92,6 +92,19 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
         navigation.navigate('ReviewDetails', { item, showComment: true });
     };
 
+    const priceSymbolsMap: { [key: string]: number } = {
+        '1-5': 1,
+        '10-20': 2,
+        '20-50': 3,
+        '50-100': 4,
+        '+100': 5,
+    };
+
+    const renderPriceRange = (range: string) => {
+        const count = priceSymbolsMap[range] || 1;
+        return <Text style={styles.priceText}>{'€'.repeat(count)}</Text>;
+    };
+
     return (
         <Pressable
             onPress={gotoDetails}
@@ -115,8 +128,9 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
             <View style={styles.reviewItemInfo}>
                 <Text style={styles.reviewItemTitle}>{item.reviewname}</Text>
                 <StarRating
+                    enableHalfStar
                     starSize={20}
-                    rating={Math.round(item.reviewRating)}
+                    rating={item.reviewRating}
                     onChange={() => { }}
                     color="black"
                 />
@@ -127,6 +141,9 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
                 >
                     Reviewed by: {item.user.username}
                 </Text>
+                <View style={styles.priceBadge}>
+                    <Text style={styles.priceText}>{renderPriceRange(item.priceRange)}</Text>
+                </View>
             </View>
 
             <View style={{ flexGrow: 1 }} />
@@ -210,6 +227,26 @@ const styles = StyleSheet.create({
         elevation: 2,
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    priceBadge: {
+        alignSelf: 'flex-start',
+        paddingVertical: 4,
+        paddingHorizontal: 10,
+        borderRadius: 16,
+        backgroundColor: 'whitesmoke',
+        marginTop: 6,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 2,
+        elevation: 3,
+    },
+
+    priceText: {
+        color: '#333',
+        fontWeight: '700',
+        fontSize: 12,
+        fontFamily: 'poppins',
     },
     reviewItemInfo: {
         padding: 10,

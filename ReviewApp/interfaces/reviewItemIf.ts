@@ -8,6 +8,7 @@ export interface ReviewItemIf {
   reviewRating: number;
   category: string;
   reviewTaste: string[];
+  priceRange: string;
   imageUrl: string;
   createdAt: string;
   user: UserInfo;

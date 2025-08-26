@@ -32,6 +32,9 @@ export class Review {
   @Column()
   category: string;
 
+  @Column()
+  priceRange: string;
+
   @Column('text', { array: true })
   reviewTaste: string[];
 

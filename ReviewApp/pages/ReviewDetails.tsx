@@ -117,7 +117,7 @@ const ReviewDetails: FC = () => {
           </View>
           <View style={styles.textContainer}>
             <Text style={styles.textDescription}>Category: {item.category}</Text>
-
+            <Text style={styles.text}>Price range: {item.priceRange} euros</Text>
             <Text style={styles.text}>Reviewed: {calculateDate(item.createdAt)}</Text>
             <View style={styles.reviewerContainer}>
               <Text style={styles.text}>By: {item.user.username}</Text>
