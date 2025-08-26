@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { SafeAreaView } from 'react-native';
 import ReviewFlatlist from '../components/ReviewFlatlist';
 import { useAuth } from '../ContexApi';

@@ -1,15 +1,15 @@
-import {View } from 'react-native'
+import { View } from 'react-native'
 import React from 'react'
 import { NavigationProp } from '@react-navigation/native';
 import ReviewForm from '../components/ReviewForm'
-interface NavigationProps{
+interface NavigationProps {
   navigation: NavigationProp<any>
 }
 
-const TakeImageScreen: React.FC<NavigationProps> = ({navigation}) => {
+const TakeImageScreen: React.FC<NavigationProps> = ({ navigation }) => {
   return (
     <View>
-      <ReviewForm navigation={navigation}/>
+      <ReviewForm navigation={navigation} />
     </View>
   )
 }

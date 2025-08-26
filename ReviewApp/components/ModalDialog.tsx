@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import { FC } from "react";
 import Dialog from "react-native-dialog";
 
 type ModalDialogProps = {
@@ -8,7 +8,7 @@ type ModalDialogProps = {
   onDelete?: () => void;
 };
 
-const ModalDialog: FC<ModalDialogProps> = ({dialogTitle, visible, onCancel, onDelete }) => {
+const ModalDialog: FC<ModalDialogProps> = ({ dialogTitle, visible, onCancel, onDelete }) => {
   return (
     <Dialog.Container visible={visible}>
       <Dialog.Title>{dialogTitle}</Dialog.Title>

@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState, useRef } from 'react';
+import { FC, useEffect, useState, useRef } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import StarRating from 'react-native-star-rating-widget';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';

@@ -1,5 +1,4 @@
 import { StyleSheet, Text } from 'react-native';
-import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 
@@ -19,10 +18,10 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "flex-start",
         alignItems: "center",
-        paddingTop: 20, 
+        paddingTop: 20,
     },
     text: {
-        textAlign: 'center', 
+        textAlign: 'center',
         fontSize: 18,
         fontWeight: 500,
         fontFamily: "poppins"

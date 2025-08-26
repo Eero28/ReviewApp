@@ -1,4 +1,3 @@
-import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import ReviewsScreen from '../pages/ReviewsScreen';
@@ -49,7 +48,7 @@ const MainTabs = () => {
                         backgroundColor: '#1ABC9C',
                     },
                     tabBarStyle: route.name === 'TakeImage' ? { display: 'none' } : {},
-                    
+
                 })}
             />
             <Tab.Screen

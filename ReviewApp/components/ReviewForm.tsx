@@ -16,7 +16,7 @@ import axios, { AxiosError } from "axios";
 import { API_URL } from "@env";
 import { useAuth } from '../ContexApi';
 import { tasteGroupsFormValues, toggleSelectedTaste, selectColor } from '../helpers/tastegroup';
-import KeyboardAvoidContainer from './KeyboardAvoidContainer';
+
 
 
 interface ReviewFormValues {

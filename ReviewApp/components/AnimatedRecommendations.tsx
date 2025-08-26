@@ -1,4 +1,4 @@
-import React, { FC, useRef } from 'react';
+import { FC, useRef } from 'react';
 import { Animated, StyleSheet, Pressable } from 'react-native';
 import Recommendation from './Recommendation';
 import { RecommendationSuggestion } from '../interfaces/Recommendation';

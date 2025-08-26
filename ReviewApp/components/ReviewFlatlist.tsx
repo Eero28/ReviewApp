@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import { FC, useState } from 'react';
 import {
     StyleSheet,
     SafeAreaView,
@@ -8,8 +8,6 @@ import {
     View,
     Animated,
     TouchableOpacity,
-    Keyboard,
-    TouchableWithoutFeedback
 } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import ReviewItem from './ReviewItem';
@@ -25,10 +23,6 @@ const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false }) => {
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [animatedWidth] = useState(new Animated.Value(50));
-
-    const dismissKeyboard = () => {
-        Keyboard.dismiss();
-    };
 
     if (reviews.length <= 0) {
         return <NoReviewsMade />;

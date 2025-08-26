@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-native';
-import React, { FC, useState } from 'react';
+import { FC, useState } from 'react';
 import Icon from './Icon';
 import { categories } from '../helpers/categories';
 
@@ -10,7 +10,7 @@ type Props = {
 
 const FilterButtons: FC<Props> = ({ fetchReviewsWithCategory }) => {
     const [activeCategory, setActiveCategory] = useState<string | undefined>(undefined);
-    
+
     const handlePress = (categoryValue?: string) => {
         setActiveCategory(categoryValue);
         fetchReviewsWithCategory(categoryValue);
@@ -65,12 +65,12 @@ const styles = StyleSheet.create({
         marginHorizontal: 0,
     },
     button: {
-        flex: 1, 
+        flex: 1,
         borderRadius: 5,
         alignItems: 'center',
-        marginHorizontal: 5, 
+        marginHorizontal: 5,
         justifyContent: 'center',
-        paddingHorizontal: 14, 
+        paddingHorizontal: 14,
     },
     activeButton: {
         borderBottomColor: 'black',

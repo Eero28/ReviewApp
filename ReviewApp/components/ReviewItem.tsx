@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Image, Pressable, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import ModalDialog from './ModalDialog';
