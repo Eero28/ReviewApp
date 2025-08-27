@@ -90,12 +90,10 @@ const ReviewForm: React.FC<NavigationProps> = ({ navigation }) => {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <View style={styles.container}>
       <Text style={styles.title}>Create Your Review</Text>
-
       <Image source={{ uri: imageUrl }} style={styles.imagePreview} />
       <Button title="Discard Image" onPress={discardImage} color="#ff4d4d" />
-
       <Text style={styles.label}>Review Name</Text>
       <Controller
         control={control}
@@ -140,7 +138,7 @@ const ReviewForm: React.FC<NavigationProps> = ({ navigation }) => {
             onValueChange={onChange}
             value={value}
             items={[...Array(9)].map((_, i) => {
-              const v = 1 + i * 0.5;
+              const v = 1 + i * 0.5; // 1, 1.5, 2, 2.5, ..., 5
               return { label: v.toString(), value: v };
             })}
             placeholder={{ label: "Select a rating", value: null }}
@@ -244,7 +242,7 @@ const ReviewForm: React.FC<NavigationProps> = ({ navigation }) => {
       <View style={styles.buttonContainer}>
         <Button title="Submit Review" onPress={handleSubmit(onSubmit)} color="#4CAF50" />
       </View>
-    </ScrollView>
+    </View>
   );
 };
 

@@ -9,8 +9,7 @@ const KeyboardAvoidContainer = ({ children }: Props) => {
     return (
         <KeyboardAvoidingView
             style={styles.container}
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'position'} // position lifts the view
         >
             <ScrollView
                 contentContainerStyle={styles.scrollContainer}
