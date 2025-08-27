@@ -248,8 +248,8 @@ const ReviewForm: React.FC<NavigationProps> = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
-    paddingBottom: 40,
+    flex: 1,
+    paddingTop: 10,
     backgroundColor: '#f9f9f9',
   },
   title: {
