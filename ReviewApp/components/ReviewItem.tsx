@@ -14,14 +14,14 @@ import Icon from './Icon';
 import { getReviewLikes, deleteLike } from '../helpers/services/reviewService';
 import { selectColor } from '../helpers/tastegroup';
 import { usersLiked } from '../interfaces/UsersLiked';
-
+import { errorHandler } from '../helpers/errors/error';
 type Props = {
     item: ReviewItemIf;
     disableLongPress?: boolean;
 };
 
 const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
-    const { deleteReview, userInfo, setReviewsUpdated, reviewsUpdated } = useAuth();
+    const { deleteReview, userInfo, setReviewsUpdated, reviewsUpdated, handleLogout } = useAuth();
     const [showDialogModal, setShowDialogModal] = useState(false);
     const [isLongPress, setIsLongPress] = useState(false);
     const [likesState, setLikesState] = useState<usersLiked>({
@@ -65,14 +65,22 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
         if (!isLongPress) navigation.navigate('ReviewDetails', { item });
     };
 
-    const handleDelete = () => {
+    const handleDelete = async () => {
         setShowDialogModal(false);
-        if (userInfo?.access_token) {
-            deleteReview(item.id_review, userInfo.access_token);
-        } else {
+
+        if (!userInfo?.access_token) {
             Alert.alert("No access to delete!");
+            handleLogout()
+            return;
+        }
+
+        try {
+            await deleteReview(item.id_review, userInfo.access_token);
+        } catch (error: any) {
+            errorHandler(error, handleLogout)
         }
     };
+
 
     const handlePressIn = () => setIsLongPress(false);
     const handleLongPress = () => {

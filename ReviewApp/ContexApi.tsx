@@ -4,6 +4,7 @@ import { API_URL } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UserInfo } from './interfaces/UserInfo';
 import { ReviewItemIf } from './interfaces/ReviewItemIf';
+import { errorHandler } from './helpers/errors/error';
 
 interface AuthContextProps {
   userReviews: ReviewItemIf[];
@@ -42,7 +43,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setUserInfo(parsedUserInfo);
         }
       } catch (error) {
-        console.log("Error with user session", error);
+        errorHandler(error)
       } finally {
         setLoading(false);
       }
@@ -69,8 +70,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       await AsyncStorage.setItem('userInfo', JSON.stringify(userData));
       return userData;
     } catch (error: any) {
-      console.log(error?.response?.data || error.message);
-      throw new Error('Invalid credentials');
+      errorHandler(error, handleLogout)
     }
   };
 
@@ -79,7 +79,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       await AsyncStorage.removeItem('userInfo');
       setUserInfo(null);
     } catch (error) {
-      console.log(error);
+      errorHandler(error)
     }
   };
 
@@ -89,7 +89,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setUserReviews(sortReviews(response.data.data));
     } catch (error: any) {
       setUserReviews([]);
-      console.log(error?.message);
+      errorHandler(error, handleLogout)
     }
   };
 
@@ -99,7 +99,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setAllReviews(sortReviews(response.data.data));
     } catch (error: any) {
       setAllReviews([]);
-      console.log(error?.message);
+      errorHandler(error, handleLogout)
     }
   };
 
@@ -111,7 +111,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const response = await axios.get(url);
       setUserReviews(sortReviews(response.data.data));
     } catch (error: any) {
-      console.log(error?.message);
+      errorHandler(error, handleLogout)
     }
   };
 
@@ -121,7 +121,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const response = await axios.get(url);
       setAllReviews(sortReviews(response.data.data));
     } catch (error: any) {
-      console.log(error?.message);
+      errorHandler(error, handleLogout)
     }
   };
 
@@ -134,10 +134,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       });
       setReviewsUpdated(!reviewsUpdated);
     } catch (error: any) {
-      console.log(error?.response.data);
+      errorHandler(error, handleLogout)
     }
   };
-
   return (
     <AuthContext.Provider
       value={{
