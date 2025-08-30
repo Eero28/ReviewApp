@@ -10,320 +10,246 @@ import {
 } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import CameraComponent from "../components/CameraComponent";
-import { NavigationProp } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
 import RNPickerSelect from 'react-native-picker-select';
 import axios, { AxiosError } from "axios";
 import { API_URL } from "@env";
 import { useAuth } from '../ContexApi';
 import { tasteGroupsFormValues, toggleSelectedTaste, selectColor } from '../helpers/tastegroup';
 
-
-
 interface ReviewFormValues {
-  reviewName: string;
+  reviewname: string;
   reviewRating: number | null;
-  reviewText: string;
+  reviewDescription: string;
   category: string | null;
   reviewTaste: string[];
-  priceRange: string
+  priceRange: string;
+  id_review?: number;
 }
 
-interface NavigationProps {
-  navigation: NavigationProp<any>;
+interface ReviewFormProps {
+  initialData?: Partial<ReviewFormValues>;
+  initialImage?: string | null;
+  isUpdate?: boolean;
 }
 
-
-const ReviewForm: React.FC<NavigationProps> = ({ navigation }) => {
+const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUpdate = false }) => {
+  const navigation = useNavigation<NavigationProp<any>>();
   const { control, handleSubmit, reset, formState: { errors } } = useForm<ReviewFormValues>({
     defaultValues: {
-      reviewName: '',
-      reviewText: '',
-      priceRange: '',
-      reviewRating: null,
-      category: null,
-      reviewTaste: [],
+      reviewname: initialData?.reviewname || '',
+      reviewDescription: initialData?.reviewDescription || '',
+      priceRange: initialData?.priceRange || '',
+      reviewRating: initialData?.reviewRating ? Number(initialData.reviewRating) : null,
+      category: initialData?.category || null,
+      reviewTaste: initialData?.reviewTaste || [],
     }
   });
 
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(initialImage || null);
   const { userInfo, getReviews, allReviewsFetch } = useAuth();
 
-  const onImageCaptured = (url: string) => {
-    setImageUrl(url);
-  };
-
-  const discardImage = () => {
-    setImageUrl(null);
-  };
+  const onImageCaptured = (url: string) => setImageUrl(url);
+  const discardImage = () => setImageUrl(null);
 
   const onSubmit = async (data: ReviewFormValues) => {
     try {
       const reviewData = {
-        reviewname: data.reviewName,
-        reviewDescription: data.reviewText,
-        reviewRating: data.reviewRating,
+        reviewname: data.reviewname,
+        reviewDescription: data.reviewDescription,
+        reviewRating: Number(data.reviewRating),
         category: data.category,
         reviewTaste: data.reviewTaste,
         priceRange: data.priceRange,
-        imageUrl: imageUrl,
+        imageUrl,
         id_user: userInfo?.id_user,
       };
-      console.log(reviewData)
-      await axios.post(`${API_URL}/review`, reviewData);
+
+      if (isUpdate && initialData?.id_review) {
+        await axios.put(`${API_URL}/review/${initialData.id_review}`, reviewData, {
+          headers: { Authorization: `Bearer ${userInfo?.access_token}` },
+        });
+      } else {
+        await axios.post(`${API_URL}/review`, reviewData, {
+          headers: { Authorization: `Bearer ${userInfo?.access_token}` },
+        });
+      }
+
       reset();
       setImageUrl(null);
       navigation.goBack();
       getReviews();
       allReviewsFetch();
+
     } catch (error) {
       if (error instanceof AxiosError) {
-        console.error(error.response?.data);
+        console.error('API error:', error.response?.data);
       } else {
-        console.error('Unexpected error', error);
+        console.error('Unexpected error:', error);
       }
     }
   };
 
-  // If no image then go to cameracomponent
-  if (!imageUrl) {
-    return <CameraComponent navigation={navigation} onImageCaptured={onImageCaptured} />;
+  if (!imageUrl && !isUpdate) {
+    return <CameraComponent onImageCaptured={onImageCaptured} />;
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Create Your Review</Text>
-      <Image source={{ uri: imageUrl }} style={styles.imagePreview} />
-      <Button title="Discard Image" onPress={discardImage} color="#ff4d4d" />
-      <Text style={styles.label}>Review Name</Text>
-      <Controller
-        control={control}
-        render={({ field: { onChange, onBlur, value } }) => (
-          <TextInput
-            style={styles.input}
-            onBlur={onBlur}
-            onChangeText={onChange}
-            value={value}
-            placeholder="Enter review name"
-          />
-        )}
-        name="reviewName"
-        rules={{ required: 'Review name is required' }}
-      />
-      {errors.reviewName && <Text style={styles.error}>{errors.reviewName.message}</Text>}
-
-      <Text style={styles.label}>Review Text</Text>
-      <Controller
-        control={control}
-        render={({ field: { onChange, onBlur, value } }) => (
-          <TextInput
-            style={[styles.input, { height: 100 }]}
-            onBlur={onBlur}
-            onChangeText={onChange}
-            value={value}
-            numberOfLines={4}
-            multiline={true}
-            placeholder="Enter review text"
-          />
-        )}
-        name="reviewText"
-        rules={{ required: 'Review text is required' }}
-      />
-      {errors.reviewText && <Text style={styles.error}>{errors.reviewText.message}</Text>}
-
-      <Text style={styles.label}>Review Rating</Text>
-      <Controller
-        control={control}
-        render={({ field: { onChange, value } }) => (
-          <RNPickerSelect
-            onValueChange={onChange}
-            value={value}
-            items={[...Array(9)].map((_, i) => {
-              const v = 1 + i * 0.5; // 1, 1.5, 2, 2.5, ..., 5
-              return { label: v.toString(), value: v };
-            })}
-            placeholder={{ label: "Select a rating", value: null }}
-            style={{
-              inputIOS: styles.pickerInput,
-              inputAndroid: styles.pickerInput,
-              placeholder: { color: "#999" },
-            }}
-          />
-
-        )}
-        name="reviewRating"
-        rules={{ required: 'Rating is required' }}
-      />
-      {errors.reviewRating && <Text style={styles.error}>{errors.reviewRating.message}</Text>}
-
-      <Text style={styles.label}>Category</Text>
-      <Controller
-        control={control}
-        render={({ field: { onChange, value } }) => (
-          <RNPickerSelect
-            onValueChange={onChange}
-            value={value}
-            items={[
-              { label: 'Wine', value: 'wine' },
-              { label: 'Beer', value: 'beer' },
-              { label: 'Softdrink', value: 'softdrink' },
-              { label: 'Hot beverage', value: 'hotbeverage' },
-              { label: 'Cocktail', value: 'cocktail' },
-              { label: 'Other', value: 'other' },
-            ]}
-            placeholder={{ label: "Select a category", value: null }}
-            style={{ inputIOS: styles.pickerInput, inputAndroid: styles.pickerInput }}
-          />
-        )}
-        name="category"
-        rules={{ required: 'Category is required' }}
-      />
-      {errors.category && <Text style={styles.error}>{errors.category.message}</Text>}
-
-      <Text style={styles.label}>Price range</Text>
-      <Controller
-        control={control}
-        render={({ field: { onChange, value } }) => (
-          <RNPickerSelect
-            onValueChange={onChange}
-            value={value}
-            items={[
-              { label: '1-5 euros', value: '1-5' },
-              { label: '5-10 euros', value: '5-10' },
-              { label: '10-20 euros', value: '10-20' },
-              { label: '20-50 euros', value: '20-50' },
-              { label: '50-100 euros', value: '50-100' },
-              { label: '+100 euros', value: '+100' },
-            ]}
-            placeholder={{ label: "Select price range", value: null }}
-            style={{ inputIOS: styles.pickerInput, inputAndroid: styles.pickerInput }}
-          />
-        )}
-        name="priceRange"
-        rules={{ required: 'Category is required' }}
-      />
-      {errors.priceRange && <Text style={styles.error}>{errors.priceRange.message}</Text>}
-
-      <Text style={styles.label}>What does it taste like?</Text>
-      <Controller
-        control={control}
-        name="reviewTaste"
-        rules={{ required: 'Pick at least one taste' }}
-        render={({ field: { onChange, value = [] } }) => (
-          <View>
-            {tasteGroupsFormValues.map(({ group, tastes }) => (
-              <View key={group}>
-                <Text style={styles.groupLabel}>{group}</Text>
-                <View style={styles.tasteContainer}>
-                  {tastes.map((taste) => {
-                    const isSelected = value.includes(taste);
-                    return (
-                      <Text
-                        key={taste}
-                        style={[
-                          styles.tasteChip,
-                          { backgroundColor: isSelected ? selectColor(taste) : "#eee" },
-                        ]}
-                        onPress={() => onChange(toggleSelectedTaste(value, taste))}
-                      >
-                        <Text style={{ color: isSelected ? "#fff" : "#333" }}>
-                          {taste}
+    <ScrollView>
+      <View style={styles.container}>
+        <Text style={styles.title}>{isUpdate ? "Update your review!" : "Create Your Review"}</Text>
+        <Image
+          source={{ uri: imageUrl || "https://t3.ftcdn.net/jpg/02/36/99/22/360_F_236992283_sNOxCVQeFLd5pdqaKGh8DRGMZy7P4XKm.jpg" }}
+          style={styles.imagePreview}
+        />
+        <Button title="Discard Image" onPress={discardImage} color="#ff4d4d" />
+        <Text style={styles.label}>Review Name</Text>
+        <Controller
+          control={control}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              style={styles.input}
+              onBlur={onBlur}
+              onChangeText={onChange}
+              value={value}
+              placeholder="Enter review name"
+            />
+          )}
+          name="reviewname"
+          rules={{ required: 'Review name is required' }}
+        />
+        {errors.reviewname && <Text style={styles.error}>{errors.reviewname.message}</Text>}
+        <Text style={styles.label}>Review Text</Text>
+        <Controller
+          control={control}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              style={[styles.input, { height: 100 }]}
+              onBlur={onBlur}
+              onChangeText={onChange}
+              value={value}
+              numberOfLines={4}
+              multiline
+              placeholder="Enter review text"
+            />
+          )}
+          name="reviewDescription"
+          rules={{ required: 'Review description is required' }}
+        />
+        {errors.reviewDescription && <Text style={styles.error}>{errors.reviewDescription.message}</Text>}
+        <Text style={styles.label}>Review Rating</Text>
+        <Controller
+          control={control}
+          render={({ field: { onChange, value } }) => (
+            <RNPickerSelect
+              onValueChange={onChange}
+              value={value}
+              items={[...Array(9)].map((_, i) => ({ label: (1 + i * 0.5).toString(), value: 1 + i * 0.5 }))}
+              placeholder={{ label: "Select a rating", value: null }}
+              style={{ inputIOS: styles.pickerInput, inputAndroid: styles.pickerInput, placeholder: { color: "#999" } }}
+            />
+          )}
+          name="reviewRating"
+          rules={{ required: 'Rating is required' }}
+        />
+        {errors.reviewRating && <Text style={styles.error}>{errors.reviewRating.message}</Text>}
+        <Text style={styles.label}>Category</Text>
+        <Controller
+          control={control}
+          render={({ field: { onChange, value } }) => (
+            <RNPickerSelect
+              onValueChange={onChange}
+              value={value}
+              items={[
+                { label: 'Wine', value: 'wine' },
+                { label: 'Beer', value: 'beer' },
+                { label: 'Softdrink', value: 'softdrink' },
+                { label: 'Hot beverage', value: 'hotbeverage' },
+                { label: 'Cocktail', value: 'cocktail' },
+                { label: 'Other', value: 'other' },
+              ]}
+              placeholder={{ label: "Select a category", value: null }}
+              style={{ inputIOS: styles.pickerInput, inputAndroid: styles.pickerInput }}
+            />
+          )}
+          name="category"
+          rules={{ required: 'Category is required' }}
+        />
+        {errors.category && <Text style={styles.error}>{errors.category.message}</Text>}
+        <Text style={styles.label}>Price range</Text>
+        <Controller
+          control={control}
+          render={({ field: { onChange, value } }) => (
+            <RNPickerSelect
+              onValueChange={onChange}
+              value={value}
+              items={[
+                { label: '1-5 euros', value: '1-5' },
+                { label: '5-10 euros', value: '5-10' },
+                { label: '10-20 euros', value: '10-20' },
+                { label: '20-50 euros', value: '20-50' },
+                { label: '50-100 euros', value: '50-100' },
+                { label: '+100 euros', value: '+100' },
+              ]}
+              placeholder={{ label: "Select price range", value: null }}
+              style={{ inputIOS: styles.pickerInput, inputAndroid: styles.pickerInput }}
+            />
+          )}
+          name="priceRange"
+          rules={{ required: 'Price range is required' }}
+        />
+        {errors.priceRange && <Text style={styles.error}>{errors.priceRange.message}</Text>}
+        <Text style={styles.label}>What does it taste like?</Text>
+        <Controller
+          control={control}
+          name="reviewTaste"
+          rules={{ required: 'Pick at least one taste' }}
+          render={({ field: { onChange, value = [] } }) => (
+            <View>
+              {tasteGroupsFormValues.map(({ group, tastes }) => (
+                <View key={group}>
+                  <Text style={styles.groupLabel}>{group}</Text>
+                  <View style={styles.tasteContainer}>
+                    {tastes.map((taste) => {
+                      const isSelected = value.includes(taste);
+                      return (
+                        <Text
+                          key={taste}
+                          style={[styles.tasteChip, { backgroundColor: isSelected ? selectColor(taste) : "#eee" }]}
+                          onPress={() => onChange(toggleSelectedTaste(value, taste))}
+                        >
+                          <Text style={{ color: isSelected ? "#fff" : "#333" }}>{taste}</Text>
                         </Text>
-                      </Text>
-                    );
-                  })}
+                      );
+                    })}
+                  </View>
                 </View>
-              </View>
-            ))}
-          </View>
-        )}
-      />
-      {errors.reviewTaste && <Text style={styles.error}>{errors.reviewTaste.message}</Text>}
+              ))}
+            </View>
+          )}
+        />
+        {errors.reviewTaste && <Text style={styles.error}>{errors.reviewTaste.message}</Text>}
 
-      <View style={styles.buttonContainer}>
-        <Button title="Submit Review" onPress={handleSubmit(onSubmit)} color="#4CAF50" />
+        <View style={styles.buttonContainer}>
+          <Button title="Submit Review" onPress={handleSubmit(onSubmit)} color="#4CAF50" />
+        </View>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 10,
-    backgroundColor: '#f9f9f9',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    marginBottom: 20,
-    textAlign: 'center',
-    color: '#222',
-  },
-  imagePreview: {
-    width: '100%',
-    height: 220,
-    borderRadius: 12,
-    marginBottom: 12,
-    resizeMode: 'cover',
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 6,
-    color: '#333',
-  },
-  input: {
-    height: 48,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    marginBottom: 16,
-    backgroundColor: '#fff',
-    fontSize: 16,
-  },
-  pickerInput: {
-    fontSize: 16,
-    paddingVertical: 14,
-    paddingHorizontal: 12,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 10,
-    color: '#333',
-    backgroundColor: '#fff',
-    marginBottom: 16,
-  },
-  groupLabel: {
-    fontSize: 15,
-    fontWeight: '600',
-    marginBottom: 6,
-    color: '#555',
-  },
-  tasteContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: 12,
-  },
-  tasteChip: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 25,
-    margin: 4,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  error: {
-    color: '#e53935',
-    marginBottom: 10,
-    fontSize: 13,
-  },
-  buttonContainer: {
-    paddingBottom: 20,
-    borderRadius: 10,
-  },
+  container: { flex: 1, paddingTop: 10, backgroundColor: '#f9f9f9' },
+  title: { fontSize: 24, fontWeight: '700', marginBottom: 20, textAlign: 'center', color: '#222' },
+  imagePreview: { width: '100%', height: 220, borderRadius: 12, marginBottom: 12, resizeMode: 'cover' },
+  label: { fontSize: 16, fontWeight: '600', marginBottom: 6, color: '#333' },
+  input: { height: 48, borderColor: '#ccc', borderWidth: 1, borderRadius: 10, paddingHorizontal: 14, marginBottom: 16, backgroundColor: '#fff', fontSize: 16 },
+  pickerInput: { fontSize: 16, paddingVertical: 14, paddingHorizontal: 12, borderWidth: 1, borderColor: '#ccc', borderRadius: 10, color: '#333', backgroundColor: '#fff', marginBottom: 16 },
+  groupLabel: { fontSize: 15, fontWeight: '600', marginBottom: 6, color: '#555' },
+  tasteContainer: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 12 },
+  tasteChip: { paddingVertical: 8, paddingHorizontal: 16, borderRadius: 25, margin: 4, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 2, elevation: 2 },
+  error: { color: '#e53935', marginBottom: 10, fontSize: 13 },
+  buttonContainer: { paddingBottom: 20, borderRadius: 10 },
 });
-
 
 export default ReviewForm;

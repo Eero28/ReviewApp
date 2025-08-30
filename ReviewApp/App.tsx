@@ -23,7 +23,6 @@ export default function App() {
           'poppins': require('./assets/fonts/Poppins-Regular.ttf'),
         });
         setFontLoaded(true);
-        console.log('Fonts loaded successfully');
       } catch (e) {
         console.warn('Font loading failed:', e);
       }

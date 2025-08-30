@@ -1,15 +1,14 @@
 import React, { useCallback } from 'react';
 import { Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { useFocusEffect } from '@react-navigation/native';
-import { NavigationProp } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, NavigationProp } from '@react-navigation/native';
 
 interface CameraComponentProps {
-  navigation: NavigationProp<any>;
   onImageCaptured: (imageUrl: string) => void;
 }
 
-const CameraComponent: React.FC<CameraComponentProps> = ({ navigation, onImageCaptured }) => {
+const CameraComponent: React.FC<CameraComponentProps> = ({ onImageCaptured }) => {
+  const navigation = useNavigation<NavigationProp<any>>();
 
   const requestPermissions = async () => {
     const { status: cameraStatus } = await ImagePicker.requestCameraPermissionsAsync();

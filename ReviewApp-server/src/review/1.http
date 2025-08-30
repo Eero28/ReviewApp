@@ -37,11 +37,11 @@ GET http://localhost:3000/review/6
 GET http://localhost:3000/users/1
 
 ### Update Review Request
-PUT http://localhost:3000/review
+PUT http://localhost:4000/review
 Content-Type: application/json
 
 {
-  "id_review": 3,
+  "id_review": 9,
   "id_user": 1,
   "reviewname": "Updated revieww",
   "reviewRating": 5,

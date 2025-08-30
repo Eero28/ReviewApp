@@ -3,20 +3,23 @@ import Dialog from "react-native-dialog";
 
 type ModalDialogProps = {
   visible: boolean;
-  dialogTitle: string;
+  dialogTitle?: string;
   onCancel: () => void;
   onDelete?: () => void;
+  children?: React.ReactNode;
+  showDescription: boolean;
 };
 
-const ModalDialog: FC<ModalDialogProps> = ({ dialogTitle, visible, onCancel, onDelete }) => {
+const ModalDialog: FC<ModalDialogProps> = ({ dialogTitle, visible, onCancel, onDelete, children, showDescription = false }) => {
   return (
     <Dialog.Container visible={visible}>
-      <Dialog.Title>{dialogTitle}</Dialog.Title>
-      <Dialog.Description>
+      {dialogTitle && <Dialog.Title>{dialogTitle}</Dialog.Title>}
+      {children}
+      {showDescription && (<Dialog.Description>
         Do you want to delete this review? You cannot undo this action.
-      </Dialog.Description>
+      </Dialog.Description>)}
       <Dialog.Button label="Cancel" onPress={onCancel} />
-      <Dialog.Button label="Delete" onPress={onDelete ? onDelete : () => console.log("deleted")} />
+      {onDelete && <Dialog.Button label="Delete" onPress={onDelete} />}
     </Dialog.Container>
   );
 };

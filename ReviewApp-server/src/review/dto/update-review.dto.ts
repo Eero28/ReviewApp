@@ -13,12 +13,27 @@ export class UpdateReviewDto {
   reviewname?: string;
 
   @IsOptional()
+  @IsNotEmpty()
+  reviewDescription?: string;
+
+  @IsOptional()
   @IsInt()
   @Min(1)
   @Max(5)
-  reviewRating?: number; // Ensures that review rating is between 1 and 5
+  reviewRating?: number;
 
   @IsOptional()
   @IsUrl()
   imageUrl?: string;
+
+  @IsOptional()
+  @IsNotEmpty()
+  category?: string;
+
+  @IsOptional()
+  @IsNotEmpty()
+  priceRange?: string;
+
+  @IsOptional()
+  reviewTaste?: string[];
 }

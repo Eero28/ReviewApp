@@ -61,6 +61,7 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
     const showModal = () => setShowDialogModal(true);
     const closeModal = () => setShowDialogModal(false);
 
+
     const gotoDetails = () => {
         if (!isLongPress) navigation.navigate('ReviewDetails', { item });
     };
@@ -157,7 +158,7 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
             <View style={{ flexGrow: 1 }} />
 
             <View style={styles.reviewItemTagsContainer}>
-                {item.reviewTaste.map((tasteItem, index) => (
+                {item.reviewTaste.slice(0, 3).map((tasteItem, index) => (
                     <View
                         key={index}
                         style={[styles.reviewItemTagBox, { backgroundColor: selectColor(tasteItem) }]}
@@ -167,8 +168,21 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
                         </Pressable>
                     </View>
                 ))}
+
+                {item.reviewTaste.length > 3 && (
+                    <View
+                        style={[styles.reviewItemTagBox, { backgroundColor: '#ccc' }]}
+                    >
+                        <Text style={styles.reviewItemTagText}>
+                            +{item.reviewTaste.length - 3}
+                        </Text>
+                    </View>
+                )}
+
                 <View style={{ flexGrow: 1 }} />
             </View>
+
+
 
 
             <View style={styles.reviewItemIconsContainer}>
@@ -186,9 +200,9 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
                     <Text style={styles.reviewItemIconCount}>{item.comments?.length ?? 0}</Text>
                 </Pressable>
             </View>
-
             <ModalDialog
                 dialogTitle={`Delete "${item.reviewname}"?`}
+                showDescription
                 visible={showDialogModal}
                 onCancel={closeModal}
                 onDelete={handleDelete}

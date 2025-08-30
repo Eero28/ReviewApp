@@ -20,6 +20,9 @@ import { selectColor } from '../helpers/tastegroup';
 import { categories } from '../helpers/categories';
 import Icon from '../components/Icon';
 import { Pressable } from 'react-native-gesture-handler';
+import ModalDialog from '../components/ModalDialog';
+import ReviewForm from '../components/ReviewForm'
+import { useNavigation } from '@react-navigation/native';
 
 type RootStackParamList = {
   ReviewDetails: {
@@ -30,10 +33,11 @@ type RootStackParamList = {
 
 const ReviewDetails: FC = () => {
   const { setReviewsUpdated, reviewsUpdated, userInfo } = useAuth();
+  const navigation = useNavigation();
 
   const route = useRoute<RouteProp<RootStackParamList, 'ReviewDetails'>>();
   const { item, showComment } = route.params;
-
+  const [showDialogModalUpdate, setShowDialogModalUpdate] = useState<boolean>(false);
   const [comments, setComments] = useState<Comment[]>([]);
   const [recommendations, setRecommendations] = useState<[]>([]);
   const [likesState, setLikesState] = useState<{ user: any; isLiked: boolean }>({
@@ -93,10 +97,40 @@ const ReviewDetails: FC = () => {
     if (!category) return null;
     return <Icon size={20} name={category.icon} />;
   };
+
+
+
+
+  const showModalUpdate = () => setShowDialogModalUpdate(true);
+  const closeModalUpdate = () => setShowDialogModalUpdate(false);
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView ref={scrollRef} contentContainerStyle={{ paddingBottom: 30 }}>
+        <ModalDialog
+          showDescription={false}
+          visible={showDialogModalUpdate}
+          onCancel={closeModalUpdate}
+        >
+          <ReviewForm
+            initialData={{
+              id_review: item.id_review,
+              reviewname: item.reviewname,
+              reviewDescription: item.reviewDescription,
+              priceRange: item.priceRange,
+              reviewRating: item.reviewRating,
+              category: item.category,
+              reviewTaste: item.reviewTaste,
+            }}
+            isUpdate={true}
+            initialImage={item.imageUrl}
+          />
+        </ModalDialog>
         <View style={styles.cardContainer}>
+          {item.user.id_user === userInfo?.id_user &&
+            (<Pressable style={styles.updateButton} onPress={showModalUpdate}>
+              <Text style={styles.updateButtonText}>Update</Text>
+            </Pressable>)}
           <Text style={styles.title}>{item.reviewname}</Text>
           <View style={styles.imageWrapper}>
             <Image
@@ -321,6 +355,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 50,
     backgroundColor: '#E3E8EF',
+  },
+  updateButton: {
+    backgroundColor: "#1F3C88",
+    padding: 10,
+    borderRadius: 16,
+    width: "25%",
+  },
+  updateButtonText: {
+    textAlign: "center",
+    color: "white"
   },
   recommendationsContainer: {
     width: '100%',

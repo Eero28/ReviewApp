@@ -136,11 +136,19 @@ export class ReviewService {
     id_review: number,
     updateReviewDto: UpdateReviewDto,
     id_user: number,
+    req: any,
   ): Promise<Review> {
+    const user: User = req.user;
+
     const review = await this.reviewRepository.findOne({
       where: { id_review },
       relations: ['user'],
     });
+
+    console.log('id_review', id_review);
+    console.log('id_user', id_user);
+    console.log('id_userjwt', user);
+    console.log(updateReviewDto);
 
     if (!review) {
       throw new NotFoundException(`Review with ID ${id_review} not found.`);
@@ -162,7 +170,7 @@ export class ReviewService {
     await this.reviewRepository.save(review);
 
     const updatedReview = await this.reviewRepository.findOne({
-      where: { user: { id_user } },
+      where: { id_review },
       relations: ['user', 'likes'],
     });
 
@@ -171,14 +179,13 @@ export class ReviewService {
         `Updated review with ID ${id_review} could not be retrieved.`,
       );
     }
+    console.log('updated', updatedReview);
 
     return updatedReview;
   }
 
   async deleteReview(id_review: number, req: any): Promise<void> {
     const user: User = req.user;
-
-    console.log(user);
 
     const review = await this.reviewRepository.findOne({
       where: { id_review },

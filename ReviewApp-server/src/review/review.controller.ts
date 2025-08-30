@@ -59,19 +59,21 @@ export class ReviewController {
     return await this.reviewService.deleteReview(id, req);
   }
 
-  @Put()
+  @Put(':id_review')
+  @UseGuards(JwtAuthGuard)
   async updateReview(
-    @Body('id_review') id_review: number,
+    @Param('id_review') id_review: number,
     @Body('id_user') id_user: number,
     @Body() updateReview: UpdateReviewDto,
+    @Request() req,
   ): Promise<Review> {
     return await this.reviewService.updateReview(
       id_review,
       updateReview,
       id_user,
+      req,
     );
   }
-
   @Post()
   async createReview(@Body() create: CreateReviewDto): Promise<Review> {
     return await this.reviewService.createReview(create);
