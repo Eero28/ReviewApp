@@ -178,12 +178,7 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
                         </Text>
                     </View>
                 )}
-
-                <View style={{ flexGrow: 1 }} />
             </View>
-
-
-
 
             <View style={styles.reviewItemIconsContainer}>
                 <Pressable onPress={toggleLike} style={styles.reviewItemIconWrapper}>
@@ -307,7 +302,6 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.08,
         shadowRadius: 2,
         elevation: 2,
-        flexShrink: 1,
     },
     reviewItemTagText: {
         fontSize: 10,

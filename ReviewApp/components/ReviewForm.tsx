@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Image,
   ScrollView,
+  Pressable
 } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import CameraComponent from "../components/CameraComponent";
@@ -16,6 +17,7 @@ import axios, { AxiosError } from "axios";
 import { API_URL } from "@env";
 import { useAuth } from '../ContexApi';
 import { tasteGroupsFormValues, toggleSelectedTaste, selectColor } from '../helpers/tastegroup';
+
 
 interface ReviewFormValues {
   reviewname: string;
@@ -50,7 +52,10 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUp
   const { userInfo, getReviews, allReviewsFetch } = useAuth();
 
   const onImageCaptured = (url: string) => setImageUrl(url);
-  const discardImage = () => setImageUrl(null);
+
+  const discardImage = () => {
+    setImageUrl(null)
+  }
 
   const onSubmit = async (data: ReviewFormValues) => {
     try {
@@ -90,7 +95,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUp
     }
   };
 
-  if (!imageUrl && !isUpdate) {
+  if (!imageUrl) {
     return <CameraComponent onImageCaptured={onImageCaptured} />;
   }
 
@@ -102,7 +107,10 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUp
           source={{ uri: imageUrl || "https://t3.ftcdn.net/jpg/02/36/99/22/360_F_236992283_sNOxCVQeFLd5pdqaKGh8DRGMZy7P4XKm.jpg" }}
           style={styles.imagePreview}
         />
-        <Button title="Discard Image" onPress={discardImage} color="#ff4d4d" />
+        <Pressable style={styles.discardButton} onPress={discardImage}>
+          <Text style={styles.discardButtonText}>Discard Image</Text>
+        </Pressable>
+
         <Text style={styles.label}>Review Name</Text>
         <Controller
           control={control}
@@ -239,17 +247,102 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUp
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingTop: 10, backgroundColor: '#f9f9f9' },
-  title: { fontSize: 24, fontWeight: '700', marginBottom: 20, textAlign: 'center', color: '#222' },
-  imagePreview: { width: '100%', height: 220, borderRadius: 12, marginBottom: 12, resizeMode: 'cover' },
-  label: { fontSize: 16, fontWeight: '600', marginBottom: 6, color: '#333' },
-  input: { height: 48, borderColor: '#ccc', borderWidth: 1, borderRadius: 10, paddingHorizontal: 14, marginBottom: 16, backgroundColor: '#fff', fontSize: 16 },
-  pickerInput: { fontSize: 16, paddingVertical: 14, paddingHorizontal: 12, borderWidth: 1, borderColor: '#ccc', borderRadius: 10, color: '#333', backgroundColor: '#fff', marginBottom: 16 },
-  groupLabel: { fontSize: 15, fontWeight: '600', marginBottom: 6, color: '#555' },
-  tasteContainer: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 12 },
-  tasteChip: { paddingVertical: 8, paddingHorizontal: 16, borderRadius: 25, margin: 4, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 2, elevation: 2 },
-  error: { color: '#e53935', marginBottom: 10, fontSize: 13 },
-  buttonContainer: { paddingBottom: 20, borderRadius: 10 },
+  container: {
+    flex: 1,
+    paddingTop: 10,
+    backgroundColor: '#f9f9f9',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '700',
+    marginBottom: 20,
+    textAlign: 'center',
+    color: '#222',
+  },
+  imagePreview: {
+    width: '100%',
+    height: 220,
+    borderRadius: 12,
+    marginBottom: 12,
+    resizeMode: 'cover',
+  },
+  discardButton: {
+    backgroundColor: '#ff4d4d',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+    alignSelf: 'center',
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
+  },
+  discardButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 6,
+    color: '#333',
+  },
+  input: {
+    height: 48,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    marginBottom: 16,
+    backgroundColor: '#fff',
+    fontSize: 16,
+  },
+  pickerInput: {
+    fontSize: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 10,
+    color: '#333',
+    backgroundColor: '#fff',
+    marginBottom: 16,
+  },
+  groupLabel: {
+    fontSize: 15,
+    fontWeight: '600',
+    marginBottom: 6,
+    color: '#555',
+  },
+  tasteContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 12,
+  },
+  tasteChip: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 25,
+    margin: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  error: {
+    color: '#e53935',
+    marginBottom: 10,
+    fontSize: 13,
+  },
+  buttonContainer: {
+    paddingBottom: 20,
+    borderRadius: 10,
+  },
 });
+
 
 export default ReviewForm;
