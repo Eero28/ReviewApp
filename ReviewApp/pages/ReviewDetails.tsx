@@ -22,7 +22,6 @@ import Icon from '../components/Icon';
 import { Pressable } from 'react-native-gesture-handler';
 import ModalDialog from '../components/ModalDialog';
 import ReviewForm from '../components/ReviewForm'
-import { useNavigation } from '@react-navigation/native';
 
 type RootStackParamList = {
   ReviewDetails: {
@@ -33,8 +32,6 @@ type RootStackParamList = {
 
 const ReviewDetails: FC = () => {
   const { setReviewsUpdated, reviewsUpdated, userInfo } = useAuth();
-  const navigation = useNavigation();
-
   const route = useRoute<RouteProp<RootStackParamList, 'ReviewDetails'>>();
   const { item, showComment } = route.params;
   const [showDialogModalUpdate, setShowDialogModalUpdate] = useState<boolean>(false);
@@ -95,7 +92,7 @@ const ReviewDetails: FC = () => {
   const checkCategoryIcon = (val: string) => {
     const category = categories.find(cat => cat.icon === val);
     if (!category) return null;
-    return <Icon size={20} name={category.icon} />;
+    return <Icon size={35} name={category.icon} />;
   };
 
 
