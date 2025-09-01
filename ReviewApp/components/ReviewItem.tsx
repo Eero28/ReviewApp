@@ -15,6 +15,8 @@ import { getReviewLikes, deleteLike } from '../helpers/services/reviewService';
 import { selectColor } from '../helpers/tastegroup';
 import { usersLiked } from '../interfaces/UsersLiked';
 import { errorHandler } from '../helpers/errors/error';
+import { screenHeight } from '../helpers/dimensions';
+
 type Props = {
     item: ReviewItemIf;
     disableLongPress?: boolean;
@@ -24,10 +26,7 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
     const { deleteReview, userInfo, setReviewsUpdated, reviewsUpdated, handleLogout } = useAuth();
     const [showDialogModal, setShowDialogModal] = useState(false);
     const [isLongPress, setIsLongPress] = useState(false);
-    const [likesState, setLikesState] = useState<usersLiked>({
-        user: [],
-        isLiked: false,
-    });
+    const [likesState, setLikesState] = useState<usersLiked>({ user: [], isLiked: false });
 
     const navigation = useNavigation<any>();
 
@@ -39,11 +38,13 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
 
     const likeReview = async () => {
         try {
-            if (!userInfo?.id_user) throw new Error("User ID is missing");
-            await axios.post(`${API_URL}/likes/like/review/${item.id_review}`, {
-                id_user: userInfo.id_user,
-            });
+            if (!userInfo?.id_user) {
+                throw new Error("User ID is missing");
+            }
+
+            await axios.post(`${API_URL}/likes/like/review/${item.id_review}`, { id_user: userInfo.id_user });
             getReviewLikes(userInfo.id_user, item.id_review, setLikesState);
+
         } catch (error) {
             console.error("Error liking the review:", error);
         }
@@ -58,12 +59,18 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
         setReviewsUpdated(!reviewsUpdated);
     };
 
-    const showModal = () => setShowDialogModal(true);
-    const closeModal = () => setShowDialogModal(false);
-
-
     const gotoDetails = () => {
-        if (!isLongPress) navigation.navigate('ReviewDetails', { item });
+        if (!isLongPress) {
+            navigation.navigate('ReviewDetails', { item });
+        }
+    };
+
+    const showModal = () => {
+        setShowDialogModal(true);
+    };
+
+    const closeModal = () => {
+        setShowDialogModal(false);
     };
 
     const handleDelete = async () => {
@@ -71,19 +78,21 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
 
         if (!userInfo?.access_token) {
             Alert.alert("No access to delete!");
-            handleLogout()
+            handleLogout();
             return;
         }
 
         try {
             await deleteReview(item.id_review, userInfo.access_token);
         } catch (error: any) {
-            errorHandler(error, handleLogout)
+            errorHandler(error, handleLogout);
         }
     };
 
+    const handlePressIn = () => {
+        setIsLongPress(false);
+    };
 
-    const handlePressIn = () => setIsLongPress(false);
     const handleLongPress = () => {
         if (!disableLongPress) {
             setIsLongPress(true);
@@ -93,7 +102,9 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
 
     const checkCategoryIcon = (val: string) => {
         const category = categories.find(cat => cat.icon === val);
-        if (!category) return null;
+        if (!category) {
+            return null;
+        }
         return <Icon size={20} name={category.icon} />;
     };
 
@@ -119,74 +130,38 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
             onPress={gotoDetails}
             onLongPress={handleLongPress}
             onPressIn={handlePressIn}
-            style={({ pressed }) => [
-                styles.reviewItemContainer,
-                pressed && { opacity: 0.8 },
-            ]}
+            style={styles.reviewItemContainer}
         >
             <View style={styles.imageWrapper}>
-                <Image
-                    style={styles.reviewItemImage}
-                    source={{ uri: item.imageUrl }}
-                />
-                <View style={styles.categoryBadge}>
-                    {checkCategoryIcon(item.category)}
-                </View>
+                <Image style={styles.reviewItemImage} source={{ uri: item.imageUrl }} />
+                <View style={styles.categoryBadge}>{checkCategoryIcon(item.category)}</View>
             </View>
 
-            <View style={styles.reviewItemInfo}>
-                <Text style={styles.reviewItemTitle}>{item.reviewname}</Text>
-                <StarRating
-                    enableHalfStar
-                    starSize={20}
-                    rating={item.reviewRating}
-                    onChange={() => { }}
-                    color="black"
-                />
-                <Text
-                    ellipsizeMode="tail"
-                    numberOfLines={1}
-                    style={styles.reviewItemDescription}
-                >
-                    Reviewed by: {item.user.username}
-                </Text>
-                <View style={styles.priceBadge}>
-                    <Text style={styles.priceText}>{renderPriceRange(item.priceRange)}</Text>
-                </View>
-            </View>
+            <View style={styles.reviewItemInfoWrapper}>
+                <Text numberOfLines={2} style={styles.reviewItemTitle}>{item.reviewname}</Text>
+                <StarRating enableHalfStar starSize={20} rating={item.reviewRating} onChange={() => { }} color="black" />
+                <Text numberOfLines={1} style={styles.text}>Reviewed by: {item.user.username}</Text>
+                <View style={styles.priceBadge}>{renderPriceRange(item.priceRange)}</View>
 
-            <View style={{ flexGrow: 1 }} />
-
-            <View style={styles.reviewItemTagsContainer}>
-                {item.reviewTaste.slice(0, 3).map((tasteItem, index) => (
-                    <View
-                        key={index}
-                        style={[styles.reviewItemTagBox, { backgroundColor: selectColor(tasteItem) }]}
-                    >
-                        <Pressable style={({ pressed }) => [{ opacity: pressed ? 0.4 : 1 }]}>
+                <View style={styles.reviewItemTagsContainer}>
+                    {item.reviewTaste.slice(0, 3).map((tasteItem, index) => (
+                        <View key={index} style={[styles.reviewItemTagBox, { backgroundColor: selectColor(tasteItem) }]}>
                             <Text style={styles.reviewItemTagText}>{tasteItem}</Text>
-                        </Pressable>
-                    </View>
-                ))}
-
-                {item.reviewTaste.length > 3 && (
-                    <View
-                        style={[styles.reviewItemTagBox, { backgroundColor: '#ccc' }]}
-                    >
-                        <Text style={styles.reviewItemTagText}>
-                            +{item.reviewTaste.length - 3}
-                        </Text>
-                    </View>
-                )}
+                        </View>
+                    ))}
+                    {item.reviewTaste.length > 3 && (
+                        <View style={[styles.reviewItemTagBox, { backgroundColor: '#ccc' }]}>
+                            <Text style={styles.reviewItemTagText}>+{item.reviewTaste.length - 3}</Text>
+                        </View>
+                    )}
+                </View>
             </View>
+
+            <View style={styles.tagsSeparator} />
 
             <View style={styles.reviewItemIconsContainer}>
                 <Pressable onPress={toggleLike} style={styles.reviewItemIconWrapper}>
-                    <FontAwesome
-                        name={likesState.isLiked ? 'heart' : 'heart-o'}
-                        size={24}
-                        color={likesState.isLiked ? 'blue' : '#666'}
-                    />
+                    <FontAwesome name={likesState.isLiked ? 'heart' : 'heart-o'} size={24} color={likesState.isLiked ? '#ff4757' : '#666'} />
                     <Text style={styles.reviewItemIconCount}>{likesState.user.length}</Text>
                 </Pressable>
 
@@ -195,6 +170,7 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
                     <Text style={styles.reviewItemIconCount}>{item.comments?.length ?? 0}</Text>
                 </Pressable>
             </View>
+
             <ModalDialog
                 dialogTitle={`Delete "${item.reviewname}"?`}
                 showDescription
@@ -210,29 +186,29 @@ export default ReviewItem;
 
 const styles = StyleSheet.create({
     reviewItemContainer: {
+        flexDirection: 'column',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        padding: 10,
-        marginVertical: 8,
-        backgroundColor: '#ffff',
+        backgroundColor: '#fff',
         borderRadius: 8,
         shadowColor: '#000',
         shadowOpacity: 0.1,
         elevation: 3,
-        minHeight: 400,
-        borderWidth: 5,
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-        borderColor: "white",
-        justifyContent: "flex-start"
+        padding: 8,
+        minHeight: 450,
+        width: '100%',
     },
     imageWrapper: {
         position: 'relative',
+        width: '100%',
+        borderRadius: 12,
+        overflow: 'hidden',
     },
     reviewItemImage: {
-        height: 140,
-        width: 140,
+        width: '100%',
+        height: screenHeight * 0.2,
         borderRadius: 12,
-        resizeMode: "cover",
+        resizeMode: 'cover',
     },
     categoryBadge: {
         position: 'absolute',
@@ -245,85 +221,76 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    priceBadge: {
-        alignSelf: 'flex-start',
-        paddingVertical: 4,
-        paddingHorizontal: 10,
-        borderRadius: 16,
-        backgroundColor: 'whitesmoke',
-        marginTop: 6,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 2,
-        elevation: 3,
-    },
-
-    priceText: {
-        color: '#333',
-        fontWeight: '700',
-        fontSize: 12,
-        fontFamily: 'poppins',
-    },
-    reviewItemInfo: {
-        padding: 10,
+    reviewItemInfoWrapper: {
+        flex: 1,
+        width: '100%',
+        paddingVertical: 8,
     },
     reviewItemTitle: {
         fontSize: 16,
         fontWeight: 'bold',
         color: '#333',
         marginBottom: 4,
-        fontFamily: 'poppins',
         textAlign: 'center',
     },
-    reviewItemDescription: {
+    text: {
         fontSize: 14,
-        color: '#666',
-        fontFamily: 'poppins',
-        marginTop: 5,
+        color: '#4A4A4A',
+        marginBottom: 6,
+    },
+    priceBadge: {
+        alignSelf: 'flex-start',
+        padding: 5,
+        marginBottom: 5,
+        borderRadius: 16,
+        backgroundColor: 'whitesmoke',
+
+    },
+    priceText: {
+        fontSize: 12,
+        fontWeight: '700',
+        color: '#333',
     },
     reviewItemTagsContainer: {
-        flexDirection: "row",
-        flexWrap: "wrap",
-        justifyContent: "flex-start",
-        marginVertical: 8,
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'flex-start',
         gap: 6,
-        borderBottomColor: "#eee",
-        borderBottomWidth: 1,
-        minHeight: 90,
+        minHeight: 40,
+        marginBottom: 6,
     },
     reviewItemTagBox: {
         paddingVertical: 6,
         paddingHorizontal: 8,
-        marginBottom: 8,
         borderRadius: 12,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.08,
-        shadowRadius: 2,
-        elevation: 2,
+        marginBottom: 6,
     },
     reviewItemTagText: {
         fontSize: 10,
-        fontWeight: "600",
-        color: "#0f3c85",
-        textAlign: "center",
-        fontFamily: 'poppins',
+        fontWeight: '600',
+        color: '#0f3c85',
+        textAlign: 'center',
+    },
+    tagsSeparator: {
+        borderBottomColor: "#eee",
+        borderBottomWidth: 1,
+        width: '100%',
+        marginTop: 6,
     },
     reviewItemIconsContainer: {
         flexDirection: 'row',
         justifyContent: 'space-around',
-        marginTop: 10
+        width: '100%',
+        paddingVertical: 8,
     },
     reviewItemIconWrapper: {
-        flexDirection: "row",
-        alignItems: "center",
+        flexDirection: 'row',
+        alignItems: 'center',
         padding: 5,
     },
     reviewItemIconCount: {
         marginLeft: 4,
         fontSize: 16,
-        color: "#000",
-        fontFamily: 'poppins',
+        color: '#000',
     },
 });

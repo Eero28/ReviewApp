@@ -89,9 +89,11 @@ const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false }) => {
                         keyExtractor={(item) => item.id_review.toString()}
                         contentContainerStyle={styles.listContainer}
                         numColumns={2}
+                        columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: 10 }}
                         keyboardShouldPersistTaps="handled"
                         showsVerticalScrollIndicator={false}
                     />
+
                 </View>
             )}
         </SafeAreaView>
@@ -105,7 +107,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#f5f5f5',
-        paddingHorizontal: 16,
+        paddingHorizontal: 8,
         paddingVertical: 8,
     },
     searchWrapper: {
@@ -120,6 +122,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#f2f2f2',
         borderRadius: 20,
     },
+
     input: {
         flex: 1,
         fontSize: 16,
@@ -138,6 +141,7 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 5,
         maxWidth: '50%',
+
     },
     listContainer: {
         paddingBottom: 100,
