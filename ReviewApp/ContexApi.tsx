@@ -41,6 +41,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (storedUserInfo) {
           const parsedUserInfo = JSON.parse(storedUserInfo);
           setUserInfo(parsedUserInfo);
+        } else {
+          handleLogout()
         }
       } catch (error) {
         errorHandler(error)
@@ -66,6 +68,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       const response = await axios.post(`${API_URL}/auth/login`, { email, password });
       const userData: UserInfo = response.data.data;
+      console.log("hello", userData)
       setUserInfo(userData);
       await AsyncStorage.setItem('userInfo', JSON.stringify(userData));
       return userData;

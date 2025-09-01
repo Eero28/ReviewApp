@@ -121,6 +121,7 @@ const ReplyItem: FC<Props> = ({ reply, depth = 1, id_review, getReviewComments, 
                 onCancel={toggleSheet}
                 dialogTitle="Delete Comment!"
                 visible={showDialogModal}
+                showDescription
             />
 
         </>

@@ -1,7 +1,14 @@
 import { Comment } from 'src/comments/entities/comment.entity';
 import { Review } from 'src/review/entities/review.entity';
-import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
-import { Exclude } from 'class-transformer';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  UpdateDateColumn,
+  CreateDateColumn,
+} from 'typeorm';
+import { Exclude, Expose } from 'class-transformer';
 import { Like } from 'src/like/entities/like.entity';
 @Entity()
 export class User {
@@ -19,12 +26,19 @@ export class User {
   @Column()
   username: string;
 
-  @Exclude()
   @Column({
     default:
       'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
   })
   avatar: string;
+
+  @Expose()
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @Expose()
+  @UpdateDateColumn()
+  updatedAt: Date;
 
   @Exclude()
   @Column({ default: 'user' })

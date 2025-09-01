@@ -3,9 +3,9 @@ POST  http://localhost:4000/users/register
 Content-Type: application/json
 
 {
-    "password": "SSS",
-    "email": "SSS",
-    "username": "SSS",
+    "password": "S",
+    "email": "eero.kantonen11@gmail.com",
+    "username": "Eero Kantonen",
     "role": "admin"
 }
 

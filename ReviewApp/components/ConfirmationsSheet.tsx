@@ -26,7 +26,7 @@ const ConfirmationSheet: React.FC<ConfirmationSheetProps> = ({
       isOpen={isOpen}
       backgroundColor="#111213"
       onClose={onClose}
-      snapPoints={snapPoints || ['40%', '30%']}
+      snapPoints={snapPoints || ['50%', '30%']}
     >
       <View style={styles.sheetContent}>
         <Text style={styles.sheetTitle}>{title}</Text>

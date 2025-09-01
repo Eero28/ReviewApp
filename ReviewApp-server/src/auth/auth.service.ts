@@ -32,6 +32,8 @@ export class AuthService {
       role: user.role,
       username: user.username,
       avatar: user.avatar,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
     };
 
     return {
@@ -41,6 +43,8 @@ export class AuthService {
       role: user.role,
       username: user.username,
       avatar: user.avatar,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
     };
   }
 }
