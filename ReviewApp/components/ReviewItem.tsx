@@ -44,7 +44,7 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
 
             await axios.post(`${API_URL}/likes/like/review/${item.id_review}`, { id_user: userInfo.id_user });
             getReviewLikes(userInfo.id_user, item.id_review, setLikesState);
-
+            setReviewsUpdated(!reviewsUpdated)
         } catch (error) {
             console.error("Error liking the review:", error);
         }

@@ -17,15 +17,16 @@ import NoReviewsMade from './NoReviewsMade';
 type Props = {
     reviews: ReviewItemIf[];
     disableLongPress?: boolean;
+    noReviewsText?: string;
 };
 
-const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false }) => {
+const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false, noReviewsText }) => {
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [animatedWidth] = useState(new Animated.Value(50));
 
     if (reviews.length <= 0) {
-        return <NoReviewsMade />;
+        return <NoReviewsMade noReviewsText={noReviewsText} />;
     }
 
     // Filter reviews based on the search term

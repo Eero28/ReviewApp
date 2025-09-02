@@ -106,7 +106,7 @@ export class LikeService {
 
     const likes = await this.likeRepository.find({
       where: { user: { id_user: id_user } },
-      relations: ['review'],
+      relations: ['review', 'review.user'],
     });
 
     const reviews = likes.map((like) => like.review);

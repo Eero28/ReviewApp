@@ -2,7 +2,9 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import BottomTabNavigator from './BottomTabNavigator';
 import ProfileScreen from '../pages/ProfileScreen';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useAuth } from '../ContexApi';
+import Favorites from '../pages/Favorites';
 
 
 const Drawer = createDrawerNavigator();
@@ -39,6 +41,17 @@ const DrawerNavigator = () => {
           options={{
             drawerIcon: ({ color }) => (
               <MaterialIcons name="account-circle" size={20} color={color} />
+            ),
+          }}
+        />
+      )}
+      {userInfo && (
+        <Drawer.Screen
+          name="Favorites"
+          component={Favorites}
+          options={{
+            drawerIcon: ({ color }) => (
+              <Ionicons name="heart" size={20} color={color} />
             ),
           }}
         />

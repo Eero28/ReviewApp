@@ -1,12 +1,15 @@
+import { FC } from 'react';
 import { StyleSheet, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+type Props = {
+    noReviewsText?: string;
+}
 
-
-const NoReviewsMade = () => {
+const NoReviewsMade: FC<Props> = ({ noReviewsText = "No reviews made for this category yet!" }) => {
     return (
         <SafeAreaView style={styles.container}>
-            <Text style={styles.text}>No reviews made for this category yet!</Text>
+            <Text style={styles.text}>{noReviewsText}</Text>
         </SafeAreaView>
     );
 };
