@@ -1,4 +1,3 @@
-// src/users/users.controller.ts
 import {
   Controller,
   Get,
@@ -9,11 +8,14 @@ import {
   Delete,
   Patch,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
-import { UpdateAvatarDto } from 'src/helpers/dtos/user.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { storage } from '../../config/cloudinary.config';
 
 @Controller('users')
 export class UsersController {
@@ -40,12 +42,16 @@ export class UsersController {
     return await this.usersService.updateUser(user, id);
   }
 
-  @Patch(':id/avatar')
+  @Patch('avatar/:id')
+  @UseInterceptors(FileInterceptor('avatar', { storage }))
   async updateAvatar(
-    @Param('id') id: number,
-    @Body() updateAvatar: UpdateAvatarDto,
+    @Param('id') id_user: number,
+    @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.usersService.updateUserAvatar(updateAvatar, id);
+    return this.usersService.updateUserAvatar(
+      { avatar: file.path, public_id: file.filename },
+      id_user,
+    );
   }
 
   @Delete(':id')

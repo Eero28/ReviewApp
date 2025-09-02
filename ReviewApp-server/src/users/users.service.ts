@@ -4,6 +4,7 @@ import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
 import { UpdateAvatarDto } from 'src/helpers/dtos/user.dto';
+import { v2 as cloudinary } from 'cloudinary';
 
 @Injectable()
 export class UsersService {
@@ -51,16 +52,23 @@ export class UsersService {
     const existingUser = await this.usersRepository.findOne({
       where: { id_user: id_user },
     });
-    console.log(existingUser);
     if (!existingUser) {
       throw new NotFoundException(`User with ID ${id_user} not found`);
     }
 
-    const updatedUser = this.usersRepository.merge(
-      existingUser,
-      updateAvatarDto,
-    );
-    return this.usersRepository.save(updatedUser);
+    // Delete old avatar from Cloudinary if it exists
+    if (existingUser.avatarPublicId) {
+      try {
+        await cloudinary.uploader.destroy(existingUser.avatarPublicId);
+      } catch (err) {
+        console.error('Failed to delete old avatar:', err);
+      }
+    }
+    // Update user with new avatar
+    existingUser.avatar = updateAvatarDto.avatar;
+    existingUser.avatarPublicId = updateAvatarDto.public_id;
+
+    return this.usersRepository.save(existingUser);
   }
 
   async deleteUser(id: number): Promise<void> {

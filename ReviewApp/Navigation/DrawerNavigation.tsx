@@ -9,6 +9,13 @@ import Favorites from '../pages/Favorites';
 
 const Drawer = createDrawerNavigator();
 
+
+export type DrawerParamList = {
+  Reviews: undefined;
+  Profile: undefined;
+  Favorites: undefined;
+};
+
 const DrawerNavigator = () => {
   const { userInfo } = useAuth();
   return (

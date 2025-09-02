@@ -6,7 +6,14 @@ import AllReviews from '../pages/AllReviews';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-const Tab = createBottomTabNavigator();
+export type BottomTabParamList = {
+    Myreviews: undefined;
+    TakeImage: undefined;
+    AllReviews: undefined;
+};
+
+const Tab = createBottomTabNavigator<BottomTabParamList>();
+
 
 const MainTabs = () => {
     return (
@@ -22,7 +29,7 @@ const MainTabs = () => {
             }}
         >
             <Tab.Screen
-                name="My reviews"
+                name="Myreviews"
                 component={ReviewsScreen}
                 options={{
                     tabBarIcon: ({ color, size }) => (
@@ -52,7 +59,7 @@ const MainTabs = () => {
                 })}
             />
             <Tab.Screen
-                name="All Reviews"
+                name="AllReviews"
                 component={AllReviews}
                 options={{
                     tabBarIcon: ({ color, size }) => (

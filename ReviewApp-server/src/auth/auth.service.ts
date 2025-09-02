@@ -32,6 +32,7 @@ export class AuthService {
       role: user.role,
       username: user.username,
       avatar: user.avatar,
+      public_id: user.avatarPublicId,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
@@ -43,6 +44,7 @@ export class AuthService {
       role: user.role,
       username: user.username,
       avatar: user.avatar,
+      public_id: user.avatarPublicId,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };

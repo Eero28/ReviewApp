@@ -152,7 +152,7 @@ const ReviewDetails: FC = () => {
             <Text style={styles.text}>Reviewed: {calculateDate(item.createdAt)}</Text>
             <View style={styles.reviewerContainer}>
               <Text style={styles.text}>By: {item.user.username}</Text>
-              <Image source={{ uri: userInfo?.avatar }} style={styles.profileImage} />
+              <Image source={{ uri: item.user.avatar }} style={styles.profileImage} />
             </View>
           </View>
           <View style={styles.statsContainer}>

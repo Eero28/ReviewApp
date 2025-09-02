@@ -32,6 +32,9 @@ export class User {
   })
   avatar: string;
 
+  @Column({ nullable: true })
+  avatarPublicId: string;
+
   @Expose()
   @CreateDateColumn()
   createdAt: Date;

@@ -14,12 +14,21 @@ import { formatDate } from "../helpers/date";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { screenWidth } from "../helpers/dimensions";
+import * as ImagePicker from "expo-image-picker";
+import { errorHandler } from '../helpers/errors/error';
+import axios from "axios";
+import { API_URL } from "@env";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { DrawerNavigationProp } from '@react-navigation/drawer';
+import { DrawerParamList } from '../Navigation/DrawerNavigation';
 
 const profileSize = screenWidth * 0.3;
+type FavoritesNavProp = DrawerNavigationProp<DrawerParamList, 'Favorites'>;
 
 const ProfileScreen = () => {
-  const navigation = useNavigation();
-  const { handleLogout, userInfo, userReviews } = useAuth();
+
+  const navigation = useNavigation<FavoritesNavProp>();
+  const { handleLogout, userInfo, setUserInfo, userReviews, setReviewsUpdated, reviewsUpdated } = useAuth();
 
   if (!userInfo) {
     handleLogout();
@@ -33,6 +42,7 @@ const ProfileScreen = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isOpen2, setIsOpen2] = useState(false);
 
+
   const toggleSheetLogout = () => {
     setIsOpen((prev) => !prev);
     if (isOpen2) {
@@ -40,6 +50,7 @@ const ProfileScreen = () => {
     }
   }
   const toggleSheet2 = () => setIsOpen2((prev) => !prev);
+
 
   const confirmLogout = () => {
     handleLogout();
@@ -52,6 +63,71 @@ const ProfileScreen = () => {
     { label: "Reviews Liked", value: 85 },
     { label: "Review Commented", value: 42 },
   ];
+
+  // update avatar
+  const [imageUri, setImageUri] = useState<string | null>(null);
+  const [isOpen3, setIsOpen3] = useState(false);
+  const toggleSheet3 = () => {
+    setIsOpen3((prev) => !prev);
+  }
+
+  const updateAvatar = async (uri: string) => {
+    try {
+      const formData = new FormData();
+      formData.append("avatar", {
+        uri,
+        name: "avatar.jpg",
+        type: "image/jpeg",
+      } as any);
+
+      console.log("id user", userInfo.id_user)
+
+      const response = await axios.patch(
+        `${API_URL}/users/avatar/${userInfo?.id_user}`,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+
+      const updatedUser = response.data.data;
+
+      setImageUri(updatedUser.avatar);
+      if (userInfo) {
+        // remember to update asyncstorage or it wont update the user!
+        const newUserInfo = { ...userInfo, avatar: updatedUser.avatar };
+        setUserInfo(newUserInfo);
+        await AsyncStorage.setItem('userInfo', JSON.stringify(newUserInfo));
+        console.log("userinfo updated", newUserInfo)
+      }
+      setReviewsUpdated(!reviewsUpdated);
+    } catch (error) {
+      errorHandler(error);
+    }
+  };
+
+
+
+  const pickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      alert("Permission to access gallery is required!");
+      return;
+    }
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const uri = result.assets[0].uri;
+      setImageUri(uri);
+      toggleSheet3();
+    }
+
+  };
+
+  const goToFavoritesPage = () => {
+    navigation.navigate('Favorites');
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -72,17 +148,18 @@ const ProfileScreen = () => {
               <Pressable onPress={toggleSheetLogout}>
                 <Text style={styles.dropDownMenuText}>Logout</Text>
               </Pressable>
-              <Pressable>
+              <Pressable onPress={toggleSheet3}>
                 <Text style={styles.dropDownMenuText}>Update profile</Text>
               </Pressable>
-              <Pressable>
+              <Pressable onPress={goToFavoritesPage}>
                 <Text style={styles.dropDownMenuText}>Favorites</Text>
               </Pressable>
             </View>
           )}
         </View>
-
-        <Image source={{ uri: userInfo.avatar }} style={styles.profileImage} />
+        <Pressable onPress={pickImage}>
+          <Image source={{ uri: imageUri || userInfo.avatar }} style={styles.profileImage} />
+        </Pressable>
       </View>
 
       <View style={styles.userInfoContainer}>
@@ -109,6 +186,18 @@ const ProfileScreen = () => {
           </View>
         ))}
       </View>
+
+      <ConfirmationSheet
+        title="Update your profile image?"
+        message="Are you sure you want to upload this image?"
+        isOpen={isOpen3}
+        onClose={toggleSheet3}
+        onCancel={toggleSheet3}
+        onConfirm={() => {
+          if (imageUri) updateAvatar(imageUri);
+          toggleSheet3();
+        }}
+      />
 
 
       <ConfirmationSheet

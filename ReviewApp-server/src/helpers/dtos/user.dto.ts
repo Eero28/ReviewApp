@@ -1,5 +1,4 @@
-// user.dto.ts
-import { IsString, IsNumber, IsOptional } from 'class-validator';
+import { IsString, IsNumber } from 'class-validator';
 import { Exclude } from 'class-transformer';
 export class UserDTO {
   @IsNumber()
@@ -22,10 +21,9 @@ export class UserDTO {
 }
 
 export class UpdateAvatarDto {
-  @IsOptional()
   @IsString()
-  avatar?: string;
+  avatar: string;
 
-  @IsNumber()
-  id_user: number;
+  @IsString()
+  public_id?: string; // need for deleting the old image
 }
