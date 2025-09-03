@@ -122,7 +122,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       const url = category ? `${API_URL}/review/all?category=${category}` : `${API_URL}/review`;
       const response = await axios.get(url);
-      setAllReviews(sortReviews(response.data.data));
+      setAllReviews(sortReviews(response.data.data || []));
     } catch (error: any) {
       errorHandler(error, handleLogout)
     }

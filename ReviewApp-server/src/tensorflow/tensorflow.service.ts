@@ -89,7 +89,7 @@ export class TensorflowService implements OnModuleInit {
 
       for (const category of categoriesReviewed) {
         const allCategoryReviews =
-          await this.reviewService.getReviewsByCategory(category);
+          await this.reviewService.getReviewsByCategoryAll(category);
         const reviewsExcludingUser = allCategoryReviews.filter(
           (review) => review.user.id_user !== id_user,
         );

@@ -2,7 +2,6 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
-  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Review } from './entities/review.entity';
@@ -10,7 +9,6 @@ import { Repository } from 'typeorm';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { User } from 'src/users/entities/user.entity';
 import { UpdateReviewDto } from './dto/update-review.dto';
-import { TensorflowService } from 'src/tensorflow/tensorflow.service';
 
 @Injectable()
 export class ReviewService {
@@ -42,36 +40,36 @@ export class ReviewService {
   }
 
   async findAllReviews(): Promise<Review[]> {
-    const reviews = await this.reviewRepository.find({
-      relations: [
-        'user', // review author
-        'likes', // review likes
-        'likes.user', // user who liked
-        'comments', // top-level comments
-        'comments.user', // author of each comment
-        'comments.replies', // replies to top-level comments
-        'comments.replies.user', // authors of replies
-        'comments.replies.replies', // optional: nested replies
-        'comments.replies.replies.user',
-      ],
-      order: {
-        createdAt: 'DESC',
-      },
-    });
+    const reviews = await this.reviewRepository
+      .createQueryBuilder('review')
+      .leftJoinAndSelect('review.user', 'reviewAuthor') // review author
+      .leftJoinAndSelect('review.likes', 'likes') // review likes
+      .leftJoinAndSelect('likes.user', 'liker') // user who liked
+      .leftJoinAndSelect('review.comments', 'comments') // top-level comments
+      .leftJoinAndSelect('comments.user', 'commentAuthor') // author of each comment
+      .leftJoinAndSelect('comments.replies', 'commentReplies') // replies to top-level comments
+      .leftJoinAndSelect('commentReplies.user', 'replyAuthor') // authors of replies
+      .leftJoinAndSelect('commentReplies.replies', 'nestedReplies') // nested replies
+      .leftJoinAndSelect('nestedReplies.user', 'nestedReplyAuthor') // authors of nested replies
+      .orderBy('review.createdAt', 'DESC')
+      .getMany();
 
     return reviews;
   }
 
-  async getReviewsByCategory(category: string): Promise<Review[]> {
-    const reviews = await this.reviewRepository.find({
-      where: { category },
-      relations: ['user'],
-    });
+  async getReviewsByCategoryAll(category: string): Promise<Review[]> {
+    const reviews = await this.reviewRepository
+      .createQueryBuilder('review')
+      .leftJoinAndSelect('review.user', 'reviewAuthor')
+      .leftJoinAndSelect('review.likes', 'likes')
+      .leftJoinAndSelect('likes.user', 'liker')
+      .leftJoinAndSelect('review.comments', 'comment')
+      .where('review.category = :category', { category })
+      .getMany();
 
     if (reviews.length === 0) {
       return [];
     }
-
     return reviews;
   }
 
@@ -79,10 +77,15 @@ export class ReviewService {
     if (!id_user) {
       throw new NotFoundException(`User with ID ${id_user} not found`);
     }
-    const userReviews = await this.reviewRepository.find({
-      where: { user: { id_user } },
-      relations: ['user', 'likes', 'likes.user', 'comments'],
-    });
+
+    const userReviews = await this.reviewRepository
+      .createQueryBuilder('review')
+      .leftJoinAndSelect('review.user', 'reviewAuthor')
+      .leftJoinAndSelect('review.likes', 'likes')
+      .leftJoinAndSelect('likes.user', 'liker')
+      .leftJoinAndSelect('review.comments', 'comments')
+      .where('reviewAuthor.id_user = :id_user', { id_user })
+      .getMany();
 
     if (userReviews.length === 0) {
       return [];
@@ -97,11 +100,11 @@ export class ReviewService {
     }
     const favorites = await this.reviewRepository
       .createQueryBuilder('review')
-      .leftJoinAndSelect('review.user', 'user')
+      .leftJoinAndSelect('review.user', 'reviewAuthor')
       .leftJoinAndSelect('review.likes', 'like')
-      .leftJoinAndSelect('like.user', 'u')
+      .leftJoinAndSelect('like.user', 'liker')
       .leftJoinAndSelect('review.comments', 'comment')
-      .where('u.id_user = :id_user', { id_user })
+      .where('liker.id_user = :id_user', { id_user })
       .getMany();
 
     console.log(favorites);
@@ -116,24 +119,23 @@ export class ReviewService {
     id_user: number,
     category?: string,
   ): Promise<Review[]> {
-    let userReviews;
-
     if (!id_user) {
       throw new NotFoundException(`User with ID ${id_user} not found`);
     }
 
+    const qb = this.reviewRepository
+      .createQueryBuilder('review')
+      .leftJoinAndSelect('review.user', 'reviewAuthor')
+      .leftJoinAndSelect('review.likes', 'likes')
+      .leftJoinAndSelect('likes.user', 'liker')
+      .leftJoinAndSelect('review.comments', 'comments')
+      .where('reviewAuthor.id_user = :id_user', { id_user });
+
     if (category) {
-      userReviews = await this.reviewRepository.find({
-        where: { user: { id_user }, category: category },
-        relations: ['user'],
-      });
-    } else {
-      userReviews = await this.reviewRepository.find({
-        where: { user: { id_user } },
-        relations: ['user'],
-      });
+      qb.andWhere('review.category = :category', { category });
     }
 
+    const userReviews = await qb.getMany();
     if (userReviews.length === 0) {
       return [];
     }
@@ -153,23 +155,16 @@ export class ReviewService {
     return review;
   }
 
+  // get user from jwt
   async updateReview(
     id_review: number,
     updateReviewDto: UpdateReviewDto,
     id_user: number,
-    req: any,
   ): Promise<Review> {
-    const user: User = req.user;
-
     const review = await this.reviewRepository.findOne({
       where: { id_review },
       relations: ['user'],
     });
-
-    console.log('id_review', id_review);
-    console.log('id_user', id_user);
-    console.log('id_userjwt', user);
-    console.log(updateReviewDto);
 
     if (!review) {
       throw new NotFoundException(`Review with ID ${id_review} not found.`);
@@ -200,7 +195,6 @@ export class ReviewService {
         `Updated review with ID ${id_review} could not be retrieved.`,
       );
     }
-    console.log('updated', updatedReview);
 
     return updatedReview;
   }

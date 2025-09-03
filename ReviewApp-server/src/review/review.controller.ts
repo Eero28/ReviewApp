@@ -30,7 +30,7 @@ export class ReviewController {
   async getReviewsByCategory(
     @Query('category') category: string,
   ): Promise<Review[]> {
-    return await this.reviewService.getReviewsByCategory(category);
+    return await this.reviewService.getReviewsByCategoryAll(category);
   }
 
   @Get(':id')
@@ -72,13 +72,11 @@ export class ReviewController {
     @Param('id_review') id_review: number,
     @Body('id_user') id_user: number,
     @Body() updateReview: UpdateReviewDto,
-    @Request() req,
   ): Promise<Review> {
     return await this.reviewService.updateReview(
       id_review,
       updateReview,
       id_user,
-      req,
     );
   }
   @Post()
