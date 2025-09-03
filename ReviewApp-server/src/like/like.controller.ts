@@ -23,13 +23,6 @@ export class LikeController {
     return this.likeService.deleteLike(id_user, id_review);
   }
 
-  @Get('user/favorite/:id_user')
-  async getUserLikedReviews(
-    @Param('id_review') id_user: number,
-  ): Promise<Review[]> {
-    return this.likeService.getUserLikedReviews(id_user);
-  }
-
   @Get('users/review/:id_review')
   async getUsersWhoLikedReview(
     @Param('id_review') id_review: number,

@@ -94,23 +94,4 @@ export class LikeService {
     const usersWhoLiked = likes.map((like) => like.user);
     return usersWhoLiked;
   }
-
-  async getUserLikedReviews(id_user: number): Promise<Review[]> {
-    const user = await this.userRepository.findOne({
-      where: { id_user: id_user },
-    });
-
-    if (!user) {
-      throw new Error(`User with ID ${id_user} not found`);
-    }
-
-    const likes = await this.likeRepository.find({
-      where: { user: { id_user: id_user } },
-      relations: ['review', 'review.user'],
-    });
-
-    const reviews = likes.map((like) => like.review);
-
-    return reviews;
-  }
 }

@@ -91,6 +91,27 @@ export class ReviewService {
     return userReviews;
   }
 
+  async getUserFavoriteReviews(id_user: number): Promise<Review[]> {
+    if (!id_user) {
+      throw new NotFoundException(`User with ID ${id_user} not found`);
+    }
+    const favorites = await this.reviewRepository
+      .createQueryBuilder('review')
+      .leftJoinAndSelect('review.user', 'user')
+      .leftJoinAndSelect('review.likes', 'like')
+      .leftJoinAndSelect('like.user', 'u')
+      .leftJoinAndSelect('review.comments', 'comment')
+      .where('u.id_user = :id_user', { id_user })
+      .getMany();
+
+    console.log(favorites);
+
+    if (favorites.length === 0) {
+      return [];
+    }
+    return favorites;
+  }
+
   async findAllByUserIdWithCategory(
     id_user: number,
     category?: string,

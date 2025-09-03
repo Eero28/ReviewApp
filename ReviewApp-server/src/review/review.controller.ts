@@ -53,6 +53,13 @@ export class ReviewController {
     return this.reviewService.findAllByUserIdWithCategory(id_user, category);
   }
 
+  @Get('user/favorites/:id_user')
+  async getUserFavoriteReviews(
+    @Param('id_user') id_user: number,
+  ): Promise<Review[]> {
+    return this.reviewService.getUserFavoriteReviews(id_user);
+  }
+
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   async deleteReview(@Param('id') id: number, @Request() req): Promise<void> {

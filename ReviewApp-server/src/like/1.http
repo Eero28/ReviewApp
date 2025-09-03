@@ -12,7 +12,7 @@ DELETE http://localhost:3000/likes/unlike/review/5/user/3
 
 
 ### users who liked review
-GET http://localhost:3000/likes/users/review/5
+GET http://localhost:4000/likes/users/review/2
 Content-Type: application/json
 
 ###

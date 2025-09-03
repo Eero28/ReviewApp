@@ -11,11 +11,11 @@ import StarRating from 'react-native-star-rating-widget';
 import { API_URL } from "@env";
 import { categories } from '../helpers/categories';
 import Icon from './Icon';
-import { getReviewLikes, deleteLike } from '../helpers/services/reviewService';
 import { selectColor } from '../helpers/tastegroup';
 import { usersLiked } from '../interfaces/UsersLiked';
 import { errorHandler } from '../helpers/errors/error';
 import { screenHeight } from '../helpers/dimensions';
+import { likeReview } from '../helpers/services/reviewService';
 
 type Props = {
     item: ReviewItemIf;
@@ -23,41 +23,46 @@ type Props = {
 };
 
 const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
-    const { deleteReview, userInfo, setReviewsUpdated, reviewsUpdated, handleLogout } = useAuth();
+    const { deleteReview, userInfo, setReviewsUpdated, handleLogout } = useAuth();
     const [showDialogModal, setShowDialogModal] = useState(false);
     const [isLongPress, setIsLongPress] = useState(false);
-    const [likesState, setLikesState] = useState<usersLiked>({ user: [], isLiked: false });
+    const [likesState, setLikesState] = useState<boolean>(false);
+    const [isProcessing, setIsProcessing] = useState<boolean>(false);
+
+
+    useEffect(() => {
+        if (userInfo && item.likes) {
+            // Check logged in user is in the like array
+            const liked = item.likes.some(like => like.user.id_user === userInfo.id_user);
+            setLikesState(liked);
+        }
+    }, [item.likes, userInfo]);
 
     const navigation = useNavigation<any>();
 
-    useEffect(() => {
-        if (userInfo?.id_user) {
-            getReviewLikes(userInfo.id_user, item.id_review, setLikesState);
-        }
-    }, [item]);
+    const handleLiking = async () => {
+        if (isProcessing || !userInfo) return;
 
-    const likeReview = async () => {
+        setIsProcessing(true);
         try {
-            if (!userInfo?.id_user) {
-                throw new Error("User ID is missing");
+            if (likesState) {
+                await axios.delete(
+                    `${API_URL}/likes/unlike/review/${item.id_review}/user/${userInfo.id_user}`
+                );
+            } else {
+                await likeReview(item.id_review, userInfo.id_user);
             }
-
-            await axios.post(`${API_URL}/likes/like/review/${item.id_review}`, { id_user: userInfo.id_user });
-            getReviewLikes(userInfo.id_user, item.id_review, setLikesState);
-            setReviewsUpdated(!reviewsUpdated)
+            setLikesState((prev) => !prev);
+            setReviewsUpdated((prev) => !prev);
         } catch (error) {
-            console.error("Error liking the review:", error);
+            console.error("Error liking/unliking:", error);
+        } finally {
+            setIsProcessing(false);
         }
     };
 
-    const toggleLike = () => {
-        if (likesState.isLiked && userInfo) {
-            deleteLike(userInfo.id_user, item.id_review, setLikesState);
-        } else {
-            likeReview();
-        }
-        setReviewsUpdated(!reviewsUpdated);
-    };
+
+
 
     const gotoDetails = () => {
         if (!isLongPress) {
@@ -160,9 +165,9 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
             <View style={styles.tagsSeparator} />
 
             <View style={styles.reviewItemIconsContainer}>
-                <Pressable onPress={toggleLike} style={styles.reviewItemIconWrapper}>
-                    <FontAwesome name={likesState.isLiked ? 'heart' : 'heart-o'} size={24} color={likesState.isLiked ? '#ff4757' : '#666'} />
-                    <Text style={styles.reviewItemIconCount}>{likesState.user.length}</Text>
+                <Pressable disabled={isProcessing} onPress={handleLiking} style={styles.reviewItemIconWrapper}>
+                    <FontAwesome name={likesState ? 'heart' : 'heart-o'} size={24} color={likesState ? '#ff4757' : '#666'} />
+                    <Text style={styles.reviewItemIconCount}>{item.likes.length}</Text>
                 </Pressable>
 
                 <Pressable onPress={openCommentSection} style={styles.reviewItemIconWrapper}>

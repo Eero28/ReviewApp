@@ -18,7 +18,7 @@ const Favorites: FC = (props: Props) => {
     useEffect(() => {
         const getUserFavorites = async () => {
             try {
-                const response = await axios.get(`${API_URL}/likes/user/favorite/${userInfo?.id_user}`)
+                const response = await axios.get(`${API_URL}/review/user/favorites/${userInfo?.id_user}`)
                 setUserFavorites(response.data.data)
             } catch (error) {
                 setUserFavorites([])
