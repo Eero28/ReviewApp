@@ -18,7 +18,7 @@ import axios from "axios";
 import { API_URL } from "@env";
 import { useAuth } from '../ContexApi';
 import { tasteGroupsFormValues, toggleSelectedTaste, selectColor } from '../helpers/tastegroup';
-
+import { errorHandler } from '../helpers/errors/error';
 
 interface ReviewFormValues {
   reviewname: string;
@@ -51,7 +51,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUp
 
   const [imageUrl, setImageUrl] = useState<string | null>(initialImage || null);
   const [loading, setLoading] = useState<boolean>(false)
-  const { userInfo, getReviews, allReviewsFetch } = useAuth();
+  const { userInfo, getReviews, allReviewsFetch, handleLogout } = useAuth();
 
   const onImageCaptured = (url: string) => setImageUrl(url);
 
@@ -116,9 +116,8 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUp
       allReviewsFetch();
       navigation.goBack();
     } catch (error) {
-      console.error(error);
+      errorHandler(error, handleLogout)
     } finally {
-      console.log("hello")
       setLoading(false)
     }
   };

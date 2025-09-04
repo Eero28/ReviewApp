@@ -13,12 +13,17 @@ export class GlobalResponseInterceptor implements NestInterceptor {
     return next.handle().pipe(
       map((data) => {
         const response = context.switchToHttp().getResponse();
-        const statusCode = response.statusCode; // Extracts HTTP status code
-        return {
-          statusCode,
-          message: 'Request is successfull',
-          data,
-        };
+        const statusCode = response.statusCode;
+
+        // Only wrap successful responses
+        if (statusCode >= 200 && statusCode < 300) {
+          return {
+            statusCode,
+            message: 'Request is successful',
+            data,
+          };
+        }
+        return data;
       }),
     );
   }

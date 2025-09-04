@@ -23,7 +23,7 @@ export class AuthService {
   }
 
   async login(loginDto: LoginDto) {
-    // This throws if invalid, no need for extra if-check
+    // Check if password or email is correct / found in db
     const user = await this.validateUser(loginDto.email, loginDto.password);
 
     const payload = {
@@ -38,7 +38,7 @@ export class AuthService {
     };
 
     return {
-      access_token: this.jwtService.sign(payload, { expiresIn: '1h' }),
+      access_token: this.jwtService.sign(payload, { expiresIn: '2h' }),
       email: user.email,
       id_user: user.id_user,
       role: user.role,
