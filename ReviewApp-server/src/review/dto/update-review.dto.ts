@@ -5,6 +5,7 @@ import {
   IsUrl,
   Min,
   Max,
+  IsString,
 } from 'class-validator';
 
 export class UpdateReviewDto {
@@ -25,6 +26,10 @@ export class UpdateReviewDto {
   @IsOptional()
   @IsUrl()
   imageUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  imagePublicId?: string;
 
   @IsOptional()
   @IsNotEmpty()

@@ -7,13 +7,14 @@ import {
   StyleSheet,
   Image,
   ScrollView,
-  Pressable
+  Pressable,
+  ActivityIndicator
 } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import CameraComponent from "../components/CameraComponent";
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import RNPickerSelect from 'react-native-picker-select';
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { API_URL } from "@env";
 import { useAuth } from '../ContexApi';
 import { tasteGroupsFormValues, toggleSelectedTaste, selectColor } from '../helpers/tastegroup';
@@ -49,6 +50,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUp
   });
 
   const [imageUrl, setImageUrl] = useState<string | null>(initialImage || null);
+  const [loading, setLoading] = useState<boolean>(false)
   const { userInfo, getReviews, allReviewsFetch } = useAuth();
 
   const onImageCaptured = (url: string) => setImageUrl(url);
@@ -58,47 +60,72 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUp
   }
 
   const onSubmit = async (data: ReviewFormValues) => {
+    if (loading) return;
+
+    if (!imageUrl) {
+      alert('Please take or select an image first');
+      return;
+    }
+    setLoading(true);
     try {
-      const reviewData = {
-        reviewname: data.reviewname,
-        reviewDescription: data.reviewDescription,
-        reviewRating: Number(data.reviewRating),
-        category: data.category,
-        reviewTaste: data.reviewTaste,
-        priceRange: data.priceRange,
-        imageUrl,
-        id_user: userInfo?.id_user,
-      };
+      const formData = new FormData();
+
+      formData.append('reviewname', data.reviewname);
+      formData.append('reviewDescription', data.reviewDescription);
+      formData.append('reviewRating', String(data.reviewRating));
+      formData.append('category', data.category || '');
+      formData.append('priceRange', data.priceRange);
+      formData.append('id_user', String(userInfo?.id_user));
+
+      data.reviewTaste.forEach((taste) => formData.append('reviewTaste[]', taste));
+
+      if (imageUrl.startsWith('file://')) {
+        // Local file: use FileSystem
+        const fileName = imageUrl.split('/').pop() || 'photo.jpg';
+        const fileType = fileName.endsWith('png') ? 'image/png' : 'image/jpeg';
+
+        formData.append('file', {
+          uri: imageUrl,
+          name: fileName,
+          type: fileType,
+        } as any);
+      } else {
+        // Already uploaded image / no change
+        formData.append('imageUrl', imageUrl);
+      }
 
       if (isUpdate && initialData?.id_review) {
-        await axios.put(`${API_URL}/review/${initialData.id_review}`, reviewData, {
-          headers: { Authorization: `Bearer ${userInfo?.access_token}` },
+        await axios.patch(`${API_URL}/review/${initialData.id_review}`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${userInfo?.access_token}`,
+          },
         });
       } else {
-        await axios.post(`${API_URL}/review`, reviewData, {
-          headers: { Authorization: `Bearer ${userInfo?.access_token}` },
+        await axios.post(`${API_URL}/review`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${userInfo?.access_token}`,
+          },
         });
       }
 
       reset();
       setImageUrl(null);
-      navigation.goBack();
       getReviews();
       allReviewsFetch();
-
+      navigation.goBack();
     } catch (error) {
-      if (error instanceof AxiosError) {
-        console.error('API error:', error.response?.data);
-      } else {
-        console.error('Unexpected error:', error);
-      }
+      console.error(error);
+    } finally {
+      console.log("hello")
+      setLoading(false)
     }
   };
 
   if (!imageUrl) {
     return <CameraComponent onImageCaptured={onImageCaptured} />;
   }
-
   return (
     <ScrollView>
       <View style={styles.container}>
@@ -239,7 +266,26 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUp
         {errors.reviewTaste && <Text style={styles.error}>{errors.reviewTaste.message}</Text>}
 
         <View style={styles.buttonContainer}>
-          <Button title="Submit Review" onPress={handleSubmit(onSubmit)} color="#4CAF50" />
+          <Pressable
+            disabled={!imageUrl || loading}
+            onPress={handleSubmit(onSubmit)}
+            style={({ pressed }) => [
+              {
+                backgroundColor: !imageUrl || loading ? '#ccc' : pressed ? '#45a049' : '#4CAF50',
+                paddingVertical: 12,
+                paddingHorizontal: 20,
+                borderRadius: 10,
+                alignItems: 'center',
+                flexDirection: 'row',
+                justifyContent: 'center',
+              },
+            ]}
+          >
+            {loading && <ActivityIndicator color="#fff" style={{ marginRight: 8 }} />}
+            <Text style={{ color: !imageUrl ? '#666' : '#fff', fontWeight: '600' }}>
+              {loading ? 'Uploading...' : 'Submit Review'}
+            </Text>
+          </Pressable>
         </View>
       </View>
     </ScrollView>

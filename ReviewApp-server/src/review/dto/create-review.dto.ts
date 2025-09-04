@@ -6,6 +6,7 @@ import {
   Max,
   IsArray,
   ArrayNotEmpty,
+  IsOptional,
 } from 'class-validator';
 
 export class CreateReviewDto {
@@ -23,8 +24,12 @@ export class CreateReviewDto {
   reviewRating: number;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   imageUrl: string;
+
+  @IsOptional()
+  @IsString()
+  imagePublicId?: string;
 
   @IsString()
   @IsNotEmpty()

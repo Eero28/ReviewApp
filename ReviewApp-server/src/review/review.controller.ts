@@ -11,12 +11,17 @@ import {
   UseGuards,
   HttpException,
   HttpStatus,
+  UseInterceptors,
+  UploadedFile,
+  Patch,
 } from '@nestjs/common';
 import { ReviewService } from './review.service';
 import { Review } from './entities/review.entity';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UpdateReviewDto } from './dto/update-review.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { reviewStorage } from 'config/cloudinary.config';
 @Controller('review')
 export class ReviewController {
   constructor(private readonly reviewService: ReviewService) {}
@@ -66,21 +71,30 @@ export class ReviewController {
     return await this.reviewService.deleteReview(id, req);
   }
 
-  @Put(':id_review')
+  @Patch(':id_review')
+  @UseInterceptors(FileInterceptor('file', { storage: reviewStorage }))
   @UseGuards(JwtAuthGuard)
   async updateReview(
     @Param('id_review') id_review: number,
-    @Body('id_user') id_user: number,
     @Body() updateReview: UpdateReviewDto,
+    @UploadedFile() file: Express.Multer.File,
+    @Request() req,
   ): Promise<Review> {
     return await this.reviewService.updateReview(
       id_review,
       updateReview,
-      id_user,
+      req,
+      file,
     );
   }
+
   @Post()
-  async createReview(@Body() create: CreateReviewDto): Promise<Review> {
-    return await this.reviewService.createReview(create);
+  @UseInterceptors(FileInterceptor('file', { storage: reviewStorage }))
+  @UseGuards(JwtAuthGuard)
+  async createReview(
+    @Body() create: CreateReviewDto,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<Review> {
+    return await this.reviewService.createReview(create, file);
   }
 }

@@ -14,7 +14,7 @@ import EmptyList from '../components/EmptyList';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { ReviewItemIf } from '../interfaces/ReviewItemIf';
 import { useAuth } from '../ContexApi';
-import { toggleLike, getReviewLikes } from '../helpers/services/reviewService';
+import { getReviewLikes } from '../helpers/services/reviewService';
 import AnimatedRecommendations from '../components/AnimatedRecommendations';
 import { selectColor } from '../helpers/tastegroup';
 import { categories } from '../helpers/categories';
@@ -85,7 +85,6 @@ const ReviewDetails: FC = () => {
 
   const onLikePress = async () => {
     if (!userInfo) return;
-    await toggleLike(likesState, userInfo, item.id_review, setLikesState);
     setReviewsUpdated(!reviewsUpdated);
   };
 

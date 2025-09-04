@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { User } from 'src/users/entities/user.entity';
 import { UpdateReviewDto } from './dto/update-review.dto';
+import { v2 as cloudinary } from 'cloudinary';
 
 @Injectable()
 export class ReviewService {
@@ -20,20 +21,22 @@ export class ReviewService {
     private userRepository: Repository<User>,
   ) {}
 
-  async createReview(createReviewDto: CreateReviewDto): Promise<Review> {
+  async createReview(
+    createReviewDto: CreateReviewDto,
+    file: Express.Multer.File,
+  ): Promise<Review> {
     const user = await this.userRepository.findOne({
       where: { id_user: createReviewDto.id_user },
     });
 
-    if (!user) {
-      throw new NotFoundException(
-        `User with ID ${createReviewDto.id_user} not found`,
-      );
-    }
+    if (!user) throw new NotFoundException(`User not found`);
+    if (!file) throw new NotFoundException('Image is required for a review');
 
     const review = this.reviewRepository.create({
       ...createReviewDto,
       user,
+      imageUrl: file.path, // cloudinary secure_url
+      imagePublicId: file.filename, // cloudinary public_id
     });
 
     return this.reviewRepository.save(review);
@@ -155,48 +158,37 @@ export class ReviewService {
     return review;
   }
 
-  // get user from jwt
   async updateReview(
     id_review: number,
     updateReviewDto: UpdateReviewDto,
-    id_user: number,
+    req: any,
+    file?: Express.Multer.File,
   ): Promise<Review> {
+    const user: User = req.user;
+
     const review = await this.reviewRepository.findOne({
       where: { id_review },
       relations: ['user'],
     });
 
-    if (!review) {
-      throw new NotFoundException(`Review with ID ${id_review} not found.`);
+    if (!review) throw new NotFoundException(`Review not found`);
+    if (review.user.id_user !== user.id_user) {
+      throw new ForbiddenException(`You cannot update someone else's review`);
     }
 
-    if (review.user.id_user !== id_user) {
-      throw new ForbiddenException(
-        `You are not authorized to update this review.`,
-      );
-    }
-
-    for (const key in updateReviewDto) {
-      const value = updateReviewDto[key];
-      if (value !== undefined && value !== null) {
-        review[key] = value;
+    if (file) {
+      // delete old image using public_id
+      if (review.imagePublicId) {
+        await cloudinary.uploader.destroy(review.imagePublicId);
       }
+      // update image info with new file
+      review.imageUrl = file.path;
+      review.imagePublicId = file.filename;
     }
+    // replace old review with updatereviewdto info
+    Object.assign(review, updateReviewDto);
 
-    await this.reviewRepository.save(review);
-
-    const updatedReview = await this.reviewRepository.findOne({
-      where: { id_review },
-      relations: ['user', 'likes'],
-    });
-
-    if (!updatedReview) {
-      throw new NotFoundException(
-        `Updated review with ID ${id_review} could not be retrieved.`,
-      );
-    }
-
-    return updatedReview;
+    return this.reviewRepository.save(review);
   }
 
   async deleteReview(id_review: number, req: any): Promise<void> {
@@ -206,6 +198,7 @@ export class ReviewService {
       where: { id_review },
       relations: ['user'],
     });
+
     if (!review) {
       throw new NotFoundException(`Review with ID ${id_review} not found`);
     }
@@ -214,9 +207,21 @@ export class ReviewService {
       throw new ForbiddenException('You can only delete your own reviews');
     }
 
+    // delete image when review is deleted
+    if (review.imagePublicId) {
+      try {
+        await cloudinary.uploader.destroy(review.imagePublicId);
+      } catch (err) {
+        console.error('Failed to delete review image from Cloudinary:', err);
+      }
+    }
+
     const result = await this.reviewRepository.delete(id_review);
+
     if (result.affected === 0) {
-      throw new NotFoundException(`Review with ID ${id_review} not found`);
+      throw new NotFoundException(
+        `Review with ID ${id_review} could not be deleted`,
+      );
     }
   }
 }

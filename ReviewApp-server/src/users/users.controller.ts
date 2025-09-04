@@ -15,7 +15,7 @@ import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { storage } from '../../config/cloudinary.config';
+import { avatarStorage } from '../../config/cloudinary.config';
 
 @Controller('users')
 export class UsersController {
@@ -43,7 +43,7 @@ export class UsersController {
   }
 
   @Patch('avatar/:id')
-  @UseInterceptors(FileInterceptor('avatar', { storage }))
+  @UseInterceptors(FileInterceptor('avatar', { storage: avatarStorage }))
   async updateAvatar(
     @Param('id') id_user: number,
     @UploadedFile() file: Express.Multer.File,

@@ -13,10 +13,12 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
+  // Get all users
   async findAll(): Promise<User[]> {
-    return await this.usersRepository.find();
+    return this.usersRepository.find();
   }
 
+  // Get a single user by ID
   async findOne(id_user: number): Promise<User> {
     const user = await this.usersRepository.findOne({ where: { id_user } });
     if (!user) {
@@ -25,38 +27,45 @@ export class UsersService {
     return user;
   }
 
+  // Get a user by email
   async findOneByEmail(email: string): Promise<User | undefined> {
     return this.usersRepository.findOne({ where: { email } });
   }
 
+  // Create a new user
   async createUser(user: User): Promise<User> {
     user.password = await bcrypt.hash(user.password, 10);
     user.role = user.role || 'user';
     const newUser = this.usersRepository.create(user);
-    return await this.usersRepository.save(newUser);
+    return this.usersRepository.save(newUser);
   }
 
-  async updateUser(user: Partial<User>, id_user: number | any): Promise<User> {
-    const existingUser = await this.usersRepository.findOne(id_user);
-    if (!existingUser) {
-      throw new NotFoundException(`User with ID ${id_user} not found`);
-    }
-    const updatedUser = this.usersRepository.merge(existingUser, user);
-    return await this.usersRepository.save(updatedUser);
-  }
-
-  async updateUserAvatar(
-    updateAvatarDto: UpdateAvatarDto,
-    id_user: number,
-  ): Promise<User> {
+  // Update user info
+  async updateUser(userData: Partial<User>, id_user: number): Promise<User> {
     const existingUser = await this.usersRepository.findOne({
-      where: { id_user: id_user },
+      where: { id_user },
     });
     if (!existingUser) {
       throw new NotFoundException(`User with ID ${id_user} not found`);
     }
 
-    // Delete old avatar from Cloudinary if it exists
+    const updatedUser = this.usersRepository.merge(existingUser, userData);
+    return this.usersRepository.save(updatedUser);
+  }
+
+  // Update user avatar
+  async updateUserAvatar(
+    updateAvatarDto: UpdateAvatarDto,
+    id_user: number,
+  ): Promise<User> {
+    const existingUser = await this.usersRepository.findOne({
+      where: { id_user },
+    });
+    if (!existingUser) {
+      throw new NotFoundException(`User with ID ${id_user} not found`);
+    }
+
+    // Delete old avatar from Cloudinary if exists
     if (existingUser.avatarPublicId) {
       try {
         await cloudinary.uploader.destroy(existingUser.avatarPublicId);
@@ -64,17 +73,36 @@ export class UsersService {
         console.error('Failed to delete old avatar:', err);
       }
     }
-    // Update user with new avatar
+
+    // Save new avatar info
     existingUser.avatar = updateAvatarDto.avatar;
     existingUser.avatarPublicId = updateAvatarDto.public_id;
 
     return this.usersRepository.save(existingUser);
   }
 
-  async deleteUser(id: number): Promise<void> {
-    const result = await this.usersRepository.delete(id);
+  async deleteUser(id_user: number): Promise<void> {
+    const existingUser = await this.usersRepository.findOne({
+      where: { id_user },
+    });
+    if (!existingUser) {
+      throw new NotFoundException(`User with ID ${id_user} not found`);
+    }
+
+    // Delete avatar from Cloudinary if exists
+    if (existingUser.avatarPublicId) {
+      try {
+        await cloudinary.uploader.destroy(existingUser.avatarPublicId);
+      } catch (err) {
+        console.error('Failed to delete user avatar from Cloudinary:', err);
+      }
+    }
+
+    const result = await this.usersRepository.delete(id_user);
     if (result.affected === 0) {
-      throw new NotFoundException(`User with ID ${id} not found`);
+      throw new NotFoundException(
+        `User with ID ${id_user} could not be deleted`,
+      );
     }
   }
 }

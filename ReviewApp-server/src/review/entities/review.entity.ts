@@ -10,7 +10,6 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Like } from 'src/like/entities/like.entity';
-import { Exclude } from 'class-transformer';
 
 @Entity()
 export class Review {
@@ -28,6 +27,9 @@ export class Review {
 
   @Column()
   imageUrl: string;
+
+  @Column({ nullable: true })
+  imagePublicId: string;
 
   @Column()
   category: string;
