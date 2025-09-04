@@ -6,8 +6,6 @@ import { UserInfo } from './interfaces/UserInfo';
 import { ReviewItemIf } from './interfaces/ReviewItemIf';
 import { errorHandler } from './helpers/errors/error';
 
-//test
-
 interface AuthContextProps {
   userReviews: ReviewItemIf[];
   allReviews: ReviewItemIf[];
