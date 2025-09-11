@@ -1,17 +1,20 @@
 import { createStackNavigator } from '@react-navigation/stack';
 import ReviewDetails from '../pages/ReviewDetails'
 import DrawerNavigator from './DrawerNavigation';
-
+import { useTheme } from '../providers/ThemeContext';
 const Stack = createStackNavigator();
 
 const MainNavigation = () => {
+  const { colors } = useTheme();
+
   return (
-    <Stack.Navigator screenOptions={{
-      headerStyle: {
-        backgroundColor: '#5073bd'
-      },
-      headerTintColor: '#ffffff'
-    }}>
+    <Stack.Navigator
+      screenOptions={{
+        cardStyle: { backgroundColor: colors.bg },
+        headerStyle: { backgroundColor: colors.bg },
+        headerTintColor: colors.textColorPrimary,
+      }}
+    >
       <Stack.Screen
         name="MainApp"
         component={DrawerNavigator}
@@ -20,7 +23,9 @@ const MainNavigation = () => {
       <Stack.Screen
         name="ReviewDetails"
         component={ReviewDetails}
-        options={{ title: 'Review Details' }}
+        options={{
+          headerShown: false,
+        }}
       />
     </Stack.Navigator>
   );

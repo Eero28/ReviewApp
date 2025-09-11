@@ -1,15 +1,20 @@
 import { FC } from 'react';
 import { StyleSheet, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme } from '../providers/ThemeContext';
 
 type Props = {
     noReviewsText?: string;
-}
+};
 
 const NoReviewsMade: FC<Props> = ({ noReviewsText = "No reviews made for this category yet!" }) => {
+    const { colors, fonts } = useTheme();
+
     return (
-        <SafeAreaView style={styles.container}>
-            <Text style={styles.text}>{noReviewsText}</Text>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
+            <Text style={[styles.text, { color: colors.textColorPrimary, fontFamily: fonts.medium }]}>
+                {noReviewsText}
+            </Text>
         </SafeAreaView>
     );
 };
@@ -26,7 +31,5 @@ const styles = StyleSheet.create({
     text: {
         textAlign: 'center',
         fontSize: 18,
-        fontWeight: 500,
-        fontFamily: "poppins"
     },
 });

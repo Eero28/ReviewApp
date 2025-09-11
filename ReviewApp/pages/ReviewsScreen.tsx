@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { SafeAreaView } from 'react-native';
 import ReviewFlatlist from '../components/ReviewFlatlist';
-import { useAuth } from '../ContexApi';
+import { useAuth } from '../providers/ContexApi'
 import FilterButtons from '../components/FilterButtons';
 
 

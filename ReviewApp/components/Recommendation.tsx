@@ -1,51 +1,63 @@
 import { FC } from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Image, Pressable } from 'react-native';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { RecommendationSuggestion } from '../interfaces/Recommendation';
 import { selectColor } from '../helpers/tastegroup';
-import StarRating from 'react-native-star-rating-widget';
 import { screenWidth, screenHeight } from '../helpers/dimensions';
+import { useTheme } from '../providers/ThemeContext';
+import { FontAwesome } from '@expo/vector-icons';
 
 type Props = {
   item: RecommendationSuggestion;
 };
 
-
 const CARD_WIDTH = screenWidth * 0.6;
 const CARD_HEIGHT = screenHeight * 0.5;
 
 const Recommendation: FC<Props> = ({ item }) => {
+  const { colors, fonts } = useTheme();
+
   return (
-    <View style={[styles.container, { width: CARD_WIDTH, height: CARD_HEIGHT }]}>
+    <View style={[styles.container, { width: CARD_WIDTH, height: CARD_HEIGHT, backgroundColor: colors.card.bg }]}>
       <Image source={{ uri: item.review.imageUrl }} style={[styles.image, { height: CARD_HEIGHT * 0.4 }]} />
-      <View style={styles.imageRating}>
-        <StarRating
-          starSize={20}
-          rating={Math.round(item.review.reviewRating)}
-          onChange={() => { }}
-          color="black"
-        />
+
+      <View style={styles.starRatingContainer}>
+        <FontAwesome name="star" size={16} color={colors.card.star} />
+        <Text style={[styles.starRatingText, { color: colors.textColorPrimary }]}>{item.review.reviewRating}</Text>
       </View>
+
       <View style={styles.cardInfo}>
-        <Text style={styles.title} numberOfLines={1}>{item.review.reviewname}</Text>
-        <Text style={styles.category} numberOfLines={1}>Category: {item.review.category}</Text>
-        <Text style={styles.reviewer} numberOfLines={1}>Reviewed by: {item.review.user.username}</Text>
+        <Text style={[styles.title, { color: colors.textColorPrimary, fontFamily: fonts.bold }]} numberOfLines={1}>
+          {item.review.reviewname}
+        </Text>
+        <Text style={[styles.category, { color: colors.textColorSecondary, fontFamily: fonts.medium }]} numberOfLines={1}>
+          Category: {item.review.category}
+        </Text>
+        <Text style={[styles.reviewer, { color: colors.textColorSecondary, fontFamily: fonts.medium }]} numberOfLines={1}>
+          Reviewed by: {item.review.user.username}
+        </Text>
+
         <View style={styles.iconContainer}>
-          <MaterialCommunityIcons name="chat-outline" size={22} color="#555" />
-          <Text style={styles.commentCount}>{item.review.comments?.length ?? 0}</Text>
+          <MaterialCommunityIcons name="chat-outline" size={22} color={colors.textColorSecondary} />
+          <Text style={[styles.commentCount, { color: colors.textColorSecondary, fontFamily: fonts.medium }]}>
+            {item.review.comments?.length ?? 0}
+          </Text>
         </View>
       </View>
+
       <View style={styles.descriptionBoxesContainer}>
-        {item.review.reviewTaste.map((tasteItem, index) => (
-          <View
-            key={index}
-            style={[styles.descriptionBox, { backgroundColor: selectColor(tasteItem) }]}
-          >
-            <TouchableOpacity>
-              <Text style={styles.descriptionText} numberOfLines={1}>{tasteItem}</Text>
-            </TouchableOpacity>
-          </View>
-        ))}
+        {item.review.reviewTaste.map((tasteItem, index) => {
+          const { color, textColor } = selectColor(tasteItem);
+          return (
+            <View key={index} style={[styles.descriptionBox, { backgroundColor: color }]}>
+              <Pressable>
+                <Text style={[styles.descriptionText, { color: textColor, fontFamily: fonts.medium }]} numberOfLines={1}>
+                  {tasteItem}
+                </Text>
+              </Pressable>
+            </View>
+          );
+        })}
       </View>
     </View>
   );
@@ -57,8 +69,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'column',
     borderRadius: 16,
-    backgroundColor: '#fff',
-    padding: 12,
+    padding: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.12,
@@ -70,10 +81,12 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     resizeMode: 'cover',
   },
-  imageRating: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingTop: 5,
+  starRatingContainer: {
+    flexDirection: "row",
+    paddingTop: 10,
+  },
+  starRatingText: {
+    marginLeft: 5
   },
   cardInfo: {
     justifyContent: 'center',
@@ -81,19 +94,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 17,
-    fontWeight: '700',
-    color: '#1a1a1a',
     marginBottom: 2,
   },
   category: {
     fontSize: 15,
-    fontWeight: '500',
-    color: '#555',
     marginBottom: 2,
   },
   reviewer: {
     fontSize: 15,
-    color: '#888',
     marginBottom: 6,
   },
   iconContainer: {
@@ -103,8 +111,6 @@ const styles = StyleSheet.create({
   commentCount: {
     marginLeft: 6,
     fontSize: 16,
-    color: '#333',
-    fontWeight: '500',
   },
   descriptionBoxesContainer: {
     flexDirection: 'row',
@@ -126,8 +132,6 @@ const styles = StyleSheet.create({
   },
   descriptionText: {
     fontSize: 10,
-    fontWeight: '600',
-    color: '#0f3c85',
     textAlign: 'center',
   },
 });

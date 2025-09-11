@@ -7,7 +7,7 @@ import {
   SafeAreaView,
   Pressable,
 } from "react-native";
-import { useAuth } from "../ContexApi";
+import { useAuth } from "../providers/ContexApi";
 import { useNavigation } from "@react-navigation/native";
 import ConfirmationSheet from "../components/ConfirmationsSheet";
 import { formatDate } from "../helpers/date";
@@ -15,42 +15,46 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { screenWidth } from "../helpers/dimensions";
 import * as ImagePicker from "expo-image-picker";
-import { errorHandler } from '../helpers/errors/error';
+import { errorHandler } from "../helpers/errors/error";
 import axios from "axios";
 import { API_URL } from "@env";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { DrawerNavigationProp } from '@react-navigation/drawer';
-import { DrawerParamList } from '../Navigation/DrawerNavigation';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { DrawerNavigationProp } from "@react-navigation/drawer";
+import { DrawerParamList } from "../Navigation/DrawerNavigation";
+import { useTheme } from "../providers/ThemeContext";
 
 const profileSize = screenWidth * 0.3;
-type FavoritesNavProp = DrawerNavigationProp<DrawerParamList, 'Favorites'>;
+type FavoritesNavProp = DrawerNavigationProp<DrawerParamList, "Favorites">;
 
 const ProfileScreen = () => {
-
   const navigation = useNavigation<FavoritesNavProp>();
-  const { handleLogout, userInfo, setUserInfo, userReviews, setReviewsUpdated, reviewsUpdated } = useAuth();
+  const { toggleTheme, colors, fonts, paddingSpacing } = useTheme();
+  const { handleLogout, userInfo, setUserInfo, userReviews, setReviewsUpdated, reviewsUpdated } =
+    useAuth();
 
   if (!userInfo) {
     handleLogout();
     return (
-      <SafeAreaView style={styles.container}>
-        <Text style={styles.userName}>YOU HAVE NO POWER HERE.....</Text>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
+        <Text style={[styles.userName, { color: colors.textColorPrimary }]}>
+          YOU HAVE NO POWER HERE.....
+        </Text>
       </SafeAreaView>
     );
   }
 
   const [isOpen, setIsOpen] = useState(false);
   const [isOpen2, setIsOpen2] = useState(false);
-
+  const [imageUri, setImageUri] = useState<string | null>(null);
+  const [isOpen3, setIsOpen3] = useState(false);
 
   const toggleSheetLogout = () => {
     setIsOpen((prev) => !prev);
-    if (isOpen2) {
-      toggleSheet2()
-    }
-  }
-  const toggleSheet2 = () => setIsOpen2((prev) => !prev);
+    if (isOpen2) toggleSheet2();
+  };
 
+  const toggleSheet2 = () => setIsOpen2((prev) => !prev);
+  const toggleSheet3 = () => setIsOpen3((prev) => !prev);
 
   const confirmLogout = () => {
     handleLogout();
@@ -64,23 +68,10 @@ const ProfileScreen = () => {
     { label: "Review Commented", value: 42 },
   ];
 
-  // update avatar
-  const [imageUri, setImageUri] = useState<string | null>(null);
-  const [isOpen3, setIsOpen3] = useState(false);
-  const toggleSheet3 = () => {
-    setIsOpen3((prev) => !prev);
-  }
-
   const updateAvatar = async (uri: string) => {
     try {
       const formData = new FormData();
-      formData.append("avatar", {
-        uri,
-        name: "avatar.jpg",
-        type: "image/jpeg",
-      } as any);
-
-      console.log("id user", userInfo.id_user)
+      formData.append("avatar", { uri, name: "avatar.jpg", type: "image/jpeg" } as any);
 
       const response = await axios.patch(
         `${API_URL}/users/avatar/${userInfo?.id_user}`,
@@ -89,48 +80,30 @@ const ProfileScreen = () => {
       );
 
       const updatedUser = response.data.data;
-
       setImageUri(updatedUser.avatar);
-      if (userInfo) {
-        // remember to update asyncstorage or it wont update the user!
-        const newUserInfo = { ...userInfo, avatar: updatedUser.avatar };
-        setUserInfo(newUserInfo);
-        await AsyncStorage.setItem('userInfo', JSON.stringify(newUserInfo));
-        console.log("userinfo updated", newUserInfo)
-      }
+      const newUserInfo = { ...userInfo, avatar: updatedUser.avatar };
+      setUserInfo(newUserInfo);
+      await AsyncStorage.setItem("userInfo", JSON.stringify(newUserInfo));
       setReviewsUpdated(!reviewsUpdated);
     } catch (error) {
       errorHandler(error);
     }
   };
 
-
-
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== "granted") {
-      alert("Permission to access gallery is required!");
-      return;
-    }
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      quality: 1,
-    });
-
+    if (status !== "granted") return alert("Permission to access gallery is required!");
+    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], quality: 1 });
     if (!result.canceled) {
-      const uri = result.assets[0].uri;
-      setImageUri(uri);
+      setImageUri(result.assets[0].uri);
       toggleSheet3();
     }
-
   };
 
-  const goToFavoritesPage = () => {
-    navigation.navigate('Favorites');
-  }
+  const goToFavoritesPage = () => navigation.navigate("Favorites");
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
       <View style={styles.headerContainer}>
         <Image
           source={{
@@ -140,49 +113,80 @@ const ProfileScreen = () => {
         />
 
         <View style={styles.settingsContainer}>
-          <Pressable style={styles.categoryBadge} onPress={toggleSheet2}>
-            <FontAwesome name="gears" size={24} color="black" />
+          <Pressable
+            style={[styles.categoryBadge, { backgroundColor: colors.bg }]}
+            onPress={toggleSheet2}
+          >
+            <FontAwesome name="gears" size={24} color={colors.textColorSecondary} />
           </Pressable>
+
           {isOpen2 && (
-            <View style={styles.dropDownMenu}>
+            <View style={[styles.dropDownMenu, { backgroundColor: colors.bg }]}>
               <Pressable onPress={toggleSheetLogout}>
-                <Text style={styles.dropDownMenuText}>Logout</Text>
+                <Text style={[styles.dropDownMenuText, { color: colors.textColorPrimary }]}>
+                  Logout
+                </Text>
               </Pressable>
               <Pressable onPress={toggleSheet3}>
-                <Text style={styles.dropDownMenuText}>Update profile</Text>
+                <Text style={[styles.dropDownMenuText, { color: colors.textColorPrimary }]}>
+                  Update profile
+                </Text>
               </Pressable>
               <Pressable onPress={goToFavoritesPage}>
-                <Text style={styles.dropDownMenuText}>Favorites</Text>
+                <Text style={[styles.dropDownMenuText, { color: colors.textColorPrimary }]}>
+                  Favorites
+                </Text>
+              </Pressable>
+              <Pressable onPress={toggleTheme}>
+                <Text style={[styles.dropDownMenuText, { color: colors.textColorPrimary }]}>
+                  Change theme!
+                </Text>
               </Pressable>
             </View>
           )}
         </View>
+
         <Pressable onPress={pickImage}>
           <Image source={{ uri: imageUri || userInfo.avatar }} style={styles.profileImage} />
         </Pressable>
       </View>
 
       <View style={styles.userInfoContainer}>
-        <Text style={styles.userName}>{userInfo.username}</Text>
-        <Text style={userInfo.role === "user" ? styles.userRole : styles.userRoleAdmin}>
+        <Text style={[styles.userName, { color: colors.textColorPrimary, fontFamily: fonts.bold }]}>
+          {userInfo.username}
+        </Text>
+        <Text
+          style={[
+            userInfo.role === "user"
+              ? { ...styles.userRole, color: "green", borderColor: "green", backgroundColor: colors.bg }
+              : { ...styles.userRoleAdmin, color: colors.bg, borderColor: "blue", backgroundColor: "blue" },
+            { fontFamily: fonts.medium },
+          ]}
+        >
           {userInfo.role}
         </Text>
       </View>
 
-      <Text style={styles.memberSince}>
+      <Text style={[styles.memberSince, { color: colors.textColorSecondary, fontFamily: fonts.regular }]}>
         Member since {formatDate(userInfo.createdAt)}
       </Text>
 
       <View style={styles.emailContainer}>
-        <MaterialCommunityIcons name="email-outline" size={24} color="gray" />
-        <Text style={styles.userEmail}>{userInfo.email}</Text>
+        <MaterialCommunityIcons name="email-outline" size={24} color={colors.textColorSecondary} />
+        <Text style={[styles.userEmail, { color: colors.textColorSecondary, fontFamily: fonts.regular }]}>
+          {userInfo.email}
+        </Text>
       </View>
 
       <View style={styles.statsContainer}>
         {stats.map((item, index) => (
-          <View key={index} style={styles.statsBox}>
-            <Text style={styles.statValue}>{item.value}</Text>
-            <Text style={styles.statLabel}>{item.label}</Text>
+          <View key={index} style={[styles.statsBox, { backgroundColor: colors.card.bg }]}>
+            <Text style={[styles.statValue, { color: colors.textColorPrimary, fontFamily: fonts.bold }]}>
+              {item.value}
+            </Text>
+            <Text style={[styles.statLabel, { color: colors.textColorSecondary, fontFamily: fonts.medium }]}>
+              {item.label}
+            </Text>
           </View>
         ))}
       </View>
@@ -199,7 +203,6 @@ const ProfileScreen = () => {
         }}
       />
 
-
       <ConfirmationSheet
         title="Are you sure you want to logout?"
         message="You will be logged out and redirected to the login/register screen."
@@ -215,7 +218,6 @@ const ProfileScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
   },
   headerContainer: {
     width: "100%",
@@ -233,7 +235,6 @@ const styles = StyleSheet.create({
     height: profileSize,
     borderRadius: profileSize / 2,
     borderWidth: 4,
-    borderColor: "#ddd",
     position: "absolute",
     bottom: -profileSize / 2,
     left: 15,
@@ -245,8 +246,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
   },
   categoryBadge: {
-    backgroundColor: "#fff",
-    padding: 6,
+    padding: 10,
     borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
@@ -254,7 +254,6 @@ const styles = StyleSheet.create({
   },
   dropDownMenu: {
     marginTop: 8,
-    backgroundColor: "white",
     borderRadius: 8,
     paddingVertical: 8,
     paddingHorizontal: 10,
@@ -283,18 +282,13 @@ const styles = StyleSheet.create({
     padding: 6,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "green",
     backgroundColor: "white",
-    color: "green",
     fontSize: 14,
   },
   userRoleAdmin: {
     padding: 6,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "blue",
-    backgroundColor: "blue",
-    color: "white",
     fontSize: 14,
   },
   memberSince: {
@@ -311,7 +305,6 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
   },
   userEmail: {
-    color: "#888",
     marginLeft: 8,
     flexShrink: 1,
     fontSize: 14,
@@ -324,7 +317,6 @@ const styles = StyleSheet.create({
   statsBox: {
     flex: 1,
     margin: 5,
-    backgroundColor: "#fff",
     borderRadius: 12,
     paddingVertical: 20,
     alignItems: "center",
@@ -336,22 +328,8 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     fontSize: 14,
-    color: "#666",
     textAlign: "center",
     marginTop: 6,
-  },
-  logoutButton: {
-    backgroundColor: "#ff4c4c",
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 30,
-    marginTop: 20,
-    alignSelf: "center",
-  },
-  logoutButtonText: {
-    color: "#fff",
-    textAlign: "center",
-    fontSize: 16,
   },
 });
 

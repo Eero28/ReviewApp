@@ -2,13 +2,14 @@ import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-nati
 import { FC, useState } from 'react';
 import Icon from './Icon';
 import { categories } from '../helpers/categories';
+import { useTheme } from '../providers/ThemeContext';
 
 type Props = {
     fetchReviewsWithCategory: (category?: string) => void;
 };
 
-
 const FilterButtons: FC<Props> = ({ fetchReviewsWithCategory }) => {
+    const { colors, fonts } = useTheme();
     const [activeCategory, setActiveCategory] = useState<string | undefined>(undefined);
 
     const handlePress = (categoryValue?: string) => {
@@ -17,7 +18,7 @@ const FilterButtons: FC<Props> = ({ fetchReviewsWithCategory }) => {
     };
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: colors.bg }]}>
             <ScrollView
                 horizontal
                 contentContainerStyle={styles.scrollContainer}
@@ -29,19 +30,23 @@ const FilterButtons: FC<Props> = ({ fetchReviewsWithCategory }) => {
                         onPress={() => handlePress(category.value)}
                         style={[
                             styles.button,
-                            activeCategory === category.value && styles.activeButton,
+                            activeCategory === category.value && [
+                                styles.activeButton,
+                                { borderBottomColor: colors.textColorPrimary },
+                            ],
                         ]}
                     >
                         <View style={styles.iconContainer}>
                             <Icon
                                 name={category.icon}
                                 size={30}
-                                color={activeCategory === category.value ? '#007AFF' : 'black'}
+                                color={activeCategory === category.value ? colors.textColorPrimary : colors.textColorSecondary || 'black'}
                             />
                             <Text
                                 style={[
                                     styles.buttonText,
-                                    activeCategory === category.value && styles.selectedButton,
+                                    { color: colors.textColorSecondary || 'black', fontFamily: fonts.regular },
+                                    activeCategory === category.value && { color: colors.textColorPrimary },
                                 ]}
                             >
                                 {category.label}
@@ -58,7 +63,7 @@ export default FilterButtons;
 
 const styles = StyleSheet.create({
     container: {
-        marginVertical: 10,
+        marginVertical: 0,
     },
     scrollContainer: {
         marginHorizontal: 0,
@@ -72,22 +77,16 @@ const styles = StyleSheet.create({
         paddingHorizontal: 14,
     },
     activeButton: {
-        borderBottomColor: 'black',
         borderBottomWidth: 2,
     },
     buttonText: {
-        color: 'black',
         fontSize: 14,
-        fontFamily: 'poppins',
         textAlign: 'center',
-    },
-    selectedButton: {
-        color: '#007AFF',
     },
     iconContainer: {
         alignItems: "center",
         justifyContent: "center",
         padding: 5,
-        textAlign: "center"
+        textAlign: "center",
     }
 });

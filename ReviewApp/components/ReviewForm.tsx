@@ -1,24 +1,24 @@
 import React, { useState } from 'react';
 import {
-  View,
-  Text,
-  TextInput,
-  Button,
   StyleSheet,
+  Text,
+  View,
+  TextInput,
+  Pressable,
   Image,
   ScrollView,
-  Pressable,
-  ActivityIndicator
+  ActivityIndicator,
 } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
-import CameraComponent from "../components/CameraComponent";
-import { useNavigation, NavigationProp } from '@react-navigation/native';
 import RNPickerSelect from 'react-native-picker-select';
-import axios from "axios";
-import { API_URL } from "@env";
-import { useAuth } from '../ContexApi';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import CameraComponent from '../components/CameraComponent';
+import { useAuth } from '../providers/ContexApi';
 import { tasteGroupsFormValues, toggleSelectedTaste, selectColor } from '../helpers/tastegroup';
 import { errorHandler } from '../helpers/errors/error';
+import axios from 'axios';
+import { API_URL } from '@env';
+import { useTheme } from '../providers/ThemeContext';
 
 interface ReviewFormValues {
   reviewname: string;
@@ -38,6 +38,9 @@ interface ReviewFormProps {
 
 const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUpdate = false }) => {
   const navigation = useNavigation<NavigationProp<any>>();
+  const { colors, fonts } = useTheme();
+  const { userInfo, getReviews, allReviewsFetch, handleLogout } = useAuth();
+
   const { control, handleSubmit, reset, formState: { errors } } = useForm<ReviewFormValues>({
     defaultValues: {
       reviewname: initialData?.reviewname || '',
@@ -46,22 +49,17 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUp
       reviewRating: initialData?.reviewRating ? Number(initialData.reviewRating) : null,
       category: initialData?.category || null,
       reviewTaste: initialData?.reviewTaste || [],
-    }
+    },
   });
 
   const [imageUrl, setImageUrl] = useState<string | null>(initialImage || null);
-  const [loading, setLoading] = useState<boolean>(false)
-  const { userInfo, getReviews, allReviewsFetch, handleLogout } = useAuth();
+  const [loading, setLoading] = useState<boolean>(false);
 
   const onImageCaptured = (url: string) => setImageUrl(url);
-
-  const discardImage = () => {
-    setImageUrl(null)
-  }
+  const discardImage = () => setImageUrl(null);
 
   const onSubmit = async (data: ReviewFormValues) => {
     if (loading) return;
-
     if (!imageUrl) {
       alert('Please take or select an image first');
       return;
@@ -69,28 +67,19 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUp
     setLoading(true);
     try {
       const formData = new FormData();
-
       formData.append('reviewname', data.reviewname);
       formData.append('reviewDescription', data.reviewDescription);
       formData.append('reviewRating', String(data.reviewRating));
       formData.append('category', data.category || '');
       formData.append('priceRange', data.priceRange);
       formData.append('id_user', String(userInfo?.id_user));
-
       data.reviewTaste.forEach((taste) => formData.append('reviewTaste[]', taste));
 
       if (imageUrl.startsWith('file://')) {
-        // Local file: use FileSystem
         const fileName = imageUrl.split('/').pop() || 'photo.jpg';
         const fileType = fileName.endsWith('png') ? 'image/png' : 'image/jpeg';
-
-        formData.append('file', {
-          uri: imageUrl,
-          name: fileName,
-          type: fileType,
-        } as any);
+        formData.append('file', { uri: imageUrl, name: fileName, type: fileType } as any);
       } else {
-        // Already uploaded image / no change
         formData.append('imageUrl', imageUrl);
       }
 
@@ -116,80 +105,98 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUp
       allReviewsFetch();
       navigation.goBack();
     } catch (error) {
-      errorHandler(error, handleLogout)
+      errorHandler(error, handleLogout);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   };
 
-  if (!imageUrl) {
-    return <CameraComponent onImageCaptured={onImageCaptured} />;
-  }
+  if (!imageUrl) return <CameraComponent onImageCaptured={onImageCaptured} />;
+
   return (
-    <ScrollView>
+    <ScrollView style={{ backgroundColor: colors.bg, padding: 10 }}>
       <View style={styles.container}>
-        <Text style={styles.title}>{isUpdate ? "Update your review!" : "Create Your Review"}</Text>
+        <Text style={[styles.title, { color: colors.textColorPrimary, fontFamily: fonts.bold }]}>
+          {isUpdate ? 'Update your review!' : 'Create Your Review'}
+        </Text>
+
         <Image
-          source={{ uri: imageUrl || "https://t3.ftcdn.net/jpg/02/36/99/22/360_F_236992283_sNOxCVQeFLd5pdqaKGh8DRGMZy7P4XKm.jpg" }}
+          source={{ uri: imageUrl }}
           style={styles.imagePreview}
         />
-        <Pressable style={styles.discardButton} onPress={discardImage}>
-          <Text style={styles.discardButtonText}>Discard Image</Text>
+        <Pressable
+          style={[styles.discardButton, { backgroundColor: colors.alerts.danger }]}
+          onPress={discardImage}
+        >
+          <Text style={[styles.discardButtonText, { color: colors.textColorPrimary, fontFamily: fonts.medium }]}>
+            Discard Image
+          </Text>
         </Pressable>
 
-        <Text style={styles.label}>Review Name</Text>
+        <Text style={[styles.label, { color: colors.textColorPrimary, fontFamily: fonts.medium }]}>Review Name</Text>
         <Controller
           control={control}
+          name="reviewname"
+          rules={{ required: 'Review name is required' }}
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: colors.form.input, color: colors.form.inputTextColor }]}
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
               placeholder="Enter review name"
+              placeholderTextColor={colors.textColorSecondary}
             />
           )}
-          name="reviewname"
-          rules={{ required: 'Review name is required' }}
         />
-        {errors.reviewname && <Text style={styles.error}>{errors.reviewname.message}</Text>}
-        <Text style={styles.label}>Review Text</Text>
+        {errors.reviewname && <Text style={[styles.error, { color: colors.alerts.danger }]}>{errors.reviewname.message}</Text>}
+
+        <Text style={[styles.label, { color: colors.textColorPrimary, fontFamily: fonts.medium }]}>Review Text</Text>
         <Controller
           control={control}
+          name="reviewDescription"
+          rules={{ required: 'Review description is required' }}
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInput
-              style={[styles.input, { height: 100 }]}
+              style={[styles.input, { backgroundColor: colors.form.input, color: colors.form.inputTextColor, height: 100 }]}
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
-              numberOfLines={4}
               multiline
+              numberOfLines={4}
               placeholder="Enter review text"
+              placeholderTextColor={colors.textColorSecondary}
             />
           )}
-          name="reviewDescription"
-          rules={{ required: 'Review description is required' }}
         />
-        {errors.reviewDescription && <Text style={styles.error}>{errors.reviewDescription.message}</Text>}
-        <Text style={styles.label}>Review Rating</Text>
+        {errors.reviewDescription && <Text style={[styles.error, { color: colors.alerts.danger }]}>{errors.reviewDescription.message}</Text>}
+
+        <Text style={[styles.label, { color: colors.textColorPrimary, fontFamily: fonts.medium }]}>Review Rating</Text>
         <Controller
           control={control}
+          name="reviewRating"
+          rules={{ required: 'Rating is required' }}
           render={({ field: { onChange, value } }) => (
             <RNPickerSelect
               onValueChange={onChange}
               value={value}
               items={[...Array(9)].map((_, i) => ({ label: (1 + i * 0.5).toString(), value: 1 + i * 0.5 }))}
-              placeholder={{ label: "Select a rating", value: null }}
-              style={{ inputIOS: styles.pickerInput, inputAndroid: styles.pickerInput, placeholder: { color: "#999" } }}
+              placeholder={{ label: 'Select a rating', value: null }}
+              style={{
+                inputIOS: [styles.pickerInput, { backgroundColor: colors.form.input, color: colors.form.inputTextColor }],
+                inputAndroid: [styles.pickerInput, { backgroundColor: colors.form.input, color: colors.form.inputTextColor }],
+                placeholder: { color: colors.textColorSecondary },
+              }}
             />
           )}
-          name="reviewRating"
-          rules={{ required: 'Rating is required' }}
         />
-        {errors.reviewRating && <Text style={styles.error}>{errors.reviewRating.message}</Text>}
-        <Text style={styles.label}>Category</Text>
+        {errors.reviewRating && <Text style={[styles.error, { color: colors.alerts.danger }]}>{errors.reviewRating.message}</Text>}
+
+        <Text style={[styles.label, { color: colors.textColorPrimary, fontFamily: fonts.medium }]}>Category</Text>
         <Controller
           control={control}
+          name="category"
+          rules={{ required: 'Category is required' }}
           render={({ field: { onChange, value } }) => (
             <RNPickerSelect
               onValueChange={onChange}
@@ -202,17 +209,21 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUp
                 { label: 'Cocktail', value: 'cocktail' },
                 { label: 'Other', value: 'other' },
               ]}
-              placeholder={{ label: "Select a category", value: null }}
-              style={{ inputIOS: styles.pickerInput, inputAndroid: styles.pickerInput }}
+              placeholder={{ label: 'Select a category', value: null }}
+              style={{
+                inputIOS: [styles.pickerInput, { backgroundColor: colors.form.input, color: colors.form.inputTextColor }],
+                inputAndroid: [styles.pickerInput, { backgroundColor: colors.form.input, color: colors.form.inputTextColor }],
+              }}
             />
           )}
-          name="category"
-          rules={{ required: 'Category is required' }}
         />
-        {errors.category && <Text style={styles.error}>{errors.category.message}</Text>}
-        <Text style={styles.label}>Price range</Text>
+        {errors.category && <Text style={[styles.error, { color: colors.alerts.danger }]}>{errors.category.message}</Text>}
+
+        <Text style={[styles.label, { color: colors.textColorPrimary, fontFamily: fonts.medium }]}>Price range</Text>
         <Controller
           control={control}
+          name="priceRange"
+          rules={{ required: 'Price range is required' }}
           render={({ field: { onChange, value } }) => (
             <RNPickerSelect
               onValueChange={onChange}
@@ -225,15 +236,16 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUp
                 { label: '50-100 euros', value: '50-100' },
                 { label: '+100 euros', value: '+100' },
               ]}
-              placeholder={{ label: "Select price range", value: null }}
-              style={{ inputIOS: styles.pickerInput, inputAndroid: styles.pickerInput }}
+              placeholder={{ label: 'Select price range', value: null }}
+              style={{
+                inputIOS: [styles.pickerInput, { backgroundColor: colors.form.input, color: colors.form.inputTextColor }],
+                inputAndroid: [styles.pickerInput, { backgroundColor: colors.form.input, color: colors.form.inputTextColor }],
+              }}
             />
           )}
-          name="priceRange"
-          rules={{ required: 'Price range is required' }}
         />
-        {errors.priceRange && <Text style={styles.error}>{errors.priceRange.message}</Text>}
-        <Text style={styles.label}>What does it taste like?</Text>
+        {errors.priceRange && <Text style={[styles.error, { color: colors.alerts.danger }]}>{errors.priceRange.message}</Text>}
+        <Text style={[styles.label, { color: colors.textColorPrimary, fontFamily: fonts.medium }]}>What does it taste like?</Text>
         <Controller
           control={control}
           name="reviewTaste"
@@ -242,18 +254,30 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUp
             <View>
               {tasteGroupsFormValues.map(({ group, tastes }) => (
                 <View key={group}>
-                  <Text style={styles.groupLabel}>{group}</Text>
+                  <Text style={[styles.groupLabel, { color: colors.textColorSecondary, fontFamily: fonts.medium }]}>{group}</Text>
                   <View style={styles.tasteContainer}>
                     {tastes.map((taste) => {
+                      const { color, textColor } = selectColor(taste);
                       const isSelected = value.includes(taste);
+
                       return (
-                        <Text
+                        <Pressable
                           key={taste}
-                          style={[styles.tasteChip, { backgroundColor: isSelected ? selectColor(taste) : "#eee" }]}
+                          style={[
+                            styles.tasteChip,
+                            { backgroundColor: isSelected ? color : "#eee" },
+                          ]}
                           onPress={() => onChange(toggleSelectedTaste(value, taste))}
                         >
-                          <Text style={{ color: isSelected ? "#fff" : "#333" }}>{taste}</Text>
-                        </Text>
+                          <Text
+                            style={{
+                              color: isSelected ? textColor : "#000",
+                              fontFamily: fonts.medium,
+                            }}
+                          >
+                            {taste}
+                          </Text>
+                        </Pressable>
                       );
                     })}
                   </View>
@@ -262,8 +286,9 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUp
             </View>
           )}
         />
-        {errors.reviewTaste && <Text style={styles.error}>{errors.reviewTaste.message}</Text>}
+        {errors.reviewTaste && <Text style={[styles.error, { color: colors.alerts.danger }]}>{errors.reviewTaste.message}</Text>}
 
+        {/* Submit Button */}
         <View style={styles.buttonContainer}>
           <Pressable
             disabled={!imageUrl || loading}
@@ -292,102 +317,19 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUp
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 10,
-    backgroundColor: '#f9f9f9',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    marginBottom: 20,
-    textAlign: 'center',
-    color: '#222',
-  },
-  imagePreview: {
-    width: '100%',
-    height: 220,
-    borderRadius: 12,
-    marginBottom: 12,
-    resizeMode: 'cover',
-  },
-  discardButton: {
-    backgroundColor: '#ff4d4d',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 25,
-    alignSelf: 'center',
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
-  },
-  discardButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 6,
-    color: '#333',
-  },
-  input: {
-    height: 48,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    marginBottom: 16,
-    backgroundColor: '#fff',
-    fontSize: 16,
-  },
-  pickerInput: {
-    fontSize: 16,
-    paddingVertical: 14,
-    paddingHorizontal: 12,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 10,
-    color: '#333',
-    backgroundColor: '#fff',
-    marginBottom: 16,
-  },
-  groupLabel: {
-    fontSize: 15,
-    fontWeight: '600',
-    marginBottom: 6,
-    color: '#555',
-  },
-  tasteContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: 12,
-  },
-  tasteChip: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 25,
-    margin: 4,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  error: {
-    color: '#e53935',
-    marginBottom: 10,
-    fontSize: 13,
-  },
-  buttonContainer: {
-    paddingBottom: 20,
-    borderRadius: 10,
-  },
+  container: { flex: 1, padding: 10 },
+  title: { fontSize: 24, fontWeight: '700', marginBottom: 20, textAlign: 'center' },
+  imagePreview: { width: '100%', height: 450, borderRadius: 12, marginBottom: 12, resizeMode: 'cover' },
+  discardButton: { paddingVertical: 10, paddingHorizontal: 20, borderRadius: 25, alignSelf: 'center', marginBottom: 16 },
+  discardButtonText: { fontSize: 16, fontWeight: '600', textAlign: 'center' },
+  label: { fontSize: 16, fontWeight: '600', marginBottom: 6 },
+  input: { height: 48, borderColor: '#ccc', borderWidth: 1, borderRadius: 10, paddingHorizontal: 14, marginBottom: 16, fontSize: 16 },
+  pickerInput: { fontSize: 16, paddingVertical: 14, paddingHorizontal: 12, borderWidth: 1, borderColor: '#ccc', borderRadius: 10, marginBottom: 16 },
+  groupLabel: { fontSize: 15, fontWeight: '600', marginBottom: 6 },
+  tasteContainer: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 12 },
+  tasteChip: { paddingVertical: 8, paddingHorizontal: 16, borderRadius: 25, margin: 4 },
+  error: { marginBottom: 10, fontSize: 13 },
+  buttonContainer: { paddingBottom: 20, borderRadius: 10 },
 });
-
 
 export default ReviewForm;

@@ -4,7 +4,7 @@ import axios from 'axios';
 import ModalDialog from './ModalDialog';
 import ExpandableBox from './Expandablebox';
 import { Comment } from '../interfaces/Comment';
-import { useAuth } from '../ContexApi';
+import { useAuth } from '../providers/ContexApi';
 import { calculateDate } from '../helpers/date';
 import ReplyItem from './ReplyItem';
 import { API_URL } from '@env';
@@ -69,6 +69,7 @@ const UserComment: FC<Props> = ({ item, getReviewComments, id_review }) => {
         onCancel={() => setShowDialogModal(false)}
         dialogTitle="Delete Comment!"
         visible={showDialogModal}
+        showDescription
       />
 
       <TouchableOpacity onLongPress={toggleSheet}>

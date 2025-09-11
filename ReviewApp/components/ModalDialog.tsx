@@ -1,5 +1,7 @@
 import { FC } from "react";
 import Dialog from "react-native-dialog";
+import { useTheme } from "../providers/ThemeContext";
+import { View } from "react-native";
 
 type ModalDialogProps = {
   visible: boolean;
@@ -11,15 +13,17 @@ type ModalDialogProps = {
 };
 
 const ModalDialog: FC<ModalDialogProps> = ({ dialogTitle, visible, onCancel, onDelete, children, showDescription = false }) => {
+  const { colors, fonts } = useTheme();
   return (
-    <Dialog.Container visible={visible}>
-      {dialogTitle && <Dialog.Title>{dialogTitle}</Dialog.Title>}
+
+    <Dialog.Container contentStyle={{ backgroundColor: colors.modalDialog.bg, borderRadius: 16 }} visible={visible}>
+      {dialogTitle && <Dialog.Title style={{ fontFamily: fonts.bold, color: colors.textColorPrimary }}>{dialogTitle}</Dialog.Title>}
       {children}
-      {showDescription && (<Dialog.Description>
+      {showDescription && (<Dialog.Description style={{ color: colors.textColorSecondary }}>
         Do you want to delete this review? You cannot undo this action.
       </Dialog.Description>)}
-      <Dialog.Button label="Cancel" onPress={onCancel} />
-      {onDelete && <Dialog.Button label="Delete" onPress={onDelete} />}
+      <Dialog.Button style={{ fontFamily: fonts.regular }} color={colors.textColorSecondary} label="Cancel" onPress={onCancel} />
+      {onDelete && <Dialog.Button style={{ fontFamily: fonts.regular }} color={colors.alerts.danger} label="Delete" onPress={onDelete} />}
     </Dialog.Container>
   );
 };

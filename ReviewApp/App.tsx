@@ -1,49 +1,38 @@
-import React, { useState, useEffect } from 'react';
-import { View, ActivityIndicator } from 'react-native';
+import { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import 'react-native-gesture-handler';
 import MainNavigation from './Navigation/MainNavigation';
-import { AuthProvider } from './ContexApi';
-import { CommentsProvider } from './CommentContextApi';
 import * as Font from 'expo-font';
-import * as SplashScreen from 'expo-splash-screen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-
-SplashScreen.preventAutoHideAsync();
+import { AppProviders } from './providers/AppProviders';
+import { errorHandler } from './helpers/errors/error';
 
 export default function App() {
-  const [isFontLoaded, setFontLoaded] = useState(false);
 
-  // Load fonts
   useEffect(() => {
     async function loadFonts() {
       try {
         await Font.loadAsync({
-          'poppins': require('./assets/fonts/Poppins-Regular.ttf'),
+          'Poppins-Regular': require('./assets/fonts/Poppins-Regular.ttf'),
+          'Poppins-Medium': require('./assets/fonts/Poppins-Medium.ttf'),
+          'Poppins-SemiBold': require('./assets/fonts/Poppins-SemiBold.ttf'),
+          'Poppins-Bold': require('./assets/fonts/Poppins-Bold.ttf'),
         });
-        setFontLoaded(true);
       } catch (e) {
-        console.warn('Font loading failed:', e);
+        errorHandler(e);
       }
     }
     loadFonts();
   }, []);
-  useEffect(() => {
-    if (isFontLoaded) {
-      SplashScreen.hideAsync().catch(console.warn);
-    }
-  }, [isFontLoaded]);
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <AuthProvider>
-          <CommentsProvider>
-            <NavigationContainer>
-              <MainNavigation />
-            </NavigationContainer>
-          </CommentsProvider>
-        </AuthProvider>
+        <AppProviders>
+          <NavigationContainer>
+            <MainNavigation />
+          </NavigationContainer>
+        </AppProviders>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

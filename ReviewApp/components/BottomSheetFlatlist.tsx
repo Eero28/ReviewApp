@@ -20,7 +20,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import axios from 'axios';
-import { useAuth } from '../ContexApi';
+import { useAuth } from '../providers/ContexApi';
 import Icon from './Icon';
 import { Comment } from '../interfaces/Comment';
 import { API_URL } from '@env';
@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     backgroundColor: '#121314',
-    marginBottom: 40,
+    marginBottom: 100,
   },
   inputField: {
     flex: 1,

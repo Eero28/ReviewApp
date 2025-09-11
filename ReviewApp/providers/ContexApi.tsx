@@ -2,10 +2,10 @@ import React, { createContext, useContext, useState, ReactNode, useEffect, Dispa
 import axios from 'axios';
 import { API_URL } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { UserInfo } from './interfaces/UserInfo';
-import { ReviewItemIf } from './interfaces/ReviewItemIf';
-import { errorHandler } from './helpers/errors/error';
-//test
+import { UserInfo } from '../interfaces/UserInfo';
+import { ReviewItemIf } from '../interfaces/ReviewItemIf';
+import { errorHandler } from '../helpers/errors/error';
+
 interface AuthContextProps {
   userReviews: ReviewItemIf[];
   allReviews: ReviewItemIf[];
@@ -42,7 +42,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           const parsedUserInfo = JSON.parse(storedUserInfo);
           setUserInfo(parsedUserInfo);
         } else {
-          handleLogout()
+          await handleLogout()
         }
       } catch (error) {
         errorHandler(error)

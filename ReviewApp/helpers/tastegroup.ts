@@ -18,29 +18,29 @@ export const tasteGroupsFormValues = [
 ];
 
 export const tastes = [
-  { label: "Sweet", color: "#FFD1DC" },
-  { label: "Vanilla", color: "#F3E5AB" },
-  { label: "Caramel", color: "#C68E17" },
-  { label: "Chocolate", color: "#7B3F00" },
-  { label: "Citrus", color: "#FFA500" },
-  { label: "Berry", color: "#D10056" },
-  { label: "Apple/Pear", color: "#A2C523" },
-  { label: "Tropical", color: "#FFCC00" },
-  { label: "Herbal", color: "#6B8E23" },
-  { label: "Minty", color: "#98FF98" },
-  { label: "Floral", color: "#FFB6C1" },
-  { label: "Spicy", color: "#FF4500" },
-  { label: "Smoky", color: "#8B4513" },
-  { label: "Woody", color: "#A0522D" },
+  { label: "Sweet", color: "#FFD1DC", textColor: "#000" },
+  { label: "Vanilla", color: "#F3E5AB", textColor: "#000" },
+  { label: "Caramel", color: "#C68E17", textColor: "#fff" },
+  { label: "Chocolate", color: "#7B3F00", textColor: "#fff" },
+  { label: "Citrus", color: "#FFA500", textColor: "#000" },
+  { label: "Berry", color: "#D10056", textColor: "#fff" },
+  { label: "Apple/Pear", color: "#A2C523", textColor: "#000" },
+  { label: "Tropical", color: "#FFCC00", textColor: "#000" },
+  { label: "Herbal", color: "#6B8E23", textColor: "#fff" },
+  { label: "Minty", color: "#98FF98", textColor: "#000" },
+  { label: "Floral", color: "#FFB6C1", textColor: "#000" },
+  { label: "Spicy", color: "#FF4500", textColor: "#fff" },
+  { label: "Smoky", color: "#8B4513", textColor: "#fff" },
+  { label: "Woody", color: "#A0522D", textColor: "#fff" },
 ];
 
 // select color from the array
 export const selectColor = (value: string) => {
   const match = tastes.find((val) => val.label === value);
   if (match) {
-    return match.color;
+    return { color: match.color, textColor: match.textColor };
   } else {
-    return "white";
+    return { color: "white", textColor: "#000" };
   }
 };
 

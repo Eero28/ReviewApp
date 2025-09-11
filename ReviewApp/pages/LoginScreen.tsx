@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, TextInput, Button } from 'react-native';
 import { FC, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { useAuth } from '../ContexApi';
+import { useAuth } from '../providers/ContexApi'
 import KeyboardAvoidContainer from '../components/KeyboardAvoidContainer';
 interface LoginData {
   email: string;

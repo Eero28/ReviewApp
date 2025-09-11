@@ -1,14 +1,13 @@
-import { createDrawerNavigator } from '@react-navigation/drawer';
-import BottomTabNavigator from './BottomTabNavigator';
-import ProfileScreen from '../pages/ProfileScreen';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { useAuth } from '../ContexApi';
-import Favorites from '../pages/Favorites';
-
+import { createDrawerNavigator } from "@react-navigation/drawer";
+import BottomTabNavigator from "./BottomTabNavigator";
+import ProfileScreen from "../pages/ProfileScreen";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { useAuth } from "../providers/ContexApi";
+import Favorites from "../pages/Favorites";
+import { useTheme } from "../providers/ThemeContext"
 
 const Drawer = createDrawerNavigator();
-
 
 export type DrawerParamList = {
   Reviews: undefined;
@@ -18,18 +17,23 @@ export type DrawerParamList = {
 
 const DrawerNavigator = () => {
   const { userInfo } = useAuth();
+  const { colors, fonts } = useTheme();
+
   return (
     <Drawer.Navigator
       screenOptions={{
         drawerStyle: {
-          backgroundColor: '#003366',
+          backgroundColor: colors.bg,
         },
-        drawerActiveTintColor: '#ffffff',
-        drawerInactiveTintColor: '#B0B0B0',
+        drawerActiveTintColor: colors.textColorPrimary,
+        drawerInactiveTintColor: colors.textColorSecondary,
         headerStyle: {
-          backgroundColor: '#003366'
+          backgroundColor: colors.bg,
         },
-        headerTintColor: '#ffffff'
+        headerTintColor: colors.textColorPrimary,
+        headerTitleStyle: {
+          fontFamily: fonts.regular,
+        },
       }}
     >
       <Drawer.Screen

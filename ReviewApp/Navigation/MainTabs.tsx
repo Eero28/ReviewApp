@@ -5,6 +5,7 @@ import TakeImageScreen from '../pages/TakeImageScreen';
 import AllReviews from '../pages/AllReviews';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useTheme } from '../providers/ThemeContext';
 
 export type BottomTabParamList = {
     Myreviews: undefined;
@@ -14,17 +15,20 @@ export type BottomTabParamList = {
 
 const Tab = createBottomTabNavigator<BottomTabParamList>();
 
-
 const MainTabs = () => {
+    const { colors } = useTheme();
+
     return (
         <Tab.Navigator
             screenOptions={{
                 headerShown: false,
-                tabBarActiveTintColor: 'white',
-                tabBarInactiveTintColor: '#B0C4DE',
+                tabBarActiveTintColor: colors.textColorPrimary,
+                tabBarInactiveTintColor: colors.textColorSecondary,
                 tabBarStyle: {
                     position: 'absolute',
-                    backgroundColor: '#003366',
+                    backgroundColor: colors.bg,
+                    borderTopWidth: 0,
+                    elevation: 5,
                 },
             }}
         >
@@ -43,7 +47,7 @@ const MainTabs = () => {
                 options={({ route }) => ({
                     tabBarLabel: '',
                     tabBarIcon: ({ size }) => (
-                        <FontAwesome name="camera" size={size} color="white" />
+                        <FontAwesome name="camera" size={size} color={"white"} />
                     ),
                     tabBarIconStyle: {
                         bottom: 20,
@@ -52,10 +56,9 @@ const MainTabs = () => {
                         justifyContent: 'center',
                         alignItems: 'center',
                         borderRadius: 30,
-                        backgroundColor: '#1ABC9C',
+                        backgroundColor: "#4D4D4D",
                     },
                     tabBarStyle: route.name === 'TakeImage' ? { display: 'none' } : {},
-
                 })}
             />
             <Tab.Screen
@@ -72,4 +75,3 @@ const MainTabs = () => {
 };
 
 export default MainTabs;
-

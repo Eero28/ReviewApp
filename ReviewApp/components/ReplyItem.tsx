@@ -2,7 +2,7 @@ import React, { FC, useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Image, TextInput } from 'react-native';
 import axios from 'axios';
 import { Comment } from '../interfaces/Comment';
-import { useAuth } from '../ContexApi';
+import { useAuth } from '../providers/ContexApi';
 import { calculateDate } from '../helpers/date';
 import { API_URL } from '@env';
 import ExpandableBox from './Expandablebox';
