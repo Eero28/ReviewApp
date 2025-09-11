@@ -7,30 +7,45 @@ import {
   SafeAreaView,
   Pressable,
 } from "react-native";
-import { useAuth } from "../providers/ContexApi";
 import { useNavigation } from "@react-navigation/native";
-import ConfirmationSheet from "../components/ConfirmationsSheet";
-import { formatDate } from "../helpers/date";
+import { DrawerNavigationProp } from "@react-navigation/drawer";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { screenWidth } from "../helpers/dimensions";
 import * as ImagePicker from "expo-image-picker";
-import { errorHandler } from "../helpers/errors/error";
-import axios from "axios";
-import { API_URL } from "@env";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { DrawerNavigationProp } from "@react-navigation/drawer";
-import { DrawerParamList } from "../Navigation/DrawerNavigation";
+import axios from "axios";
+
+import { useAuth } from "../providers/ContexApi";
 import { useTheme } from "../providers/ThemeContext";
+import ConfirmationSheet from "../components/ConfirmationsSheet";
+import { screenWidth } from "../helpers/dimensions";
+import { formatDate } from "../helpers/date";
+import { errorHandler } from "../helpers/errors/error";
+import { API_URL } from "@env";
+import { DrawerParamList } from "../interfaces/navigation";
 
 const profileSize = screenWidth * 0.3;
-type FavoritesNavProp = DrawerNavigationProp<DrawerParamList, "Favorites">;
+
+export interface ProfileNavigationProp
+  extends DrawerNavigationProp<DrawerParamList, "Favorites"> { }
 
 const ProfileScreen = () => {
-  const navigation = useNavigation<FavoritesNavProp>();
+  const navigation = useNavigation<ProfileNavigationProp>();
+
   const { toggleTheme, colors, fonts, paddingSpacing } = useTheme();
-  const { handleLogout, userInfo, setUserInfo, userReviews, setReviewsUpdated, reviewsUpdated } =
-    useAuth();
+  const {
+    handleLogout,
+    userInfo,
+    setUserInfo,
+    userReviews,
+    setReviewsUpdated,
+    reviewsUpdated,
+  } = useAuth();
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen2, setIsOpen2] = useState(false);
+  const [isOpen3, setIsOpen3] = useState(false);
+  const [imageUri, setImageUri] = useState<string | null>(null);
 
   if (!userInfo) {
     handleLogout();
@@ -43,16 +58,10 @@ const ProfileScreen = () => {
     );
   }
 
-  const [isOpen, setIsOpen] = useState(false);
-  const [isOpen2, setIsOpen2] = useState(false);
-  const [imageUri, setImageUri] = useState<string | null>(null);
-  const [isOpen3, setIsOpen3] = useState(false);
-
   const toggleSheetLogout = () => {
     setIsOpen((prev) => !prev);
     if (isOpen2) toggleSheet2();
   };
-
   const toggleSheet2 = () => setIsOpen2((prev) => !prev);
   const toggleSheet3 = () => setIsOpen3((prev) => !prev);
 
@@ -74,7 +83,7 @@ const ProfileScreen = () => {
       formData.append("avatar", { uri, name: "avatar.jpg", type: "image/jpeg" } as any);
 
       const response = await axios.patch(
-        `${API_URL}/users/avatar/${userInfo?.id_user}`,
+        `${API_URL}/users/avatar/${userInfo.id_user}`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
@@ -123,24 +132,16 @@ const ProfileScreen = () => {
           {isOpen2 && (
             <View style={[styles.dropDownMenu, { backgroundColor: colors.bg }]}>
               <Pressable onPress={toggleSheetLogout}>
-                <Text style={[styles.dropDownMenuText, { color: colors.textColorPrimary }]}>
-                  Logout
-                </Text>
+                <Text style={[styles.dropDownMenuText, { color: colors.textColorPrimary }]}>Logout</Text>
               </Pressable>
               <Pressable onPress={toggleSheet3}>
-                <Text style={[styles.dropDownMenuText, { color: colors.textColorPrimary }]}>
-                  Update profile
-                </Text>
+                <Text style={[styles.dropDownMenuText, { color: colors.textColorPrimary }]}>Update profile</Text>
               </Pressable>
               <Pressable onPress={goToFavoritesPage}>
-                <Text style={[styles.dropDownMenuText, { color: colors.textColorPrimary }]}>
-                  Favorites
-                </Text>
+                <Text style={[styles.dropDownMenuText, { color: colors.textColorPrimary }]}>Favorites</Text>
               </Pressable>
               <Pressable onPress={toggleTheme}>
-                <Text style={[styles.dropDownMenuText, { color: colors.textColorPrimary }]}>
-                  Change theme!
-                </Text>
+                <Text style={[styles.dropDownMenuText, { color: colors.textColorPrimary }]}>Change theme!</Text>
               </Pressable>
             </View>
           )}
@@ -197,12 +198,8 @@ const ProfileScreen = () => {
         isOpen={isOpen3}
         onClose={toggleSheet3}
         onCancel={toggleSheet3}
-        onConfirm={() => {
-          if (imageUri) updateAvatar(imageUri);
-          toggleSheet3();
-        }}
+        onConfirm={() => { if (imageUri) updateAvatar(imageUri); toggleSheet3(); }}
       />
-
       <ConfirmationSheet
         title="Are you sure you want to logout?"
         message="You will be logged out and redirected to the login/register screen."
@@ -214,6 +211,7 @@ const ProfileScreen = () => {
     </SafeAreaView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -332,5 +330,6 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
 });
+
 
 export default ProfileScreen;

@@ -1,22 +1,23 @@
+import { Pressable, View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import ReviewsScreen from '../pages/ReviewsScreen';
-import TakeImageScreen from '../pages/TakeImageScreen';
-import AllReviews from '../pages/AllReviews';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import ReviewsScreen from '../pages/ReviewsScreen';
+import AllReviews from '../pages/AllReviews';
 import { useTheme } from '../providers/ThemeContext';
-
-export type BottomTabParamList = {
-    Myreviews: undefined;
-    TakeImage: undefined;
-    AllReviews: undefined;
-};
+import { BottomTabParamList } from '../interfaces/navigation';
 
 const Tab = createBottomTabNavigator<BottomTabParamList>();
 
 const MainTabs = () => {
     const { colors } = useTheme();
+
+    const EmptyComponent = () => {
+        return (
+            <View></View>
+        )
+    }
 
     return (
         <Tab.Navigator
@@ -41,26 +42,37 @@ const MainTabs = () => {
                     ),
                 }}
             />
+
             <Tab.Screen
-                name="TakeImage"
-                component={TakeImageScreen}
-                options={({ route }) => ({
+                name="TakeImageButton"
+                component={EmptyComponent}
+                options={({ navigation }) => ({
                     tabBarLabel: '',
                     tabBarIcon: ({ size }) => (
-                        <FontAwesome name="camera" size={size} color={"white"} />
+                        <Pressable
+                            onPress={() =>
+                                navigation.navigate('TakeImage', {
+                                    isUpdate: false,
+                                    initialImage: null,
+                                    initialData: {},
+                                })
+                            }
+                            style={{
+                                bottom: 20,
+                                width: 60,
+                                height: 60,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                borderRadius: 30,
+                                backgroundColor: "#4D4D4D",
+                            }}
+                        >
+                            <FontAwesome name="camera" size={size} color="white" />
+                        </Pressable>
                     ),
-                    tabBarIconStyle: {
-                        bottom: 20,
-                        width: 60,
-                        height: 60,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        borderRadius: 30,
-                        backgroundColor: "#4D4D4D",
-                    },
-                    tabBarStyle: route.name === 'TakeImage' ? { display: 'none' } : {},
                 })}
             />
+
             <Tab.Screen
                 name="AllReviews"
                 component={AllReviews}

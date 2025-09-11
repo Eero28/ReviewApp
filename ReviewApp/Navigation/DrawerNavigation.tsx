@@ -6,14 +6,9 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useAuth } from "../providers/ContexApi";
 import Favorites from "../pages/Favorites";
 import { useTheme } from "../providers/ThemeContext"
+import { DrawerParamList } from '../interfaces/navigation'
 
-const Drawer = createDrawerNavigator();
-
-export type DrawerParamList = {
-  Reviews: undefined;
-  Profile: undefined;
-  Favorites: undefined;
-};
+const Drawer = createDrawerNavigator<DrawerParamList>();
 
 const DrawerNavigator = () => {
   const { userInfo } = useAuth();
@@ -40,6 +35,7 @@ const DrawerNavigator = () => {
         name={userInfo?.username ? "Reviews" : "Welcome"}
         component={BottomTabNavigator}
         options={{
+          headerShown: true,
           drawerIcon: ({ color }) => (
             <MaterialIcons name="home" size={20} color={color} />
           ),

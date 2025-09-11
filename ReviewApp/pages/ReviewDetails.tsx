@@ -7,7 +7,6 @@ import axios from 'axios';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { Pressable } from 'react-native-gesture-handler';
 import { Comment } from '../interfaces/Comment';
-import { ReviewItemIf } from '../interfaces/ReviewItemIf';
 import { useAuth } from '../providers/ContexApi';
 import { useTheme } from '../providers/ThemeContext';
 import { API_URL } from '@env';
@@ -15,8 +14,6 @@ import UserComment from '../components/UserComment';
 import BottomSheetFlatList from '../components/BottomSheetFlatlist';
 import AnimatedRecommendations from '../components/AnimatedRecommendations';
 import BackButton from '../components/BackButton';
-import ReviewForm from '../components/ReviewForm';
-import ModalDialog from '../components/ModalDialog';
 import Icon from '../components/Icon';
 import EmptyList from '../components/EmptyList';
 import { categories } from '../helpers/categories';
@@ -24,23 +21,26 @@ import { selectColor } from '../helpers/tastegroup';
 import { calculateDate, formatDate } from '../helpers/date';
 import { likeReview } from '../helpers/services/reviewService';
 import { screenHeight, screenWidth } from '../helpers/dimensions';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp, } from '@react-navigation/stack';
+import { MainStackParamList } from '../interfaces/navigation';
 
-type RootStackParamList = {
-  ReviewDetails: {
-    item: ReviewItemIf;
-    showComment?: boolean;
-  };
-};
+export interface ReviewDetailsNavigationProp
+  extends StackNavigationProp<MainStackParamList, "ReviewDetails"> { }
+
+export interface ReviewDetailsRouteProp
+  extends RouteProp<MainStackParamList, "ReviewDetails"> { }
 
 const profileSize = screenWidth * 0.15;
 
 const ReviewDetails: FC = () => {
   const { colors, fonts, paddingSpacing } = useTheme();
   const { setReviewsUpdated, userInfo } = useAuth();
-  const route = useRoute<RouteProp<RootStackParamList, 'ReviewDetails'>>();
-  const { item } = route.params;
 
-  const [showDialogModalUpdate, setShowDialogModalUpdate] = useState(false);
+  const route = useRoute<RouteProp<MainStackParamList, 'ReviewDetails'>>();
+  const { item, showComment } = route.params;
+  const navigation = useNavigation<ReviewDetailsNavigationProp>();
+
   const [comments, setComments] = useState<Comment[]>([]);
   const [recommendations, setRecommendations] = useState<[]>([]);
   const [likesState, setLikesState] = useState(false);
@@ -51,13 +51,19 @@ const ReviewDetails: FC = () => {
   const scrollToTop = () => scrollRef.current?.scrollTo({ y: 0, animated: true });
   const toggleSheet = () => setIsOpen(!isOpen);
 
-  useEffect(() => {
-    if (userInfo?.id_user) getRecommendations();
-  }, [userInfo?.id_user, item.id_review]);
 
   useEffect(() => {
+    if (showComment) {
+      setIsOpen(true);
+    }
+
+    if (userInfo?.id_user) {
+      getRecommendations();
+    }
     getReviewComments();
-  }, [item.id_review]);
+
+  }, [showComment, userInfo?.id_user, item.id_review]);
+
 
   const getRecommendations = async () => {
     try {
@@ -108,22 +114,22 @@ const ReviewDetails: FC = () => {
     ) : null;
   };
 
+  const updateReview = () => {
+    navigation.navigate("TakeImage", {
+      isUpdate: true,
+      initialImage: item.imageUrl,
+      initialData: item,
+    });
+  }
+
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
       <ScrollView ref={scrollRef} contentContainerStyle={{ paddingBottom: paddingSpacing.xxl }}>
-        {showDialogModalUpdate && (
-          <ModalDialog
-            showDescription={false}
-            visible={showDialogModalUpdate}
-            onCancel={() => setShowDialogModalUpdate(false)}
-          >
-            <ReviewForm initialData={item} isUpdate={true} initialImage={item.imageUrl} />
-          </ModalDialog>
-        )}
         {item.user.id_user === userInfo?.id_user && (
           <Pressable
             style={[styles.updateButton, { backgroundColor: colors.card.star, padding: paddingSpacing.sm }]}
-            onPress={() => setShowDialogModalUpdate(true)}
+            onPress={updateReview}
           >
             <Text style={[styles.updateButtonText, { fontFamily: fonts.medium }]}>Update</Text>
           </Pressable>
