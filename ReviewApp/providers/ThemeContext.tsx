@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { useColorScheme } from "react-native";
 import { colorsDarkmode, colorsLightmode } from "../themes/colors";
 import { paddingSpacing } from "../themes/spacing";
-import { fonts } from "../themes/fonts";
+import { fonts, fontSizes } from "../themes/fonts";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type ThemeType = "light" | "dark";
@@ -13,6 +13,7 @@ interface ThemeContextProps {
     colors: typeof colorsDarkmode;
     fonts: typeof fonts;
     paddingSpacing: typeof paddingSpacing;
+    fontSizes: typeof fontSizes;
 }
 
 const ThemeContext = createContext<ThemeContextProps | undefined>(undefined);
@@ -54,7 +55,7 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     const colors = scheme === "light" ? colorsLightmode : colorsDarkmode;
 
     return (
-        <ThemeContext.Provider value={{ scheme, toggleTheme, colors, fonts, paddingSpacing }}>
+        <ThemeContext.Provider value={{ scheme, toggleTheme, colors, fonts, paddingSpacing, fontSizes }}>
             {children}
         </ThemeContext.Provider>
     );

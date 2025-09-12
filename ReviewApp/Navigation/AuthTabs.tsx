@@ -1,12 +1,32 @@
-import { FC } from 'react'
-import LoginScreen from '../pages/LoginScreen'
-import RegisterScreen from '../pages/RegisterScreen'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { FC } from "react";
+import LoginScreen from "../pages/LoginScreen";
+import RegisterScreen from "../pages/RegisterScreen";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { useTheme } from "../providers/ThemeContext";
+
 const Tab = createBottomTabNavigator();
+
 const AuthTabs: FC = () => {
+  const { colors, fonts, fontSizes } = useTheme();
+
   return (
-    <Tab.Navigator>
+    <Tab.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: colors.bg },
+        headerTintColor: colors.textColorPrimary,
+        tabBarStyle: { backgroundColor: colors.card.bg },
+        tabBarActiveTintColor: colors.textColorPrimary,
+        tabBarInactiveTintColor: colors.textColorSecondary,
+        headerTitleStyle: {
+          fontFamily: fonts.bold,
+        },
+        tabBarLabelStyle: {
+          fontFamily: fonts.medium,
+          fontSize: fontSizes.xs,
+        },
+      }}
+    >
       <Tab.Screen
         name="Login"
         component={LoginScreen}
@@ -28,7 +48,7 @@ const AuthTabs: FC = () => {
         }}
       />
     </Tab.Navigator>
-  )
-}
+  );
+};
 
-export default AuthTabs
+export default AuthTabs;

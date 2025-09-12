@@ -19,6 +19,7 @@ import { errorHandler } from '../helpers/errors/error';
 import axios from 'axios';
 import { API_URL } from '@env';
 import { useTheme } from '../providers/ThemeContext';
+import BackButton from './BackButton';
 
 interface ReviewFormValues {
   reviewname: string;
@@ -116,9 +117,12 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUp
   return (
     <ScrollView style={{ backgroundColor: colors.bg, padding: 10 }}>
       <View style={styles.container}>
-        <Text style={[styles.title, { color: colors.textColorPrimary, fontFamily: fonts.bold }]}>
-          {isUpdate ? 'Update your review!' : 'Create Your Review'}
-        </Text>
+        <View style={styles.canselContainer}>
+          <BackButton left={1} top={15} />
+          <Text style={[styles.title, { color: colors.textColorPrimary, fontFamily: fonts.bold }]}>
+            {isUpdate ? 'Update your review!' : 'Create Your Review'}
+          </Text>
+        </View>
 
         <Image
           source={{ uri: imageUrl }}
@@ -288,7 +292,6 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUp
         />
         {errors.reviewTaste && <Text style={[styles.error, { color: colors.alerts.danger }]}>{errors.reviewTaste.message}</Text>}
 
-        {/* Submit Button */}
         <View style={styles.buttonContainer}>
           <Pressable
             disabled={!imageUrl || loading}
@@ -330,6 +333,7 @@ const styles = StyleSheet.create({
   tasteChip: { paddingVertical: 8, paddingHorizontal: 16, borderRadius: 25, margin: 4 },
   error: { marginBottom: 10, fontSize: 13 },
   buttonContainer: { paddingBottom: 20, borderRadius: 10 },
+  canselContainer: { padding: 20 }
 });
 
 export default ReviewForm;

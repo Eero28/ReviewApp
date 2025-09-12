@@ -1,7 +1,10 @@
-export const colorsDarkmode = {
+import { ThemeColors } from "../interfaces/colors";
+
+export const colorsDarkmode: ThemeColors = {
   bg: "#030401",
   textColorPrimary: "#ebe9fc",
   textColorSecondary: "#B3B3B3",
+  statusBarColor: "light-content",
   alerts: {
     danger: "#ff4d4d",
     warning: "#ffae42",
@@ -24,10 +27,11 @@ export const colorsDarkmode = {
   },
 };
 
-export const colorsLightmode = {
+export const colorsLightmode: ThemeColors = {
   bg: "#fbfbfe",
   textColorPrimary: "#050316",
   textColorSecondary: "#5a5a75",
+  statusBarColor: "dark-content",
   alerts: {
     danger: "#ff4d4d",
     warning: "#ffae42",

@@ -7,8 +7,8 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppProviders } from './providers/AppProviders';
 import { errorHandler } from './helpers/errors/error';
-
 export default function App() {
+
 
   useEffect(() => {
     async function loadFonts() {

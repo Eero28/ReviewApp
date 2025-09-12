@@ -6,7 +6,9 @@ export const fonts = {
 };
 
 export const fontSizes = {
-  smartphones: 16,
-  laptops: 18,
-  desktop: 20,
+  xs: 12,
+  sm: 14,
+  md: 16,
+  lg: 18,
+  xl: 20,
 };
