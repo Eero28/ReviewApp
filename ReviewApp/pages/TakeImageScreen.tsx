@@ -22,4 +22,5 @@ const TakeImageScreen: React.FC<NavigationProps> = ({ route }) => {
   )
 }
 
+
 export default TakeImageScreen;

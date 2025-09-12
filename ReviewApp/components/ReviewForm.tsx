@@ -40,7 +40,7 @@ interface ReviewFormProps {
 const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUpdate = false }) => {
   const navigation = useNavigation<NavigationProp<any>>();
   const { colors, fonts } = useTheme();
-  const { userInfo, getReviews, allReviewsFetch, handleLogout } = useAuth();
+  const { userInfo, allReviewsFetch, handleLogout, setReviewsUpdated, getReviews } = useAuth();
 
   const { control, handleSubmit, reset, formState: { errors } } = useForm<ReviewFormValues>({
     defaultValues: {
@@ -91,6 +91,8 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUp
             Authorization: `Bearer ${userInfo?.access_token}`,
           },
         });
+        // update reviews
+        setReviewsUpdated(prev => !prev);
       } else {
         await axios.post(`${API_URL}/review`, formData, {
           headers: {
@@ -101,9 +103,10 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUp
       }
 
       reset();
+      // update user reviews and all reviews
+      await allReviewsFetch();
+      await getReviews()
       setImageUrl(null);
-      getReviews();
-      allReviewsFetch();
       navigation.goBack();
     } catch (error) {
       errorHandler(error, handleLogout);

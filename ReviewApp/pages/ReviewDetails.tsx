@@ -4,7 +4,7 @@ import StarRating from 'react-native-star-rating-widget';
 import { FontAwesome, MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import axios from 'axios';
-import { RouteProp, useRoute } from '@react-navigation/native';
+import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
 import { Pressable } from 'react-native-gesture-handler';
 import { Comment } from '../interfaces/Comment';
 import { useAuth } from '../providers/ContexApi';
@@ -21,8 +21,7 @@ import { selectColor } from '../helpers/tastegroup';
 import { calculateDate, formatDate } from '../helpers/date';
 import { likeReview } from '../helpers/services/reviewService';
 import { screenHeight, screenWidth } from '../helpers/dimensions';
-import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp, } from '@react-navigation/stack';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { MainStackParamList } from '../interfaces/navigation';
 
 export interface ReviewDetailsNavigationProp
@@ -35,11 +34,14 @@ const profileSize = screenWidth * 0.15;
 
 const ReviewDetails: FC = () => {
   const { colors, fonts, paddingSpacing } = useTheme();
-  const { setReviewsUpdated, userInfo } = useAuth();
+  const { setReviewsUpdated, userInfo, userReviews } = useAuth();
 
-  const route = useRoute<RouteProp<MainStackParamList, 'ReviewDetails'>>();
-  const { item, showComment } = route.params;
+  const route = useRoute<ReviewDetailsRouteProp>();
   const navigation = useNavigation<ReviewDetailsNavigationProp>();
+  const { item, showComment } = route.params;
+
+  // Pull the latest review from allReviews
+  const reviewItem = userReviews.find(r => r.id_review === item.id_review) || item;
 
   const [comments, setComments] = useState<Comment[]>([]);
   const [recommendations, setRecommendations] = useState<[]>([]);
@@ -51,25 +53,23 @@ const ReviewDetails: FC = () => {
   const scrollToTop = () => scrollRef.current?.scrollTo({ y: 0, animated: true });
   const toggleSheet = () => setIsOpen(!isOpen);
 
+  useEffect(() => {
+    if (showComment) setIsOpen(true);
+  }, [showComment]);
 
   useEffect(() => {
-    if (showComment) {
-      setIsOpen(true);
-    }
+    if (userInfo?.id_user) getRecommendations();
+  }, [userInfo?.id_user]);
 
-    if (userInfo?.id_user) {
-      getRecommendations();
-    }
+  useEffect(() => {
     getReviewComments();
-
-  }, [showComment, userInfo?.id_user, item.id_review]);
-
+  }, [reviewItem.id_review]);
 
   const getRecommendations = async () => {
     try {
       const response = await axios.get(`${API_URL}/tensorflow/recommendations/${userInfo?.id_user}`);
       const filteredRecommendations = response.data.data.filter(
-        (recommendation) => recommendation.review.id_review !== item.id_review
+        (recommendation) => recommendation.review.id_review !== reviewItem.id_review
       );
       setRecommendations(filteredRecommendations);
     } catch (error) {
@@ -79,7 +79,7 @@ const ReviewDetails: FC = () => {
 
   const getReviewComments = async () => {
     try {
-      const response = await axios.get(`${API_URL}/comments/review/${item.id_review}`);
+      const response = await axios.get(`${API_URL}/comments/review/${reviewItem.id_review}`);
       if (response.data?.data) setComments(response.data.data);
     } catch (error) {
       console.error('Failed to fetch comments:', error);
@@ -92,9 +92,9 @@ const ReviewDetails: FC = () => {
     setLikesState(prev => !prev);
     try {
       if (likesState) {
-        await axios.delete(`${API_URL}/likes/unlike/review/${item.id_review}/user/${userInfo.id_user}`);
+        await axios.delete(`${API_URL}/likes/unlike/review/${reviewItem.id_review}/user/${userInfo.id_user}`);
       } else {
-        await likeReview(item.id_review, userInfo.id_user);
+        await likeReview(reviewItem.id_review, userInfo.id_user);
       }
       setReviewsUpdated(prev => !prev);
     } catch (error) {
@@ -117,16 +117,15 @@ const ReviewDetails: FC = () => {
   const updateReview = () => {
     navigation.navigate("TakeImage", {
       isUpdate: true,
-      initialImage: item.imageUrl,
-      initialData: item,
+      initialImage: reviewItem.imageUrl,
+      initialData: reviewItem,
     });
   }
-
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
       <ScrollView ref={scrollRef} contentContainerStyle={{ paddingBottom: paddingSpacing.xxl }}>
-        {item.user.id_user === userInfo?.id_user && (
+        {reviewItem.user.id_user === userInfo?.id_user && (
           <Pressable
             style={[styles.updateButton, { backgroundColor: colors.card.star, padding: paddingSpacing.sm }]}
             onPress={updateReview}
@@ -136,9 +135,12 @@ const ReviewDetails: FC = () => {
         )}
         <View style={[styles.cardContainer, { backgroundColor: colors.card.bg }]}>
           <View style={styles.imageWrapper}>
-            <Image style={styles.reviewItemImage} source={{ uri: item.imageUrl }} />
+            <Image
+              style={styles.reviewItemImage}
+              source={{ uri: reviewItem.imageUrl }}
+            />
             <View style={styles.overlayContainer}>
-              {checkCategoryIcon(item.category)}
+              {checkCategoryIcon(reviewItem.category)}
               <Pressable onPress={handleLiking} style={styles.heartButton} disabled={isProcessing}>
                 <FontAwesome
                   name={likesState ? 'heart' : 'heart-o'}
@@ -148,7 +150,7 @@ const ReviewDetails: FC = () => {
               </Pressable>
             </View>
             <Text style={[styles.title, { color: colors.textColorPrimary, fontFamily: fonts.bold }]}>
-              {item.reviewname}
+              {reviewItem.reviewname}
             </Text>
             <BackButton />
           </View>
@@ -158,12 +160,12 @@ const ReviewDetails: FC = () => {
               maxStars={5}
               enableHalfStar
               starSize={20}
-              rating={item.reviewRating}
+              rating={reviewItem.reviewRating}
               onChange={() => { }}
               color={colors.card.star}
             />
             <Text style={[styles.ratingText, { color: colors.textColorSecondary }]}>
-              ({item.reviewRating})
+              ({reviewItem.reviewRating})
             </Text>
           </View>
 
@@ -172,7 +174,7 @@ const ReviewDetails: FC = () => {
               About the Product
             </Text>
             <Text style={[styles.textDescription, { color: colors.textColorSecondary }]}>
-              {item.reviewDescription}
+              {reviewItem.reviewDescription}
             </Text>
           </View>
 
@@ -184,13 +186,13 @@ const ReviewDetails: FC = () => {
               <MaterialIcons name="info-outline" size={35} color={colors.textColorSecondary} />
               <View style={{ flex: 1 }}>
                 <Text style={[styles.text, { color: colors.textColorSecondary }]}>
-                  {`Category: ${item.category}`}
+                  {`Category: ${reviewItem.category}`}
                 </Text>
                 <Text style={[styles.text, { color: colors.textColorSecondary }]}>
-                  {`Price range: ${item.priceRange} euros`}
+                  {`Price range: ${reviewItem.priceRange} euros`}
                 </Text>
                 <Text style={[styles.text, { color: colors.textColorSecondary }]}>
-                  {`Reviewed: ${calculateDate(item.createdAt)}`}
+                  {`Reviewed: ${calculateDate(reviewItem.createdAt)}`}
                 </Text>
               </View>
             </View>
@@ -201,13 +203,13 @@ const ReviewDetails: FC = () => {
               Reviewer Info
             </Text>
             <View style={styles.reviewerContainer}>
-              <Image source={{ uri: item.user.avatar }} style={styles.profileImage} />
+              <Image source={{ uri: reviewItem.user.avatar }} style={styles.profileImage} />
               <View style={styles.reviewerTextContainer}>
                 <Text style={[styles.text, { color: colors.textColorSecondary }]}>
-                  {`Reviewed by ${item.user.username}`}
+                  {`Reviewed by ${reviewItem.user.username}`}
                 </Text>
                 <Text style={[styles.text, { color: colors.textColorSecondary }]}>
-                  {`Member since ${formatDate(item.user.createdAt)}`}
+                  {`Member since ${formatDate(reviewItem.user.createdAt)}`}
                 </Text>
               </View>
             </View>
@@ -218,7 +220,7 @@ const ReviewDetails: FC = () => {
               Flavor Profile
             </Text>
             <View style={styles.descriptionBoxesContainer}>
-              {item.reviewTaste.map((tasteItem, index) => {
+              {reviewItem.reviewTaste.map((tasteItem, index) => {
                 const { color, textColor } = selectColor(tasteItem);
                 return (
                   <View key={index} style={[styles.descriptionBox, { backgroundColor: color }]}>
@@ -228,7 +230,6 @@ const ReviewDetails: FC = () => {
               })}
             </View>
           </View>
-
 
           <View style={styles.statsContainer}>
             <Pressable
@@ -253,7 +254,7 @@ const ReviewDetails: FC = () => {
 
       <BottomSheetFlatList
         renderItem={({ item }) => (
-          <UserComment id_review={route.params.item.id_review} item={item} getReviewComments={getReviewComments} />
+          <UserComment id_review={reviewItem.id_review} item={item} getReviewComments={getReviewComments} />
         )}
         data={comments}
         ListEmptyComponent={EmptyList}
@@ -263,8 +264,8 @@ const ReviewDetails: FC = () => {
         isOpen={isOpen}
         handleTitle="Comments"
         commentInput
-        id_review={item.id_review}
-        review_name={item.reviewname}
+        id_review={reviewItem.id_review}
+        review_name={reviewItem.reviewname}
         getReviewComments={getReviewComments}
       />
     </SafeAreaView>
@@ -272,148 +273,32 @@ const ReviewDetails: FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  cardContainer: {
-    width: '100%',
-    alignSelf: 'center',
-    borderRadius: 20,
-    marginBottom: 20,
-    shadowColor: '#000',
-    elevation: 5,
-    position: 'relative',
-  },
-  imageWrapper: {
-    alignItems: 'center',
-    position: 'relative',
-  },
-  reviewItemImage: {
-    width: '100%',
-    height: screenHeight / 2,
-    resizeMode: 'cover',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-  },
-  overlayContainer: {
-    position: 'absolute',
-    top: 15,
-    right: 15,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  iconWrapper: {
-    width: 50,
-    height: 50,
-    borderRadius: 20,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  heartButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  title: {
-    fontSize: 24,
-    marginVertical: 12,
-    textAlign: 'center',
-  },
-  ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 12,
-  },
-  ratingText: {
-    fontSize: 16,
-    marginLeft: 8,
-  },
-  sectionWrapper: {
-    paddingHorizontal: 16,
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    marginBottom: 8,
-  },
-  textDescription: {
-    fontSize: 16,
-    lineHeight: 22,
-  },
-  sectionBoxInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginTop: 8,
-  },
-  reviewerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginTop: 8,
-  },
-  reviewerTextContainer: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  profileImage: {
-    width: profileSize,
-    height: profileSize,
-    borderRadius: profileSize / 2,
-  },
-  text: {
-    fontSize: 14,
-    marginBottom: 6,
-  },
-  descriptionBoxesContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'flex-start',
-    gap: 8,
-    marginVertical: 12,
-  },
-  descriptionBox: {
-    minWidth: 70,
-    borderRadius: 15,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-  },
-  descriptionText: {
-    fontSize: 14,
-    textAlign: 'center',
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginVertical: 12,
-  },
-  pressable: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 16,
-  },
-  updateButton: {
-    borderRadius: 16,
-    width: '25%',
-    alignSelf: 'center',
-    marginVertical: 12,
-  },
-  updateButtonText: {
-    textAlign: 'center',
-    color: 'white',
-  },
-  recommendationsContainer: {
-    width: '100%',
-    marginVertical: 12,
-  },
+  container: { flex: 1 },
+  cardContainer: { width: '100%', alignSelf: 'center', borderRadius: 20, marginBottom: 20, shadowColor: '#000', elevation: 5, position: 'relative' },
+  imageWrapper: { alignItems: 'center', position: 'relative' },
+  reviewItemImage: { width: '100%', height: screenHeight / 2, resizeMode: 'cover', borderTopLeftRadius: 20, borderTopRightRadius: 20 },
+  overlayContainer: { position: 'absolute', top: 15, right: 15, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  iconWrapper: { width: 50, height: 50, borderRadius: 20, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
+  heartButton: { width: 50, height: 50, borderRadius: 20, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' },
+  title: { fontSize: 24, marginVertical: 12, textAlign: 'center' },
+  ratingContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginVertical: 12 },
+  ratingText: { fontSize: 16, marginLeft: 8 },
+  sectionWrapper: { paddingHorizontal: 16, marginBottom: 16 },
+  sectionTitle: { fontSize: 18, marginBottom: 8 },
+  textDescription: { fontSize: 16, lineHeight: 22 },
+  sectionBoxInfo: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 8 },
+  reviewerContainer: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 8 },
+  reviewerTextContainer: { flex: 1, justifyContent: 'center' },
+  profileImage: { width: profileSize, height: profileSize, borderRadius: profileSize / 2 },
+  text: { fontSize: 14, marginBottom: 6 },
+  descriptionBoxesContainer: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-start', gap: 8, marginVertical: 12 },
+  descriptionBox: { minWidth: 70, borderRadius: 15, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 6 },
+  descriptionText: { fontSize: 14, textAlign: 'center' },
+  statsContainer: { flexDirection: 'row', justifyContent: 'center', marginVertical: 12 },
+  pressable: { flexDirection: 'row', alignItems: 'center', borderRadius: 16 },
+  updateButton: { borderRadius: 16, width: '25%', alignSelf: 'center', marginVertical: 12 },
+  updateButtonText: { textAlign: 'center', color: 'white' },
+  recommendationsContainer: { width: '100%', marginVertical: 12 },
 });
 
 export default ReviewDetails;
