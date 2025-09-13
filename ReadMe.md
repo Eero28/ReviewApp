@@ -2,9 +2,9 @@
 
 ## Demo photos
 
-![My Image](assets/app.jpg)
+<img src="assets/app.jpg" alt="My Image" style="width:50%; height:auto;" />
 
-![My Image](assets/demo_2.jpg)
+<img src="assets/demo_2.jpg" alt="My Image" style="width:50%; height:auto;" />
 
 ## What this project is about?
 
