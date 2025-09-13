@@ -1,5 +1,5 @@
 ### Create a new user
-POST  http://localhost:4000/users/register
+POST  http://localhost:4000/auth/register
 Content-Type: application/json
 
 {
@@ -12,9 +12,6 @@ Content-Type: application/json
 ### Find User
 GET http://localhost:4000/users/1
 
-### Find Users
-GET http://localhost:4000/users
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IlNTUyIsInN1YiI6Miwicm9sZSI6InVzZXIiLCJ1c2VybmFtZSI6IlNTUyIsImF2YXRhciI6Imh0dHBzOi8vY2RuLnBpeGFiYXkuY29tL3Bob3RvLzIwMTUvMTAvMDUvMjIvMzcvYmxhbmstcHJvZmlsZS1waWN0dXJlLTk3MzQ2MF8xMjgwLnBuZyIsImlhdCI6MTc0ODg3NTE1MCwiZXhwIjoxNzQ4ODc4NzUwfQ.uzpoYxR9Yf07iSIQuHYRtusaEUZp3tu-HiC7JH3U-Gg
 
 ###Login
 POST http://localhost:4000/auth/login
@@ -25,7 +22,7 @@ Content-Type: application/json
     "password": "SSS"
 }
 ### Update avatar
-PATCH http://localhost:4000/users/12/avatar
+PATCH http://localhost:4000/users/avatar/4
 Content-Type: application/json
 
 {

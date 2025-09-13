@@ -18,7 +18,7 @@ const RegisterScreen = () => {
             password: data.password,
         };
         try {
-            await axios.post(`${API_URL}/users/register`, registerValues);
+            await axios.post(`${API_URL}/auth/register`, registerValues);
             navigation.goBack();
         } catch (error) {
             console.log(error);

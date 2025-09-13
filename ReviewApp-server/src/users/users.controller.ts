@@ -32,11 +32,6 @@ export class UsersController {
     return await this.usersService.findOne(id);
   }
 
-  @Post('register')
-  async createUser(@Body() user: User): Promise<User> {
-    return await this.usersService.createUser(user);
-  }
-
   @Put(':id')
   async updateUser(@Param('id') id: number, @Body() user: User): Promise<User> {
     return await this.usersService.updateUser(user, id);
