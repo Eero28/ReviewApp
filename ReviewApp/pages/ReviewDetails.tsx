@@ -1,11 +1,10 @@
 import { FC, useEffect, useState, useRef } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, Image, StyleSheet, ScrollView, Pressable } from 'react-native';
 import StarRating from 'react-native-star-rating-widget';
 import { FontAwesome, MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import axios from 'axios';
 import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
-import { Pressable } from 'react-native-gesture-handler';
 import { Comment } from '../interfaces/Comment';
 import { useAuth } from '../providers/ContexApi';
 import { useTheme } from '../providers/ThemeContext';

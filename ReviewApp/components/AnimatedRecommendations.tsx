@@ -1,8 +1,15 @@
-import { FC, useRef } from 'react';
-import { Animated, StyleSheet, Pressable } from 'react-native';
+import { FC } from 'react';
+import { StyleSheet, Pressable } from 'react-native';
 import Recommendation from './Recommendation';
 import { RecommendationSuggestion } from '../interfaces/Recommendation';
 import { useNavigation } from '@react-navigation/native';
+import Animated, {
+    useSharedValue,
+    useAnimatedScrollHandler,
+    useAnimatedStyle,
+    interpolate,
+    Extrapolation,
+} from 'react-native-reanimated';
 import { screenWidth, screenHeight } from '../helpers/dimensions';
 
 type Props = {
@@ -10,16 +17,18 @@ type Props = {
     onCardPress: () => void;
 };
 
-// Make cards proportional to screen
-const CARD_WIDTH = screenWidth * 0.6;   // 60% of screen width
-const CARD_HEIGHT = screenHeight * 0.5; // 50% of screen height
+const CARD_WIDTH = screenWidth * 0.6;
+const CARD_HEIGHT = screenHeight * 0.5;
 const CARD_MARGIN = 16;
 const SNAP_INTERVAL = CARD_WIDTH + CARD_MARGIN;
 
 const AnimatedRecommendations: FC<Props> = ({ recommendations, onCardPress }) => {
-    const scrollX = useRef(new Animated.Value(0)).current;
+    const scrollX = useSharedValue(0);
     const navigation = useNavigation<any>();
-    const touchStartXRefs = useRef<number[]>([]);
+
+    const scrollHandler = useAnimatedScrollHandler((event) => {
+        scrollX.value = event.contentOffset.x;
+    });
 
     return (
         <Animated.ScrollView
@@ -28,55 +37,40 @@ const AnimatedRecommendations: FC<Props> = ({ recommendations, onCardPress }) =>
             snapToInterval={SNAP_INTERVAL}
             decelerationRate="fast"
             scrollEventThrottle={16}
-            contentContainerStyle={{
-                paddingHorizontal: 16,
-                alignItems: 'flex-end',
-            }}
-            onScroll={Animated.event(
-                [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-                { useNativeDriver: true }
-            )}
+            onScroll={scrollHandler}
+            contentContainerStyle={{ paddingHorizontal: 16, alignItems: 'flex-end' }}
         >
             {recommendations.map((item, index) => {
-                const inputRange = [
-                    (index - 1) * SNAP_INTERVAL,
-                    index * SNAP_INTERVAL,
-                    (index + 1) * SNAP_INTERVAL,
-                ];
+                const animatedStyle = useAnimatedStyle(() => {
+                    const scale = interpolate(
+                        scrollX.value,
+                        [(index - 1) * SNAP_INTERVAL, index * SNAP_INTERVAL, (index + 1) * SNAP_INTERVAL],
+                        [0.95, 1, 0.95],
+                        Extrapolation.CLAMP
+                    );
 
-                const scale = scrollX.interpolate({
-                    inputRange,
-                    outputRange: [0.95, 1, 0.95],
-                    extrapolate: 'clamp',
-                });
+                    const translateY = interpolate(
+                        scrollX.value,
+                        [(index - 1) * SNAP_INTERVAL, index * SNAP_INTERVAL, (index + 1) * SNAP_INTERVAL],
+                        [10, 0, 10],
+                        Extrapolation.CLAMP
+                    );
 
-                const translateY = scrollX.interpolate({
-                    inputRange,
-                    outputRange: [10, 0, 10],
-                    extrapolate: 'clamp',
+                    return {
+                        transform: [{ scale }, { translateY }],
+                    };
                 });
 
                 return (
                     <Animated.View
                         key={index}
-                        style={[
-                            styles.cardWrapper,
-                            { width: CARD_WIDTH, height: CARD_HEIGHT, transform: [{ scale }, { translateY }] },
-                        ]}
+                        style={[styles.cardWrapper, { width: CARD_WIDTH, height: CARD_HEIGHT }, animatedStyle]}
                     >
                         <Pressable
-                            style={{ borderRadius: 16 }}
-                            onTouchStart={(e) => {
-                                touchStartXRefs.current[index] = e.nativeEvent.pageX;
-                            }}
-                            onTouchEnd={(e) => {
-                                const dx = Math.abs(
-                                    e.nativeEvent.pageX - (touchStartXRefs.current[index] || 0)
-                                );
-                                if (dx < 5) {
-                                    onCardPress();
-                                    navigation.navigate('ReviewDetails', { item: item.review });
-                                }
+                            style={{ borderRadius: 16, flex: 1 }}
+                            onPress={() => {
+                                onCardPress();
+                                navigation.navigate('ReviewDetails', { item: item.review });
                             }}
                         >
                             <Recommendation item={item} />

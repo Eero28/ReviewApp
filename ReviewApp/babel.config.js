@@ -1,13 +1,13 @@
 module.exports = {
-    presets: ['babel-preset-expo'],
-    plugins: [
-      [
-        'module:react-native-dotenv',
-        {
-          moduleName: '@env', 
-          path: '.env',        
-        },
-      ],
+  presets: ["babel-preset-expo"],
+  plugins: [
+    [
+      "module:react-native-dotenv",
+      {
+        moduleName: "@env",
+        path: ".env",
+      },
     ],
-  };
-  
+    "react-native-worklets/plugin",
+  ],
+};

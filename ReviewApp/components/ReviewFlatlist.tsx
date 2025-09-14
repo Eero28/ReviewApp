@@ -5,7 +5,6 @@ import {
     Text,
     TextInput,
     View,
-    Animated,
 } from 'react-native';
 import ReviewItem from './ReviewItem';
 import { ReviewItemIf } from '../interfaces/ReviewItemIf';
@@ -13,6 +12,8 @@ import NoReviewsMade from './NoReviewsMade';
 import { useTheme } from '../providers/ThemeContext';
 import { useSearch } from '../providers/SearchBarContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+
 
 type Props = {
     reviews: ReviewItemIf[];
@@ -22,7 +23,11 @@ type Props = {
 
 const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false, noReviewsText }) => {
     const { colors, fonts } = useTheme();
-    const { isOpen, searchTerm, setSearchTerm, animatedWidth, toggleSearchBar } = useSearch()
+    const { animatedWidth, isOpen, searchTerm, setSearchTerm } = useSearch();
+
+    const animatedStyle = useAnimatedStyle(() => ({
+        width: animatedWidth.value,
+    }));
 
 
     if (reviews.length <= 0) {
@@ -43,7 +48,7 @@ const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false, noReview
         <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
             <View style={styles.searchWrapper}>
                 {isOpen && (
-                    <Animated.View style={[styles.searchbarContainer, { width: animatedWidth, backgroundColor: colors.card.bg || '#f2f2f2' }]}>
+                    <Animated.View style={[styles.searchbarContainer, animatedStyle, { backgroundColor: colors.card.bg || '#f2f2f2' }]}>
                         <TextInput
                             style={[styles.input, { backgroundColor: colors.form.input || 'lightgray', color: colors.textColorPrimary, fontFamily: fonts.regular }]}
                             onChangeText={val => setSearchTerm(val.toLowerCase())}

@@ -15,9 +15,9 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
   withTiming,
-  runOnJS,
   useAnimatedScrollHandler,
 } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import axios from 'axios';
 import { useAuth } from '../providers/ContexApi';
@@ -89,8 +89,10 @@ function BottomSheetFlatList({
         const currDistance = Math.abs(translateY.value - (screenHeight - screenHeight * curr));
         return currDistance < prevDistance ? curr : prev;
       });
-      translateY.value = withTiming(screenHeight - screenHeight * closestSnap, { duration: 200 });
-      if (closestSnap === Math.min(...snapPositions)) runOnJS(onClose)();
+      const finalPosition = screenHeight - screenHeight * closestSnap;
+
+      translateY.value = withSpring(finalPosition, { damping: 20, stiffness: 150, mass: 1 });
+      if (closestSnap === Math.min(...snapPositions)) scheduleOnRN(onClose);
     });
 
   const onScroll = useAnimatedScrollHandler({
@@ -118,8 +120,10 @@ function BottomSheetFlatList({
           const currDistance = Math.abs(translateY.value - (screenHeight - screenHeight * curr));
           return currDistance < prevDistance ? curr : prev;
         });
-        translateY.value = withTiming(screenHeight - screenHeight * closestSnap, { duration: 200 });
-        if (closestSnap === Math.min(...snapPositions)) runOnJS(onClose)();
+        const finalPosition = screenHeight - screenHeight * closestSnap;
+
+        translateY.value = withSpring(finalPosition, { damping: 20, stiffness: 150, mass: 1 });
+        if (closestSnap === Math.min(...snapPositions)) scheduleOnRN(onClose);
       }
     });
 
@@ -242,7 +246,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     backgroundColor: '#121314',
-    marginBottom: 100,
   },
   inputField: {
     flex: 1,

@@ -1,22 +1,19 @@
 import React, { FC, useEffect } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
-import { screenHeight } from '../helpers/dimensions'; // Use screen height
+import { screenHeight } from '../helpers/dimensions';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
   withTiming,
-  runOnJS,
   useAnimatedScrollHandler,
 } from 'react-native-reanimated';
-import {
-  Gesture,
-  GestureDetector,
-} from 'react-native-gesture-handler';
+import { scheduleOnRN } from 'react-native-worklets';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 interface BottomSheetProps {
   isOpen: boolean;
-  snapPoints: string[]; 
+  snapPoints: string[];
   backgroundColor: string;
   handleColor?: string;
   onClose: () => void;
@@ -31,14 +28,13 @@ const BottomSheetScrollView: FC<BottomSheetProps> = ({
   handleColor = 'gray',
   onClose,
   children,
-  handleTitle = ""
+  handleTitle = '',
 }) => {
   const snapPositions = snapPoints.map((point) => parseFloat(point.replace('%', '')) / 100);
   const closeHeight = screenHeight;
   const translateY = useSharedValue(closeHeight);
   const context = useSharedValue(0);
 
-  const scrollBegin = useSharedValue(0);
   const scrollY = useSharedValue(0);
 
   useEffect(() => {
@@ -49,100 +45,82 @@ const BottomSheetScrollView: FC<BottomSheetProps> = ({
     translateY.value = withSpring(targetHeight, { damping: 100, stiffness: 400 });
   }, [isOpen]);
 
-  // Pan gesture handler
+  // Pan gesture for handle
   const pan = Gesture.Pan()
     .onBegin(() => {
       context.value = translateY.value;
     })
     .onUpdate((event) => {
-      const newTranslateY = context.value + event.translationY;
-      
-      translateY.value = Math.max(newTranslateY, 0);
+      translateY.value = Math.max(context.value + event.translationY, 0);
     })
     .onEnd(() => {
-      // Adjust responsiveness for fast drags by using `withTiming` instead of `withSpring`
       const closestSnap = snapPositions.reduce((prev, curr) => {
-        const prevDistance = Math.abs(translateY.value - (screenHeight - screenHeight * prev));
-        const currDistance = Math.abs(translateY.value - (screenHeight - screenHeight * curr));
-        return currDistance < prevDistance ? curr : prev;
+        const prevDist = Math.abs(translateY.value - (screenHeight - screenHeight * prev));
+        const currDist = Math.abs(translateY.value - (screenHeight - screenHeight * curr));
+        return currDist < prevDist ? curr : prev;
       });
 
-      translateY.value = withTiming(screenHeight - screenHeight * closestSnap, {
-        duration: 200, 
-        easing: (t) => t, 
-      });
+      const finalPosition = screenHeight - screenHeight * closestSnap;
+      translateY.value = withSpring(finalPosition, { damping: 20, stiffness: 150, mass: 1 });
 
-      const lowestPosition = Math.min(...snapPositions);
-      if (closestSnap === lowestPosition) {
-        runOnJS(onClose)(); 
+      if (closestSnap === Math.min(...snapPositions)) {
+        scheduleOnRN(onClose);
       }
     });
 
-  // Scroll gesture handler
-  const onScroll = useAnimatedScrollHandler({
-    onBeginDrag: (event) => {
-      scrollBegin.value = event.contentOffset.y;
-    },
-    onScroll: (event) => {
-      scrollY.value = event.contentOffset.y;
-    },
-  });
-
-  // Pan gesture handler for scroll interaction
+  // Pan gesture for scroll interaction
   const panScroll = Gesture.Pan()
     .onBegin(() => {
       context.value = translateY.value;
     })
     .onUpdate((event) => {
-      // Only allow the pan gesture if scrollY is 0 or negative
       if (scrollY.value <= 0 && event.translationY > 0) {
-        const newTranslateY = context.value + event.translationY;
-        translateY.value = Math.max(newTranslateY, 0);
+        translateY.value = Math.max(context.value + event.translationY, 0);
       }
     })
     .onEnd(() => {
       if (scrollY.value <= 0) {
         const closestSnap = snapPositions.reduce((prev, curr) => {
-          const prevDistance = Math.abs(translateY.value - (screenHeight - screenHeight * prev));
-          const currDistance = Math.abs(translateY.value - (screenHeight - screenHeight * curr));
-          return currDistance < prevDistance ? curr : prev;
+          const prevDist = Math.abs(translateY.value - (screenHeight - screenHeight * prev));
+          const currDist = Math.abs(translateY.value - (screenHeight - screenHeight * curr));
+          return currDist < prevDist ? curr : prev;
         });
 
-        translateY.value = withTiming(screenHeight - screenHeight * closestSnap, {
-          duration: 200,
-          easing: (t) => t, 
-        });
-        const lowestPosition = Math.min(...snapPositions);
-        if (closestSnap === lowestPosition) {
-          runOnJS(onClose)(); 
+        const finalPosition = screenHeight - screenHeight * closestSnap;
+        translateY.value = withSpring(finalPosition, { damping: 20, stiffness: 150, mass: 1 });
+
+        if (closestSnap === Math.min(...snapPositions)) {
+          scheduleOnRN(onClose);
         }
       }
     });
 
   const scrollViewGesture = Gesture.Native();
 
-  // Animated style for the bottom sheet container
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateY: translateY.value }],
-    };
+  const onScroll = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollY.value = event.contentOffset.y;
+    },
   });
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+  }));
 
   return (
     <GestureDetector gesture={pan}>
       <Animated.View style={[styles.container, animatedStyle, { backgroundColor }]}>
         <View style={styles.lineContainer}>
-          <View style={[styles.line,{backgroundColor: handleColor}]} />
+          <View style={[styles.line, { backgroundColor: handleColor }]} />
           <Text style={styles.text}>{handleTitle}</Text>
         </View>
-        <GestureDetector
-          gesture={Gesture.Simultaneous(panScroll, scrollViewGesture)}
-        >
+
+        <GestureDetector gesture={Gesture.Simultaneous(panScroll, scrollViewGesture)}>
           <Animated.ScrollView
             scrollEventThrottle={16}
             bounces={false}
             onScroll={onScroll}
-            contentContainerStyle={styles.scrollContent} 
+            contentContainerStyle={styles.scrollContent}
           >
             {children}
           </Animated.ScrollView>
@@ -174,7 +152,7 @@ const styles = StyleSheet.create({
   text: {
     padding: 10,
     fontFamily: 'poppins',
-    color: 'whitesmoke'
+    color: 'whitesmoke',
   },
 });
 

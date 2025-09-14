@@ -1,5 +1,6 @@
-import React, { createContext, useState, useContext } from 'react';
-import { Animated } from 'react-native';
+import React, { createContext, useContext, useState } from 'react';
+import Animated, { SharedValue, useSharedValue, withTiming } from 'react-native-reanimated';
+
 
 type SearchContextType = {
     isOpen: boolean;
@@ -7,34 +8,27 @@ type SearchContextType = {
     toggleSearchBar: () => void;
     searchTerm: string;
     setSearchTerm: React.Dispatch<React.SetStateAction<string>>
-    animatedWidth: Animated.Value
+    animatedWidth: SharedValue<number>;
 };
 
 const SearchContext = createContext<SearchContextType | undefined>(undefined);
 
 export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [isOpen, setIsOpen] = useState<boolean>(false);
-    const [animatedWidth] = useState(new Animated.Value(50));
     const [searchTerm, setSearchTerm] = useState<string>('');
-
+    const animatedWidth = useSharedValue(50);
 
     const toggleSearchBar = () => {
         if (isOpen) {
-            Animated.timing(animatedWidth, {
-                toValue: 50,
-                duration: 300,
-                useNativeDriver: false,
-            }).start(() => setIsOpen(false));
+            animatedWidth.value = withTiming(50, { duration: 300 });
+            setIsOpen(false);
             setSearchTerm('');
         } else {
             setIsOpen(true);
-            Animated.timing(animatedWidth, {
-                toValue: 350,
-                duration: 300,
-                useNativeDriver: false,
-            }).start();
+            animatedWidth.value = withTiming(350, { duration: 300 });
         }
     };
+
     return (
         <SearchContext.Provider value={{ isOpen, setIsOpen, toggleSearchBar, searchTerm, animatedWidth, setSearchTerm }}>
             {children}
