@@ -14,7 +14,7 @@ import RNPickerSelect from 'react-native-picker-select';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import CameraComponent from '../components/CameraComponent';
 import { useAuth } from '../providers/ContexApi';
-import { tasteGroupsFormValues, selectColor } from '../helpers/tastegroup';
+import { tasteGroupsFormValues, selectColor, toggleSelectedTaste } from '../helpers/tastegroup';
 import { errorHandler } from '../helpers/errors/error';
 import axios from 'axios';
 import { API_URL } from '@env';
@@ -319,7 +319,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUp
                           <Pressable
                             key={taste}
                             style={[styles.tasteChip, { backgroundColor: isSelected ? color : '#eee' }]}
-                            onPress={() => onChange(selectColor(taste))}
+                            onPress={() => onChange(toggleSelectedTaste(value, taste))}
                           >
                             <Text style={{ color: isSelected ? textColor : '#000', fontFamily: fonts.medium }}>
                               {taste}
