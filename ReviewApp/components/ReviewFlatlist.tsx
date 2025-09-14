@@ -1,19 +1,18 @@
-import { FC, useState } from 'react';
+import { FC } from 'react';
 import {
     StyleSheet,
-    SafeAreaView,
     FlatList,
     Text,
     TextInput,
     View,
     Animated,
-    TouchableOpacity,
 } from 'react-native';
 import ReviewItem from './ReviewItem';
 import { ReviewItemIf } from '../interfaces/ReviewItemIf';
 import NoReviewsMade from './NoReviewsMade';
 import { useTheme } from '../providers/ThemeContext';
 import { useSearch } from '../providers/SearchBarContext';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type Props = {
     reviews: ReviewItemIf[];

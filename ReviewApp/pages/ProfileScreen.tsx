@@ -4,7 +4,6 @@ import {
   Text,
   View,
   Image,
-  SafeAreaView,
   Pressable,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
@@ -14,7 +13,7 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import * as ImagePicker from "expo-image-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from "../providers/ContexApi";
 import { useTheme } from "../providers/ThemeContext";
 import ConfirmationSheet from "../components/ConfirmationsSheet";

@@ -41,7 +41,7 @@ const DrawerNavigator = () => {
         initialParams={{ screen: "Myreviews", params: { openSearch: false } }}
         options={{
           headerShown: true,
-          headerRight: () => (<AntDesign style={{ marginRight: 10 }} onPress={toggleSearchBar} name={!isOpen ? 'search1' : 'close'} size={26} color={colors.textColorPrimary} />),
+          headerRight: () => (<AntDesign style={{ marginRight: 10 }} onPress={toggleSearchBar} name={!isOpen ? 'search' : 'close'} size={26} color={colors.textColorPrimary} />),
           drawerIcon: ({ color }) => (
             <MaterialIcons name="home" size={20} color={color} />
           ),
