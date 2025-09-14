@@ -3,12 +3,13 @@ import { FC, useState } from 'react';
 import Icon from './Icon';
 import { categories } from '../helpers/categories';
 import { useTheme } from '../providers/ThemeContext';
-
+import { useSearch } from '../providers/SearchBarContext';
 type Props = {
     fetchReviewsWithCategory: (category?: string) => void;
 };
 
 const FilterButtons: FC<Props> = ({ fetchReviewsWithCategory }) => {
+    const { isOpen } = useSearch()
     const { colors, fonts } = useTheme();
     const [activeCategory, setActiveCategory] = useState<string | undefined>(undefined);
 
@@ -16,6 +17,11 @@ const FilterButtons: FC<Props> = ({ fetchReviewsWithCategory }) => {
         setActiveCategory(categoryValue);
         fetchReviewsWithCategory(categoryValue);
     };
+
+    //dont show anything if search open
+    if (isOpen) {
+        return <></>
+    }
 
     return (
         <View style={[styles.container, { backgroundColor: colors.bg }]}>

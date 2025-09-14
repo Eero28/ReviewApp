@@ -64,7 +64,7 @@ const MainTabs = () => {
                                 justifyContent: 'center',
                                 alignItems: 'center',
                                 borderRadius: 30,
-                                backgroundColor: "#4D4D4D",
+                                backgroundColor: colors.navigation.camera,
                             }}
                         >
                             <FontAwesome name="camera" size={size} color="white" />

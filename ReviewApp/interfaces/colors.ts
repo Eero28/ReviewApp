@@ -19,10 +19,15 @@ export interface ThemeColors {
     bgContent: string;
     border: string;
     star: string;
+    separator: string;
   };
   form: {
     input: string;
     inputBorder: string;
     inputTextColor: string;
+  };
+  navigation: {
+    camera: string;
+    icons: string;
   };
 }

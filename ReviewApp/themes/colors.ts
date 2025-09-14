@@ -19,16 +19,21 @@ export const colorsDarkmode: ThemeColors = {
     bgContent: "red",
     border: "#4D4D4D",
     star: "#ffae42",
+    separator: "#B3B3B3",
   },
   form: {
     input: "#1A1A1A",
     inputBorder: "",
     inputTextColor: "#B3B3B3",
   },
+  navigation: {
+    camera: "#4D4D4D",
+    icons: "#ebe9fc",
+  },
 };
 
 export const colorsLightmode: ThemeColors = {
-  bg: "#fbfbfe",
+  bg: "#e8eaef",
   textColorPrimary: "#050316",
   textColorSecondary: "#5a5a75",
   statusBarColor: "dark-content",
@@ -39,17 +44,22 @@ export const colorsLightmode: ThemeColors = {
     info: "#3498db",
   },
   modalDialog: {
-    bg: "#ffff",
+    bg: "#ffffff",
   },
   card: {
-    bg: "#8f8dbb",
-    bgContent: "#8f8dbb",
-    border: "#4D4D4D",
+    bg: "#f5f6f8",
+    bgContent: "#ffffff",
+    border: "#e0e0e0",
     star: "#ffae42",
+    separator: "gray",
   },
   form: {
-    input: "#fff",
-    inputBorder: "",
-    inputTextColor: "#B3B3B3",
+    input: "#ffffff",
+    inputBorder: "#dcdcdc",
+    inputTextColor: "#5a5a75",
+  },
+  navigation: {
+    camera: "#007AFF",
+    icons: "#050316",
   },
 };

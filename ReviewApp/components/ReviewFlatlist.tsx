@@ -9,11 +9,11 @@ import {
     Animated,
     TouchableOpacity,
 } from 'react-native';
-import AntDesign from '@expo/vector-icons/AntDesign';
 import ReviewItem from './ReviewItem';
 import { ReviewItemIf } from '../interfaces/ReviewItemIf';
 import NoReviewsMade from './NoReviewsMade';
 import { useTheme } from '../providers/ThemeContext';
+import { useSearch } from '../providers/SearchBarContext';
 
 type Props = {
     reviews: ReviewItemIf[];
@@ -23,9 +23,8 @@ type Props = {
 
 const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false, noReviewsText }) => {
     const { colors, fonts } = useTheme();
-    const [searchTerm, setSearchTerm] = useState<string>('');
-    const [isOpen, setIsOpen] = useState<boolean>(false);
-    const [animatedWidth] = useState(new Animated.Value(50));
+    const { isOpen, searchTerm, setSearchTerm, animatedWidth, toggleSearchBar } = useSearch()
+
 
     if (reviews.length <= 0) {
         return <NoReviewsMade noReviewsText={noReviewsText} />;
@@ -41,31 +40,13 @@ const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false, noReview
         return matchesName || matchesUser || matchesTaste;
     });
 
-    const toggleSearchBar = () => {
-        if (isOpen) {
-            Animated.timing(animatedWidth, {
-                toValue: 50,
-                duration: 300,
-                useNativeDriver: false,
-            }).start(() => setIsOpen(false));
-            setSearchTerm('');
-        } else {
-            setIsOpen(true);
-            Animated.timing(animatedWidth, {
-                toValue: 350,
-                duration: 300,
-                useNativeDriver: false,
-            }).start();
-        }
-    };
-
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
             <View style={styles.searchWrapper}>
                 {isOpen && (
                     <Animated.View style={[styles.searchbarContainer, { width: animatedWidth, backgroundColor: colors.card.bg || '#f2f2f2' }]}>
                         <TextInput
-                            style={[styles.input, { backgroundColor: colors.card.bgContent || 'lightgray', color: colors.textColorPrimary, fontFamily: fonts.regular }]}
+                            style={[styles.input, { backgroundColor: colors.form.input || 'lightgray', color: colors.textColorPrimary, fontFamily: fonts.regular }]}
                             onChangeText={val => setSearchTerm(val.toLowerCase())}
                             placeholder="Search"
                             autoFocus={true}
@@ -73,9 +54,6 @@ const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false, noReview
                         />
                     </Animated.View>
                 )}
-                <TouchableOpacity onPress={toggleSearchBar} style={styles.iconWrapper}>
-                    <AntDesign name={isOpen ? 'close' : 'search1'} size={24} color={colors.textColorPrimary} />
-                </TouchableOpacity>
             </View>
 
             {filteredReviews.length === 0 && searchTerm ? (
@@ -123,10 +101,10 @@ const styles = StyleSheet.create({
     },
     input: {
         flex: 1,
-        fontSize: 16,
+        fontSize: 15,
         borderRadius: 10,
-        height: 40,
-        paddingHorizontal: 10,
+        height: 50,
+        padding: 10,
     },
     iconWrapper: {
         justifyContent: 'center',

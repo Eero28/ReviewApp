@@ -7,12 +7,16 @@ import { useAuth } from "../providers/ContexApi";
 import Favorites from "../pages/Favorites";
 import { useTheme } from "../providers/ThemeContext"
 import { DrawerParamList } from '../interfaces/navigation'
+import AntDesign from '@expo/vector-icons/AntDesign';
+import { useSearch } from "../providers/SearchBarContext";
 
 const Drawer = createDrawerNavigator<DrawerParamList>();
 
 const DrawerNavigator = () => {
+  const { toggleSearchBar, isOpen } = useSearch()
   const { userInfo } = useAuth();
   const { colors, fonts } = useTheme();
+
 
   return (
     <Drawer.Navigator
@@ -34,8 +38,10 @@ const DrawerNavigator = () => {
       <Drawer.Screen
         name={userInfo?.username ? "Reviews" : "Welcome"}
         component={BottomTabNavigator}
+        initialParams={{ screen: "Myreviews", params: { openSearch: false } }}
         options={{
           headerShown: true,
+          headerRight: () => (<AntDesign style={{ marginRight: 10 }} onPress={toggleSearchBar} name={!isOpen ? 'search1' : 'close'} size={26} color={colors.textColorPrimary} />),
           drawerIcon: ({ color }) => (
             <MaterialIcons name="home" size={20} color={color} />
           ),

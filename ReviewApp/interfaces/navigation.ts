@@ -12,7 +12,9 @@ export interface AuthTabParamList extends ParamListBase {
 }
 
 export interface BottomTabParamList extends ParamListBase {
-  Myreviews: undefined;
+  Myreviews: {
+    openSearch: boolean;
+  };
   AllReviews: undefined;
 }
 

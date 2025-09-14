@@ -135,7 +135,7 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
                         const { color, textColor } = selectColor(tasteItem);
                         return (
                             <View key={i} style={[styles.reviewItemTagBox, { backgroundColor: color }]}>
-                                <Text style={[styles.reviewItemTagText, { color: textColor, fontFamily: fonts.regular }]}>
+                                <Text style={[styles.reviewItemTagText, { color: textColor, fontFamily: fonts.semiBold }]}>
                                     {tasteItem}
                                 </Text>
                             </View>
@@ -143,7 +143,7 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
                     })}
                     {item.reviewTaste.length > 3 && (
                         <View style={[styles.reviewItemTagBox, { backgroundColor: colors.card.bg }]}>
-                            <Text style={[styles.reviewItemTagText, { color: colors.textColorPrimary, fontFamily: fonts.regular }]}>
+                            <Text style={[styles.reviewItemTagText, { color: colors.textColorPrimary, fontFamily: fonts.semiBold }]}>
                                 +{item.reviewTaste.length - 3}
                             </Text>
                         </View>
@@ -151,7 +151,7 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
                 </View>
             </View>
 
-            <View style={[styles.tagsSeparator, { borderBottomColor: colors.textColorSecondary }]} />
+            <View style={[styles.tagsSeparator, { borderBottomColor: colors.card.separator }]} />
 
             <View style={styles.reviewItemIconsContainer}>
                 <Pressable disabled={isProcessing} onPress={handleLiking} style={styles.reviewItemIconWrapper}>
@@ -185,11 +185,12 @@ export default ReviewItem;
 const styles = StyleSheet.create({
     reviewItemContainer: {
         flexDirection: 'column',
-        borderRadius: 12,
         padding: 0,
         marginVertical: 8,
         width: '100%',
         borderWidth: 2,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
     },
     pressableWrapper: {
         width: '100%',
@@ -197,14 +198,14 @@ const styles = StyleSheet.create({
     imageWrapper: {
         position: 'relative',
         width: '100%',
-        borderRadius: 12,
         marginBottom: 8,
     },
     reviewItemImage: {
         width: '100%',
         height: screenHeight * 0.30,
         resizeMode: 'cover',
-        borderRadius: 12,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
     },
     categoryBadge: {
         position: 'absolute',
@@ -272,7 +273,6 @@ const styles = StyleSheet.create({
     },
     tagsSeparator: {
         borderBottomWidth: 1,
-        marginVertical: 6,
     },
     reviewItemIconsContainer: {
         flexDirection: 'row',
