@@ -25,7 +25,7 @@ This project was designed to deepen my understanding of NestJS and React Native 
   <img src="assets/demoPhotos/register_dark.jpg" alt="Register Dark" style="width:47%; height:auto;" />
   <img src="assets/demoPhotos/register_light.jpg" alt="Register Light" style="width:47%; height:auto;" />
 
-  <img src="assets/demoPhotos/review_dark.jpg" alt="Review Dark" style="width:47%; height:auto;" />
+  <img src="assets/demoPhotos/reviews_dark.jpg" alt="Review Dark" style="width:47%; height:auto;" />
   <img src="assets/demoPhotos/reviews_light.jpg" alt="Reviews Light" style="width:47%; height:auto;" />
 </div>
 
