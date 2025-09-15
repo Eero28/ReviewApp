@@ -20,9 +20,49 @@ This project was designed to deepen my understanding of NestJS and React Native 
 - Smooth pop-up modals for quick actions
 - Smart recommendations using TensorFlow
 - Automated CI/CD
-- Runs in Docker and deployed on Azure (Cost money, so not on anymore)
+- Runs in Docker and deployed on Azure (Cost money, so not running anymore)
 - Cloudinary to store images
 - Darkmode / Lightmode
+
+## Implemented Features
+
+These are the main features currently implemented in ReviewApp, grouped by Frontend, Backend, and DevOps/Infrastructure:
+
+### Frontend
+
+| #   | Feature                                                                                      |
+| --- | -------------------------------------------------------------------------------------------- |
+| 1   | Sign up, log in, and log out to access full app functionality.                               |
+| 2   | Navigation implemented using React Navigation, including standard screens, drawer, and tabs. |
+| 3   | View both your own reviews and all reviews to easily browse content.                         |
+| 4   | Review Detail Page: click on any review to see full content, author details, comments, etc.  |
+| 5   | Create, update, and delete reviews to share thoughts and keep them up to date.               |
+| 6   | Comment, reply, like, and unlike reviews to interact with others.                            |
+| 7   | Search and filter reviews to easily find content that interests the user.                    |
+| 8   | See personalized recommendations powered by TensorFlow to discover new content.              |
+| 9   | Update profile image to personalize the account.                                             |
+| 10  | Switch between dark mode and light mode to use the theme that suits the user best.           |
+| 11  | Smooth pop-up modals implemented using React Native Reanimated to enhance user experience.   |
+| 12  | User data and theme managed using React Context API for consistent state across the app.     |
+| 13  | .env file for storing environment-specific configuration, including API keys and secrets.    |
+
+### Backend
+
+| #   | Feature                                                                                                       |
+| --- | ------------------------------------------------------------------------------------------------------------- |
+| 1   | NestJS API using PostgreSQL with TypeORM for data storage.                                                    |
+| 2   | Implements all entities and relationships: Users, Reviews, Comments, Likes, Auth, and TensorFlow.             |
+| 3   | Full CRUD functionality for all entities.                                                                     |
+| 4   | JWT tokens used to securely handle all actions that modify data.                                              |
+| 5   | Cloudinary integrated for storing images.                                                                     |
+| 6   | .env file for storing environment-specific configuration, including database URLs, JWT secrets, and API keys. |
+
+### DevOps / Infrastructure
+
+| #   | Feature                                                                                            |
+| --- | -------------------------------------------------------------------------------------------------- |
+| 1   | Dockerized for local development and previously deployed on Azure (deployment paused due to cost). |
+| 2   | Automated CI/CD pipeline set up for continuous development and deployment using GitHub Actions.    |
 
 ## **Key Technologies Used:**
 
@@ -48,7 +88,7 @@ This project was designed to deepen my understanding of NestJS and React Native 
 
 ![My Image](assets/ReviewApp_db.png)
 
-This section describes the key entities and their relationships in the application’s PostgreSQL database. Additionally, I've created Docker images and deployed them to Azure for a limited time due to cost considerations.
+This section describes the key entities and their relationships in the application’s PostgreSQL database.
 
 ![My Image](assets/Capture.PNG)
 
