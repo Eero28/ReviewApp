@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -22,6 +22,10 @@ import { formatDate } from "../helpers/date";
 import { errorHandler } from "../helpers/errors/error";
 import { API_URL } from "@env";
 import { DrawerParamList } from "../interfaces/navigation";
+import ToggleThemeButton from "../components/ToggleThemeButton";
+import BottomSheetScrollView from "../components/BottomSheetScrollView";
+import Feather from '@expo/vector-icons/Feather';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 const profileSize = screenWidth * 0.3;
 
@@ -31,7 +35,7 @@ export interface ProfileNavigationProp
 const ProfileScreen = () => {
   const navigation = useNavigation<ProfileNavigationProp>();
 
-  const { toggleTheme, colors, fonts, paddingSpacing } = useTheme();
+  const { colors, fonts } = useTheme();
   const {
     handleLogout,
     userInfo,
@@ -41,10 +45,11 @@ const ProfileScreen = () => {
     reviewsUpdated,
   } = useAuth();
 
-  const [isOpen, setIsOpen] = useState(false);
-  const [isOpen2, setIsOpen2] = useState(false);
-  const [isOpen3, setIsOpen3] = useState(false);
+  const [isLogoutSheetOpen, setLogoutSheetOpen] = useState(false);
+  const [isProfileUpdateSheetOpen, setProfileUpdateSheetOpen] = useState(false);
+  const [isSettingsSheetOpen, setSettingsSheetOpen] = useState(false);
   const [imageUri, setImageUri] = useState<string | null>(null);
+  const [isSelected, setIsSelected] = useState<boolean>(false)
 
   if (!userInfo) {
     handleLogout();
@@ -57,17 +62,37 @@ const ProfileScreen = () => {
     );
   }
 
-  const toggleSheetLogout = () => {
-    setIsOpen((prev) => !prev);
-    if (isOpen2) toggleSheet2();
+  // close all modals when navigating out from profile
+  useEffect(() => {
+    const allModalsDown = navigation.addListener("blur", () => {
+      setLogoutSheetOpen(false);
+      setProfileUpdateSheetOpen(false);
+      setSettingsSheetOpen(false);
+    });
+
+    return allModalsDown;
+  }, [navigation]);
+
+  const toggleLogoutSheet = () => {
+    setLogoutSheetOpen(prev => !prev);
+    if (isSettingsSheetOpen) {
+      toggleSettingsSheet()
+    };
   };
-  const toggleSheet2 = () => setIsOpen2((prev) => !prev);
-  const toggleSheet3 = () => setIsOpen3((prev) => !prev);
+  const toggleProfileUpdateSheet = () => {
+    setProfileUpdateSheetOpen(prev => !prev);
+    if (isSettingsSheetOpen) {
+      toggleSettingsSheet()
+    }
+  }
+  const toggleSettingsSheet = () => {
+    setSettingsSheetOpen(prev => !prev);
+  }
 
   const confirmLogout = () => {
     handleLogout();
+    toggleLogoutSheet();
     navigation.goBack();
-    toggleSheetLogout();
   };
 
   const stats = [
@@ -104,14 +129,28 @@ const ProfileScreen = () => {
     const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], quality: 1 });
     if (!result.canceled) {
       setImageUri(result.assets[0].uri);
-      toggleSheet3();
+      toggleProfileUpdateSheet();
     }
   };
 
-  const goToFavoritesPage = () => navigation.navigate("Favorites");
+  const handleAvatarUpdate = () => {
+    if (imageUri) {
+      updateAvatar(imageUri);
+      toggleProfileUpdateSheet();
+    }
+  }
+
+  const handleUpdateCancel = () => {
+    setImageUri(userInfo.avatar)
+    toggleProfileUpdateSheet()
+  }
+
+  const goToFavoritesPage = () => {
+    navigation.navigate("Favorites");
+  }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]} edges={['bottom', 'left', 'right']}>
       <View style={styles.headerContainer}>
         <Image
           source={{
@@ -123,30 +162,13 @@ const ProfileScreen = () => {
         <View style={styles.settingsContainer}>
           <Pressable
             style={[styles.categoryBadge, { backgroundColor: colors.bg }]}
-            onPress={toggleSheet2}
+            onPress={toggleSettingsSheet}
           >
             <FontAwesome name="gears" size={24} color={colors.textColorSecondary} />
           </Pressable>
-
-          {isOpen2 && (
-            <View style={[styles.dropDownMenu, { backgroundColor: colors.bg }]}>
-              <Pressable onPress={toggleSheetLogout}>
-                <Text style={[styles.dropDownMenuText, { color: colors.textColorPrimary }]}>Logout</Text>
-              </Pressable>
-              <Pressable onPress={toggleSheet3}>
-                <Text style={[styles.dropDownMenuText, { color: colors.textColorPrimary }]}>Update profile</Text>
-              </Pressable>
-              <Pressable onPress={goToFavoritesPage}>
-                <Text style={[styles.dropDownMenuText, { color: colors.textColorPrimary }]}>Favorites</Text>
-              </Pressable>
-              <Pressable onPress={toggleTheme}>
-                <Text style={[styles.dropDownMenuText, { color: colors.textColorPrimary }]}>Change theme!</Text>
-              </Pressable>
-            </View>
-          )}
         </View>
 
-        <Pressable onPress={pickImage}>
+        <Pressable>
           <Image source={{ uri: imageUri || userInfo.avatar }} style={styles.profileImage} />
         </Pressable>
       </View>
@@ -190,27 +212,63 @@ const ProfileScreen = () => {
           </View>
         ))}
       </View>
+      <BottomSheetScrollView
+        onClose={toggleSettingsSheet}
+        isOpen={isSettingsSheetOpen}
+        snapPoints={['90%', '70%']}
+      >
+        <View style={[styles.settingsContainerSheet, { backgroundColor: colors.modalDialog.bg }]}>
+
+          <Text style={[styles.settingsTitle, { color: colors.textColorPrimary, fontFamily: fonts.bold }]}>
+            Settings
+          </Text>
+
+          <View style={[styles.divider, { backgroundColor: colors.card.separator }]} />
+
+          <Pressable style={styles.pressableSettings} onPress={toggleLogoutSheet}>
+            <MaterialCommunityIcons name="logout" size={24} color={colors.textColorPrimary} />
+            <Text style={[styles.settingsText, { color: colors.textColorSecondary, fontFamily: fonts.medium }]}>
+              Logout
+            </Text>
+          </Pressable>
+
+          <Pressable style={styles.pressableSettings} onPress={pickImage}>
+            <Feather name="user" size={24} color={colors.textColorPrimary} />
+            <Text style={[styles.settingsText, { color: colors.textColorSecondary, fontFamily: fonts.medium }]}>
+              Update Profile Picture
+            </Text>
+          </Pressable>
+
+          <Pressable style={styles.pressableSettings} onPress={goToFavoritesPage}>
+            <MaterialIcons name="favorite" size={24} color={colors.textColorPrimary} />
+            <Text style={[styles.settingsText, { color: colors.textColorSecondary, fontFamily: fonts.medium }]}>
+              Favorites
+            </Text>
+          </Pressable>
+          <ToggleThemeButton />
+        </View>
+      </BottomSheetScrollView>
+
 
       <ConfirmationSheet
         title="Update your profile image?"
         message="Are you sure you want to upload this image?"
-        isOpen={isOpen3}
-        onClose={toggleSheet3}
-        onCancel={toggleSheet3}
-        onConfirm={() => { if (imageUri) updateAvatar(imageUri); toggleSheet3(); }}
+        isOpen={isProfileUpdateSheetOpen}
+        onClose={toggleProfileUpdateSheet}
+        onCancel={handleUpdateCancel}
+        onConfirm={handleAvatarUpdate}
       />
       <ConfirmationSheet
         title="Are you sure you want to logout?"
         message="You will be logged out and redirected to the login/register screen."
-        isOpen={isOpen}
-        onClose={toggleSheetLogout}
-        onCancel={toggleSheetLogout}
+        isOpen={isLogoutSheetOpen}
+        onClose={toggleLogoutSheet}
+        onCancel={toggleLogoutSheet}
         onConfirm={confirmLogout}
       />
     </SafeAreaView>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
@@ -249,19 +307,32 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     elevation: 3,
   },
-  dropDownMenu: {
-    marginTop: 8,
-    borderRadius: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    elevation: 5,
-    minWidth: screenWidth * 0.35,
-    maxWidth: screenWidth * 0.6,
+  settingsContainerSheet: {
+    padding: 10,
+    justifyContent: 'flex-start',
   },
-  dropDownMenuText: {
-    paddingVertical: 6,
-    textAlign: "left",
+  pressableSettings: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 15,
+    borderRadius: 12,
+    marginVertical: 6,
+  },
+  settingsText: {
     fontSize: 16,
+    marginLeft: 15,
+    flex: 1,
+  },
+  settingsTitle: {
+    fontSize: 22,
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  divider: {
+    height: 1,
+    width: '100%',
+    marginBottom: 15,
   },
   userInfoContainer: {
     flexDirection: "row",
@@ -329,6 +400,5 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
 });
-
 
 export default ProfileScreen;

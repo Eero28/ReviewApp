@@ -10,11 +10,10 @@ import Animated, {
 } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-
+import { useTheme } from '../providers/ThemeContext';
 interface BottomSheetProps {
   isOpen: boolean;
   snapPoints: string[];
-  backgroundColor: string;
   handleColor?: string;
   onClose: () => void;
   children?: React.ReactNode;
@@ -24,12 +23,14 @@ interface BottomSheetProps {
 const BottomSheetScrollView: FC<BottomSheetProps> = ({
   isOpen,
   snapPoints,
-  backgroundColor,
   handleColor = 'gray',
   onClose,
   children,
   handleTitle = '',
 }) => {
+
+  const { colors, fonts } = useTheme()
+
   const snapPositions = snapPoints.map((point) => parseFloat(point.replace('%', '')) / 100);
   const closeHeight = screenHeight;
   const translateY = useSharedValue(closeHeight);
@@ -109,10 +110,10 @@ const BottomSheetScrollView: FC<BottomSheetProps> = ({
 
   return (
     <GestureDetector gesture={pan}>
-      <Animated.View style={[styles.container, animatedStyle, { backgroundColor }]}>
+      <Animated.View style={[styles.container, animatedStyle, { backgroundColor: colors.modalDialog.bg }]}>
         <View style={styles.lineContainer}>
           <View style={[styles.line, { backgroundColor: handleColor }]} />
-          <Text style={styles.text}>{handleTitle}</Text>
+          <Text style={[styles.text, { color: colors.textColorPrimary, fontFamily: fonts.semiBold }]}>{handleTitle}</Text>
         </View>
 
         <GestureDetector gesture={Gesture.Simultaneous(panScroll, scrollViewGesture)}>
@@ -150,9 +151,8 @@ const styles = StyleSheet.create({
     paddingBottom: 65,
   },
   text: {
-    padding: 10,
-    fontFamily: 'poppins',
     color: 'whitesmoke',
+    fontSize: 18
   },
 });
 

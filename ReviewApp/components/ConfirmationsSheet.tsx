@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import BottomSheetScrollView from "./BottomSheetScrollView";
+import { useTheme } from "../providers/ThemeContext";
 
 interface ConfirmationSheetProps {
   title: string;
@@ -21,16 +22,17 @@ const ConfirmationSheet: React.FC<ConfirmationSheetProps> = ({
   onConfirm,
   onCancel,
 }) => {
+
+  const { colors, fonts } = useTheme()
   return (
     <BottomSheetScrollView
       isOpen={isOpen}
-      backgroundColor="#111213"
       onClose={onClose}
       snapPoints={snapPoints || ['50%', '30%']}
     >
       <View style={styles.sheetContent}>
-        <Text style={styles.sheetTitle}>{title}</Text>
-        <Text style={styles.sheetText}>{message}</Text>
+        <Text style={[styles.sheetTitle, { color: colors.textColorPrimary, fontFamily: fonts.bold }]}>{title}</Text>
+        <Text style={[styles.sheetText, { color: colors.textColorSecondary }]}>{message}</Text>
         <View style={styles.sheetActions}>
           <TouchableOpacity
             style={[styles.sheetButton, styles.cancelButton]}
