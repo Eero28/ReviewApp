@@ -7,23 +7,31 @@ This project was designed to deepen my understanding of NestJS and React Native 
 ## Demo photos (from 15.9.2025)
 
 <div style="display: flex; flex-wrap: wrap; gap: 15px;">
+  <h1 style="text-align: center; padding: 20px;">Review detail page</h1>
+
   <img src="assets/demoPhotos/detail_dark.jpg" alt="Detail Dark" style="width:47%; height:auto;" />
   <img src="assets/demoPhotos/detail_light.jpg" alt="Detail Light" style="width:47%; height:auto;" />
+<h1 style="text-align: center; padding: 20px;">Favorite page</h1>
 
   <img src="assets/demoPhotos/fav_dark.jpg" alt="Fav Dark" style="width:47%; height:auto;" />
   <img src="assets/demoPhotos/fav_light.jpg" alt="Fav Light" style="width:47%; height:auto;" />
+<h1 style="text-align: center; padding: 20px;">Login page</h1>
 
   <img src="assets/demoPhotos/login_dark.jpg" alt="Login Dark" style="width:47%; height:auto;" />
   <img src="assets/demoPhotos/login_light.jpg" alt="Login Light" style="width:47%; height:auto;" />
+<h1 style="text-align: center; padding: 20px;">Profile page settings</h1>
 
   <img src="assets/demoPhotos/profile_dark_settings.jpg" alt="Profile Dark Settings" style="width:47%; height:auto;" />
   <img src="assets/demoPhotos/profile_light_settings.jpg" alt="Profile Light Settings" style="width:47%; height:auto;" />
+<h1 style="text-align: center; padding: 20px;">Profile page</h1>
 
   <img src="assets/demoPhotos/profile_dark.jpg" alt="Profile Dark" style="width:47%; height:auto;" />
   <img src="assets/demoPhotos/profile_light.jpg" alt="Profile Light" style="width:47%; height:auto;" />
+<h1 style="text-align: center; padding: 20px;">Register page</h1>
 
   <img src="assets/demoPhotos/register_dark.jpg" alt="Register Dark" style="width:47%; height:auto;" />
   <img src="assets/demoPhotos/register_light.jpg" alt="Register Light" style="width:47%; height:auto;" />
+<h1 style="text-align: center; padding: 20px;">Reviews page</h1>
 
   <img src="assets/demoPhotos/reviews_dark.jpg" alt="Review Dark" style="width:47%; height:auto;" />
   <img src="assets/demoPhotos/reviews_light.jpg" alt="Reviews Light" style="width:47%; height:auto;" />
