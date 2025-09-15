@@ -13,35 +13,27 @@ This project was designed to deepen my understanding of NestJS and React Native 
 
 ## Demo photos (from 15.9.2025)
 
-<div style="display: flex; flex-direction: column; gap: 10px;">
-  <div style="display: flex; gap: 10px;">
-    <img src="assets/demoPhotos/detail_dark.jpg" alt="Detail Dark" style="width:50%; height:auto;" />
-    <img src="assets/demoPhotos/detail_light.jpg" alt="Detail Light" style="width:50%; height:auto;" />
-  </div>
-  <div style="display: flex; gap: 10px;">
-    <img src="assets/demoPhotos/fav_dark.jpg" alt="Fav Dark" style="width:50%; height:auto;" />
-    <img src="assets/demoPhotos/fav_light.jpg" alt="Fav Light" style="width:50%; height:auto;" />
-  </div>
-  <div style="display: flex; gap: 10px;">
-    <img src="assets/demoPhotos/login_dark.jpg" alt="Login Dark" style="width:50%; height:auto;" />
-    <img src="assets/demoPhotos/login_light.jpg" alt="Login Light" style="width:50%; height:auto;" />
-  </div>
-  <div style="display: flex; gap: 10px;">
-    <img src="assets/demoPhotos/profile_dark_settings.jpg" alt="Profile Dark Settings" style="width:50%; height:auto;" />
-    <img src="assets/demoPhotos/profile_light_settings.jpg" alt="Profile Light Settings" style="width:50%; height:auto;" />
-  </div>
-  <div style="display: flex; gap: 10px;">
-    <img src="assets/demoPhotos/profile_dark.jpg" alt="Profile Dark" style="width:50%; height:auto;" />
-    <img src="assets/demoPhotos/profile_light.jpg" alt="Profile Light" style="width:50%; height:auto;" />
-  </div>
-  <div style="display: flex; gap: 10px;">
-    <img src="assets/demoPhotos/register_dark.jpg" alt="Register Dark" style="width:50%; height:auto;" />
-    <img src="assets/demoPhotos/register_light.jpg" alt="Register Light" style="width:50%; height:auto;" />
-  </div>
-  <div style="display: flex; gap: 10px;">
-    <img src="assets/demoPhotos/review_dark.jpg" alt="Review Dark" style="width:50%; height:auto;" />
-    <img src="assets/demoPhotos/reviews_light.jpg" alt="Reviews Light" style="width:50%; height:auto;" />
-  </div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px;">
+  <img src="assets/demoPhotos/detail_dark.jpg" alt="Detail Dark" style="width:49%; height:auto;" />
+  <img src="assets/demoPhotos/detail_light.jpg" alt="Detail Light" style="width:49%; height:auto;" />
+
+  <img src="assets/demoPhotos/fav_dark.jpg" alt="Fav Dark" style="width:49%; height:auto;" />
+  <img src="assets/demoPhotos/fav_light.jpg" alt="Fav Light" style="width:49%; height:auto;" />
+
+  <img src="assets/demoPhotos/login_dark.jpg" alt="Login Dark" style="width:49%; height:auto;" />
+  <img src="assets/demoPhotos/login_light.jpg" alt="Login Light" style="width:49%; height:auto;" />
+
+  <img src="assets/demoPhotos/profile_dark_settings.jpg" alt="Profile Dark Settings" style="width:49%; height:auto;" />
+  <img src="assets/demoPhotos/profile_light_settings.jpg" alt="Profile Light Settings" style="width:49%; height:auto;" />
+
+  <img src="assets/demoPhotos/profile_dark.jpg" alt="Profile Dark" style="width:49%; height:auto;" />
+  <img src="assets/demoPhotos/profile_light.jpg" alt="Profile Light" style="width:49%; height:auto;" />
+
+  <img src="assets/demoPhotos/register_dark.jpg" alt="Register Dark" style="width:49%; height:auto;" />
+  <img src="assets/demoPhotos/register_light.jpg" alt="Register Light" style="width:49%; height:auto;" />
+
+  <img src="assets/demoPhotos/review_dark.jpg" alt="Review Dark" style="width:49%; height:auto;" />
+  <img src="assets/demoPhotos/reviews_light.jpg" alt="Reviews Light" style="width:49%; height:auto;" />
 </div>
 
 **Key Features:**
