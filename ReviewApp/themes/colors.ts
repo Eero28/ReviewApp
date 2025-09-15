@@ -12,7 +12,7 @@ export const colorsDarkmode: ThemeColors = {
     info: "#3498db",
   },
   modalDialog: {
-    bg: "rgba(30,30,30,0.95)",
+    bg: "rgba(30,30,30,1)",
   },
   card: {
     bg: "#1A1A1A",

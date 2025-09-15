@@ -4,17 +4,16 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   ListRenderItem,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
 } from 'react-native';
 import { screenHeight } from '../helpers/dimensions';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
-  withTiming,
   useAnimatedScrollHandler,
 } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
@@ -139,11 +138,6 @@ function BottomSheetFlatList({
   const [commentText, setCommentText] = useState('');
   const commentInputRef = useRef<TextInput | null>(null);
 
-  const openKeyboard = () => {
-    if (commentInput && commentInputRef.current) {
-      commentInputRef.current.focus();
-    }
-  };
 
   const makeComment = async () => {
     try {
@@ -165,16 +159,22 @@ function BottomSheetFlatList({
     }
   };
 
+  // let page load and then it correctly brings keyboard
   useEffect(() => {
-    openKeyboard();
-  }, [commentInput]);
+    if (commentInput && commentInputRef.current && isOpen) {
+      setTimeout(() => {
+        commentInputRef.current?.focus();
+      }, 100);
+    }
+  }, [commentInput, isOpen]);
+
 
   return (
     <Animated.View style={[styles.container, animatedStyle, { backgroundColor }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={{ flex: 1 }}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 50}
+        style={{ flex: 1, justifyContent: 'flex-end' }}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 30}
       >
         <GestureDetector gesture={panHandle}>
           <View style={styles.lineContainer}>
@@ -188,11 +188,12 @@ function BottomSheetFlatList({
             scrollEventThrottle={16}
             bounces={false}
             onScroll={onScroll}
-            contentContainerStyle={styles.scrollContent}
+            contentContainerStyle={{ paddingBottom: commentInput ? 70 : 10 }}
             renderItem={renderItem}
             data={data}
             ListEmptyComponent={ListEmptyComponent}
             ListHeaderComponent={ListHeaderComponent}
+            style={{ flex: 1 }}
           />
         </GestureDetector>
 
@@ -207,13 +208,14 @@ function BottomSheetFlatList({
               placeholderTextColor="whitesmoke"
             />
             {commentText && (
-              <TouchableOpacity style={styles.addCommentButton} onPress={makeComment}>
+              <Pressable style={styles.addCommentButton} onPress={makeComment}>
                 <Icon size={35} name="upArrow" />
-              </TouchableOpacity>
+              </Pressable>
             )}
           </View>
         )}
       </KeyboardAvoidingView>
+
     </Animated.View>
   );
 }
@@ -245,7 +247,7 @@ const styles = StyleSheet.create({
   footerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    backgroundColor: '#121314',
+    marginBottom: 10
   },
   inputField: {
     flex: 1,
