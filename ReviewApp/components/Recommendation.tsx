@@ -46,7 +46,7 @@ const Recommendation: FC<Props> = ({ item }) => {
       </View>
 
       <View style={styles.descriptionBoxesContainer}>
-        {item.review.reviewTaste.map((tasteItem, index) => {
+        {item.review.reviewTaste.slice(0, 3).map((tasteItem, index) => {
           const { color, textColor } = selectColor(tasteItem);
           return (
             <View key={index} style={[styles.descriptionBox, { backgroundColor: color }]}>
@@ -55,9 +55,17 @@ const Recommendation: FC<Props> = ({ item }) => {
                   {tasteItem}
                 </Text>
               </Pressable>
+
             </View>
           );
         })}
+        {item.review.reviewTaste.length > 3 && (
+          <View style={[styles.reviewItemTagBox, { backgroundColor: colors.card.bg }]}>
+            <Text style={[styles.reviewItemTagText, { color: colors.textColorPrimary, fontFamily: fonts.semiBold }]}>
+              +{item.review.reviewTaste.length - 3}
+            </Text>
+          </View>
+        )}
       </View>
     </View>
   );
@@ -70,11 +78,6 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     borderRadius: 16,
     padding: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    elevation: 6,
   },
   image: {
     width: '100%',
@@ -124,14 +127,19 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
   },
   descriptionText: {
     fontSize: 10,
+    textAlign: 'center',
+  },
+  reviewItemTagBox: {
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    marginBottom: 4,
+  },
+  reviewItemTagText: {
+    fontSize: 12,
     textAlign: 'center',
   },
 });

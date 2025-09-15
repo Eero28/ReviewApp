@@ -272,32 +272,148 @@ const ReviewDetails: FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  cardContainer: { width: '100%', alignSelf: 'center', borderRadius: 20, marginBottom: 20, shadowColor: '#000', elevation: 5, position: 'relative' },
-  imageWrapper: { alignItems: 'center', position: 'relative' },
-  reviewItemImage: { width: '100%', height: screenHeight / 2, resizeMode: 'cover', borderTopLeftRadius: 20, borderTopRightRadius: 20 },
-  overlayContainer: { position: 'absolute', top: 15, right: 15, flexDirection: 'row', alignItems: 'center', gap: 12 },
-  iconWrapper: { width: 50, height: 50, borderRadius: 20, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
-  heartButton: { width: 50, height: 50, borderRadius: 20, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' },
-  title: { fontSize: 24, marginVertical: 12, textAlign: 'center' },
-  ratingContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginVertical: 12 },
-  ratingText: { fontSize: 16, marginLeft: 8 },
-  sectionWrapper: { paddingHorizontal: 16, marginBottom: 16 },
-  sectionTitle: { fontSize: 18, marginBottom: 8 },
-  textDescription: { fontSize: 16, lineHeight: 22 },
-  sectionBoxInfo: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 8 },
-  reviewerContainer: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 8 },
-  reviewerTextContainer: { flex: 1, justifyContent: 'center' },
-  profileImage: { width: profileSize, height: profileSize, borderRadius: profileSize / 2 },
-  text: { fontSize: 14, marginBottom: 6 },
-  descriptionBoxesContainer: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-start', gap: 8, marginVertical: 12 },
-  descriptionBox: { minWidth: 70, borderRadius: 15, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 6 },
-  descriptionText: { fontSize: 14, textAlign: 'center' },
-  statsContainer: { flexDirection: 'row', justifyContent: 'center', marginVertical: 12 },
-  pressable: { flexDirection: 'row', alignItems: 'center', borderRadius: 16 },
-  updateButton: { borderRadius: 16, width: '25%', alignSelf: 'center', marginVertical: 12 },
-  updateButtonText: { textAlign: 'center', color: 'white' },
-  recommendationsContainer: { width: '100%', marginVertical: 12 },
+  container: {
+    flex: 1
+  },
+  cardContainer: {
+    width: '100%',
+    alignSelf: 'center',
+    borderRadius: 20,
+    marginBottom: 20,
+    shadowColor: '#000',
+    elevation: 5,
+    position: 'relative'
+  },
+  imageWrapper: {
+    alignItems: 'center',
+    position: 'relative'
+  },
+  reviewItemImage: {
+    width: '100%',
+    height: screenHeight / 2,
+    resizeMode: 'cover',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20
+  },
+  overlayContainer: {
+    position: 'absolute',
+    top: 15,
+    right: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12
+  },
+  iconWrapper: {
+    width: 50,
+    height: 50,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  heartButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)'
+  },
+  title: {
+    fontSize: 24,
+    marginVertical: 12,
+    textAlign: 'center'
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 12
+  },
+  ratingText: {
+    fontSize: 16,
+    marginLeft: 8
+  },
+  sectionWrapper: {
+    paddingHorizontal: 16,
+    marginBottom: 16
+  },
+  sectionTitle: {
+    fontSize: 18,
+    marginBottom: 8
+  },
+  textDescription: {
+    fontSize: 16,
+    lineHeight: 22
+  },
+  sectionBoxInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginTop: 8
+  },
+  reviewerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginTop: 8
+  },
+  reviewerTextContainer: {
+    flex: 1,
+    justifyContent: 'center'
+  },
+  profileImage: {
+    width: profileSize,
+    height: profileSize,
+    borderRadius: profileSize / 2
+  },
+  descriptionBoxesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
+    gap: 8,
+    marginVertical: 12
+  },
+  descriptionBox: {
+    minWidth: 70,
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 6
+  },
+  descriptionText: {
+    fontSize: 14,
+    textAlign: 'center'
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginVertical: 12
+  },
+  pressable: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 16
+  },
+  updateButton: {
+    borderRadius: 16,
+    width: '25%',
+    alignSelf: 'center',
+    marginVertical: 12
+  },
+  updateButtonText: {
+    textAlign: 'center',
+    color: 'white'
+  },
+  recommendationsContainer: {
+    width: '100%',
+    marginVertical: 12
+  },
+  text: {
+    fontSize: 14,
+    marginBottom: 6
+  }
 });
 
 export default ReviewDetails;
