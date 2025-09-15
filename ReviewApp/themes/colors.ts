@@ -11,6 +11,7 @@ export const colorsDarkmode: ThemeColors = {
     success: "#4cd137",
     info: "#3498db",
   },
+  button: { bg: "#0600c2" },
   modalDialog: {
     bg: "rgba(30,30,30,1)",
   },
@@ -43,6 +44,7 @@ export const colorsLightmode: ThemeColors = {
     success: "#4cd137",
     info: "#3498db",
   },
+  button: { bg: "#443dff" },
   modalDialog: {
     bg: "#fdfdfd",
   },

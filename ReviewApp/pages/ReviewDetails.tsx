@@ -124,14 +124,7 @@ const ReviewDetails: FC = () => {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
       <ScrollView ref={scrollRef} contentContainerStyle={{ paddingBottom: paddingSpacing.xxl }}>
-        {reviewItem.user.id_user === userInfo?.id_user && (
-          <Pressable
-            style={[styles.updateButton, { backgroundColor: colors.card.star, padding: paddingSpacing.sm }]}
-            onPress={updateReview}
-          >
-            <Text style={[styles.updateButtonText, { fontFamily: fonts.medium }]}>Update</Text>
-          </Pressable>
-        )}
+
         <View style={[styles.cardContainer, { backgroundColor: colors.card.bg }]}>
           <View style={styles.imageWrapper}>
             <Image

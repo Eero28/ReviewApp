@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TextInput, Button } from "react-native";
+import { StyleSheet, Text, View, TextInput, Pressable } from "react-native";
 import { FC, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { useAuth } from "../providers/ContexApi";
@@ -114,11 +114,21 @@ const LoginScreen: FC<{ navigation: any }> = ({ navigation }) => {
           </Text>
         )}
 
-        <Button title="Login" onPress={handleSubmit(onSubmit)} />
-        <Button
-          title="Don't have an account? Register"
+        <Pressable
+          style={[styles.button, { backgroundColor: colors.button.bg }]}
+          onPress={handleSubmit(onSubmit)}
+        >
+          <Text style={[styles.buttonText, { fontFamily: fonts.bold }]}>Login</Text>
+        </Pressable>
+
+        <Pressable
+          style={[styles.button]}
           onPress={() => navigation.navigate("Register")}
-        />
+        >
+          <Text style={{ color: colors.textColorPrimary, textAlign: "center", fontFamily: fonts.medium }}>
+            Don't have an account? Register
+          </Text>
+        </Pressable>
       </View>
     </KeyboardAvoidContainer>
   );
@@ -153,5 +163,14 @@ const styles = StyleSheet.create({
   errorCredentials: {
     textAlign: "center",
     marginBottom: 10,
+  },
+  button: {
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
   },
 });

@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TextInput, Button } from "react-native";
+import { StyleSheet, Text, View, TextInput, Pressable } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import axios from "axios";
 import { API_URL } from "@env";
@@ -138,7 +138,12 @@ const RegisterScreen = () => {
                     )}
                 </View>
 
-                <Button title="Register" onPress={handleSubmit(onSubmit)} />
+                <Pressable
+                    style={[styles.button, { backgroundColor: colors.button.bg }]}
+                    onPress={handleSubmit(onSubmit)}
+                >
+                    <Text style={[styles.buttonText, { fontFamily: fonts.bold }]}>Register</Text>
+                </Pressable>
             </View>
         </KeyboardAvoidContainer>
     );
@@ -169,5 +174,15 @@ const styles = StyleSheet.create({
     error: {
         marginTop: 5,
         fontSize: 12,
+    },
+    button: {
+        paddingVertical: 12,
+        borderRadius: 8,
+        alignItems: "center",
+        marginTop: 10,
+    },
+    buttonText: {
+        color: "#fff",
+        fontSize: 16,
     },
 });

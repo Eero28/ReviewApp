@@ -11,6 +11,9 @@ export interface ThemeColors {
     success: string;
     info: string;
   };
+  button: {
+    bg: string;
+  };
   modalDialog: {
     bg: string;
   };

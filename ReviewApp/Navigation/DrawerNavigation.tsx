@@ -1,22 +1,43 @@
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import BottomTabNavigator from "./BottomTabNavigator";
 import ProfileScreen from "../pages/ProfileScreen";
+import Favorites from "../pages/Favorites";
+import { useAuth } from "../providers/ContexApi";
+import { useTheme } from "../providers/ThemeContext";
+import { useSearch } from "../providers/SearchBarContext";
+import { DrawerParamList } from '../interfaces/navigation';
+
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useAuth } from "../providers/ContexApi";
-import Favorites from "../pages/Favorites";
-import { useTheme } from "../providers/ThemeContext"
-import { DrawerParamList } from '../interfaces/navigation'
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import AntDesign from '@expo/vector-icons/AntDesign';
-import { useSearch } from "../providers/SearchBarContext";
 
 const Drawer = createDrawerNavigator<DrawerParamList>();
 
 const DrawerNavigator = () => {
-  const { toggleSearchBar, isOpen } = useSearch()
+  const { toggleSearchBar, isOpen } = useSearch();
   const { userInfo } = useAuth();
   const { colors, fonts } = useTheme();
 
+  const renderHeaderRight = () => {
+    if (!userInfo) return null;
+    const checkIsOpen = () => {
+      if (isOpen) {
+        return <AntDesign style={{ marginRight: 10 }} onPress={toggleSearchBar} name="close" size={24} color={colors.textColorSecondary} />
+      } else {
+        return <FontAwesome5
+          style={{ marginRight: 10 }}
+          onPress={toggleSearchBar}
+          name={"search"}
+          size={26}
+          color={colors.textColorSecondary}
+        />
+      }
+    }
+    return (
+      checkIsOpen()
+    );
+  };
 
   return (
     <Drawer.Navigator
@@ -41,12 +62,13 @@ const DrawerNavigator = () => {
         initialParams={{ screen: "Myreviews", params: { openSearch: false } }}
         options={{
           headerShown: true,
-          headerRight: () => (<AntDesign style={{ marginRight: 10 }} onPress={toggleSearchBar} name={!isOpen ? 'search' : 'close'} size={26} color={colors.textColorPrimary} />),
+          headerRight: renderHeaderRight,
           drawerIcon: ({ color }) => (
             <MaterialIcons name="home" size={20} color={color} />
           ),
         }}
       />
+
       {userInfo && (
         <Drawer.Screen
           name="Profile"
@@ -58,11 +80,13 @@ const DrawerNavigator = () => {
           }}
         />
       )}
+
       {userInfo && (
         <Drawer.Screen
           name="Favorites"
           component={Favorites}
           options={{
+            headerRight: renderHeaderRight,
             drawerIcon: ({ color }) => (
               <Ionicons name="heart" size={20} color={color} />
             ),

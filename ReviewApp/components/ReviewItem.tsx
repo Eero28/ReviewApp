@@ -184,29 +184,34 @@ export default ReviewItem;
 
 const styles = StyleSheet.create({
     reviewItemContainer: {
+        flex: 1,
         flexDirection: 'column',
-        padding: 0,
-        marginVertical: 8,
-        width: '100%',
         borderWidth: 2,
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
+        borderRadius: 20,
+        marginVertical: 8,
+        marginHorizontal: 5,
+        overflow: 'hidden',
     },
+
     pressableWrapper: {
-        width: '100%',
+        flex: 1,
     },
+
     imageWrapper: {
-        position: 'relative',
         width: '100%',
+        aspectRatio: 0.8,
+        position: 'relative',
         marginBottom: 8,
     },
+
     reviewItemImage: {
         width: '100%',
-        height: screenHeight * 0.30,
+        height: '100%',
         resizeMode: 'cover',
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
     },
+
     categoryBadge: {
         position: 'absolute',
         top: 8,
@@ -217,32 +222,38 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
+
     reviewItemInfoWrapper: {
-        width: '100%',
+        flex: 1,
         paddingHorizontal: 10,
+        justifyContent: 'flex-start',
     },
+
     reviewItemTitle: {
         fontSize: 16,
-        marginBottom: 4,
-        marginLeft: 10,
+        padding: 10
     },
+
     reviewItemRating: {
-        color: '#000',
         marginLeft: 5,
     },
+
     reviewBy: {
         fontSize: 14,
         marginBottom: 4,
     },
+
     starRatingContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
     },
+
     starRatingS: {
         flexDirection: 'row',
         alignItems: 'center',
     },
+
     priceBadge: {
         alignSelf: 'flex-start',
         paddingHorizontal: 8,
@@ -250,43 +261,50 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         marginBottom: 6,
     },
+
     priceText: {
         fontSize: 12,
         fontWeight: '700',
     },
+
     reviewItemTagsContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
         gap: 6,
+        minHeight: 50,
         marginBottom: 6,
-        minHeight: screenHeight / 13
     },
+
     reviewItemTagBox: {
         paddingVertical: 4,
         paddingHorizontal: 8,
         borderRadius: 12,
         marginBottom: 4,
     },
+
     reviewItemTagText: {
         fontSize: 12,
         textAlign: 'center',
     },
+
     tagsSeparator: {
         borderBottomWidth: 1,
     },
+
     reviewItemIconsContainer: {
         flexDirection: 'row',
         justifyContent: 'space-around',
         paddingVertical: 8,
     },
+
     reviewItemIconWrapper: {
         flexDirection: 'row',
         alignItems: 'center',
         padding: 4,
     },
+
     reviewItemIconCount: {
         marginLeft: 4,
         fontSize: 16,
     },
 });
-
