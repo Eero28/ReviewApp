@@ -11,6 +11,7 @@ import Animated, {
     Extrapolation,
 } from 'react-native-reanimated';
 import { screenWidth, screenHeight } from '../helpers/dimensions';
+import { useTheme } from '../providers/ThemeContext';
 
 type Props = {
     recommendations: RecommendationSuggestion[];
@@ -23,6 +24,7 @@ const CARD_MARGIN = 16;
 const SNAP_INTERVAL = CARD_WIDTH + CARD_MARGIN;
 
 const AnimatedRecommendations: FC<Props> = ({ recommendations, onCardPress }) => {
+    const { colors } = useTheme()
     const scrollX = useSharedValue(0);
     const navigation = useNavigation<any>();
 
@@ -64,7 +66,7 @@ const AnimatedRecommendations: FC<Props> = ({ recommendations, onCardPress }) =>
                 return (
                     <Animated.View
                         key={index}
-                        style={[styles.cardWrapper, { width: CARD_WIDTH, height: CARD_HEIGHT }, animatedStyle]}
+                        style={[styles.cardWrapper, { width: CARD_WIDTH, height: CARD_HEIGHT, backgroundColor: colors.bg }, animatedStyle]}
                     >
                         <Pressable
                             style={{ borderRadius: 16, flex: 1 }}
@@ -86,12 +88,7 @@ const styles = StyleSheet.create({
     cardWrapper: {
         marginRight: CARD_MARGIN,
         borderRadius: 16,
-        backgroundColor: '#fff',
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.12,
-        shadowRadius: 8,
-        elevation: 6,
         overflow: 'hidden',
     },
 });

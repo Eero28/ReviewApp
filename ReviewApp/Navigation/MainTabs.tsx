@@ -74,7 +74,7 @@ const MainTabs = () => {
             />
 
             <Tab.Screen
-                name="AllReviews"
+                name="Feed"
                 component={AllReviews}
                 options={{
                     tabBarIcon: ({ color, size }) => (

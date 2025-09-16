@@ -20,6 +20,7 @@ export class TensorflowService implements OnModuleInit {
   }
 
   private async getReviewEmbedding(review: Review) {
+    // title and description
     const combinedText = `${review.reviewname} ${review.reviewDescription} ${review.category}`;
     const embeddings = await this.useModel.embed([combinedText]);
     return embeddings;
@@ -58,21 +59,27 @@ export class TensorflowService implements OnModuleInit {
     review: Review,
     similarityScore: number,
   ): number {
+    // add weight which is the most important factor
     const ratingWeight = (review.reviewRating / 5) * 0.2;
     const daysSinceReview =
       (new Date().getTime() - new Date(review.createdAt).getTime()) /
       (1000 * 3600 * 24);
     const recencyFactor = Math.exp(-daysSinceReview / 30) * 0.1;
-    const likesWeight = (review.likes ? review.likes.length : 0) * 0.05;
+    const likesWeight = review.likes.length * 0.05;
     const commentsWeight =
       (review.comments ? review.comments.length : 0) * 0.05;
+
+    const tasteWeight = review.reviewTaste?.length
+      ? Math.min(review.reviewTaste.length * 5, 20)
+      : 0;
 
     return Math.min(
       similarityScore +
         ratingWeight +
         recencyFactor +
         likesWeight +
-        commentsWeight,
+        commentsWeight +
+        tasteWeight,
       100,
     );
   }

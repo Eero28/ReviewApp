@@ -20,28 +20,29 @@ const Recommendation: FC<Props> = ({ item }) => {
   return (
     <View style={[styles.container, { width: CARD_WIDTH, height: CARD_HEIGHT, backgroundColor: colors.card.bg }]}>
       <Image source={{ uri: item.review.imageUrl }} style={[styles.image, { height: CARD_HEIGHT * 0.4 }]} />
+      <View style={styles.recommedationInfoContainer}>
+        <View style={styles.starRatingContainer}>
+          <FontAwesome name="star" size={16} color={colors.card.star} />
+          <Text style={[styles.starRatingText, { color: colors.textColorPrimary }]}>{item.review.reviewRating}</Text>
+        </View>
 
-      <View style={styles.starRatingContainer}>
-        <FontAwesome name="star" size={16} color={colors.card.star} />
-        <Text style={[styles.starRatingText, { color: colors.textColorPrimary }]}>{item.review.reviewRating}</Text>
-      </View>
-
-      <View style={styles.cardInfo}>
-        <Text style={[styles.title, { color: colors.textColorPrimary, fontFamily: fonts.bold }]} numberOfLines={1}>
-          {item.review.reviewname}
-        </Text>
-        <Text style={[styles.category, { color: colors.textColorSecondary, fontFamily: fonts.medium }]} numberOfLines={1}>
-          Category: {item.review.category}
-        </Text>
-        <Text style={[styles.reviewer, { color: colors.textColorSecondary, fontFamily: fonts.medium }]} numberOfLines={1}>
-          Reviewed by: {item.review.user.username}
-        </Text>
-
-        <View style={styles.iconContainer}>
-          <MaterialCommunityIcons name="chat-outline" size={22} color={colors.textColorSecondary} />
-          <Text style={[styles.commentCount, { color: colors.textColorSecondary, fontFamily: fonts.medium }]}>
-            {item.review.comments?.length ?? 0}
+        <View style={styles.cardInfo}>
+          <Text style={[styles.title, { color: colors.textColorPrimary, fontFamily: fonts.semiBold }]} numberOfLines={1}>
+            {item.review.reviewname}
           </Text>
+          <Text style={[styles.category, { color: colors.textColorSecondary, fontFamily: fonts.regular }]} numberOfLines={1}>
+            Category: {item.review.category}
+          </Text>
+          <Text style={[styles.reviewer, { color: colors.textColorSecondary, fontFamily: fonts.regular }]} numberOfLines={1}>
+            Reviewed by: {item.review.user.username}
+          </Text>
+
+          <View style={styles.iconContainer}>
+            <MaterialCommunityIcons name="chat-outline" size={22} color={colors.textColorSecondary} />
+            <Text style={[styles.commentCount, { color: colors.textColorSecondary, fontFamily: fonts.medium }]}>
+              {item.review.comments?.length ?? 0}
+            </Text>
+          </View>
         </View>
       </View>
 
@@ -79,10 +80,14 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 10,
   },
+  recommedationInfoContainer: {
+    padding: 5
+  },
   image: {
     width: '100%',
-    borderRadius: 12,
     resizeMode: 'cover',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
   },
   starRatingContainer: {
     flexDirection: "row",
@@ -96,16 +101,19 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   title: {
-    fontSize: 17,
-    marginBottom: 2,
+    fontSize: 16,
+    marginBottom: 6,
+    letterSpacing: 0.2,
   },
   category: {
-    fontSize: 15,
+    fontSize: 14,
     marginBottom: 2,
+    letterSpacing: 0.2,
   },
   reviewer: {
-    fontSize: 15,
+    fontSize: 14,
     marginBottom: 6,
+    letterSpacing: 0.2,
   },
   iconContainer: {
     flexDirection: 'row',

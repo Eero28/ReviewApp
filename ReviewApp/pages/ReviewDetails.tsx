@@ -124,7 +124,6 @@ const ReviewDetails: FC = () => {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
       <ScrollView ref={scrollRef} contentContainerStyle={{ paddingBottom: paddingSpacing.xxl }}>
-
         <View style={[styles.cardContainer, { backgroundColor: colors.card.bg }]}>
           <View style={styles.imageWrapper}>
             <Image
@@ -231,17 +230,26 @@ const ReviewDetails: FC = () => {
               <MaterialCommunityIcons name="chat-outline" size={28} color={colors.textColorPrimary} />
               <Text style={[styles.text, { color: colors.textColorSecondary }]}>{comments.length}</Text>
             </Pressable>
+            {reviewItem.user.id_user === userInfo?.id_user && (
+              <Pressable
+                style={[styles.updateButton, { backgroundColor: colors.card.star, padding: paddingSpacing.sm }]}
+                onPress={updateReview}
+              >
+                <Text style={[styles.updateButtonText, { fontFamily: fonts.medium }]}>Update</Text>
+              </Pressable>
+            )}
           </View>
         </View>
 
         {recommendations.length > 0 && (
           <View style={styles.recommendationsContainer}>
-            <Text style={{ fontSize: 18, fontWeight: 'bold', marginVertical: 12, color: colors.textColorPrimary }}>
-              You might also like:
+            <Text style={[styles.recommendationTitle, { color: colors.textColorPrimary }]}>
+              Recommendations for you
             </Text>
             <AnimatedRecommendations onCardPress={scrollToTop} recommendations={recommendations} />
           </View>
         )}
+        <View style={{ marginBottom: 5 }}></View>
       </ScrollView>
 
       <BottomSheetFlatList
@@ -401,7 +409,14 @@ const styles = StyleSheet.create({
   },
   recommendationsContainer: {
     width: '100%',
-    marginVertical: 12
+    marginVertical: 12,
+    textAlign: 'center',
+  },
+  recommendationTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginVertical: 12,
+    marginLeft: 20
   },
   text: {
     fontSize: 14,
