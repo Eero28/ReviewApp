@@ -235,7 +235,7 @@ const ReviewDetails: FC = () => {
                 style={[styles.updateButton, { backgroundColor: colors.card.star, padding: paddingSpacing.sm }]}
                 onPress={updateReview}
               >
-                <Text style={[styles.updateButtonText, { fontFamily: fonts.medium }]}>Update</Text>
+                <Text style={[styles.updateButtonText, { fontFamily: fonts.medium, color: colors.textColorPrimary }]}>Update</Text>
               </Pressable>
             )}
           </View>
