@@ -135,6 +135,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
+    minWidth: 55
   },
   descriptionText: {
     fontSize: 10,

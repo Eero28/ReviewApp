@@ -136,7 +136,7 @@ const ReviewDetails: FC = () => {
                 <FontAwesome
                   name={likesState ? 'heart' : 'heart-o'}
                   size={24}
-                  color={likesState ? '#ff4757' : colors.textColorPrimary}
+                  color={likesState ? '#ff4757' : '#fff'}
                 />
               </Pressable>
             </View>
