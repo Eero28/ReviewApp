@@ -7,7 +7,7 @@ export const tasteGroupsFormValues = [
   },
   {
     group: "🍎 Fruity",
-    tastes: ["Citrus", "Berry", "Apple/Pear", "Tropical"],
+    tastes: ["Citrus", "Berry", "Apple", "Pear", "Tropical"],
     color: "#FFA500",
     textColor: "#000",
   },

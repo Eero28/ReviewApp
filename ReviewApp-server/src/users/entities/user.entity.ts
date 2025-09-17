@@ -19,7 +19,7 @@ export class User {
   @Column()
   password: string;
 
-  @Exclude()
+  @Expose()
   @Column({ unique: true })
   email: string;
 
@@ -43,7 +43,7 @@ export class User {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @Exclude()
+  @Expose()
   @Column({ default: 'user' })
   role: string;
 

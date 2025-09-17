@@ -17,11 +17,11 @@ import { selectColor } from '../helpers/tastegroup';
 import { errorHandler } from '../helpers/errors/error';
 import { categories } from '../helpers/categories';
 import { likeReview } from '../helpers/services/reviewService';
-import { screenHeight } from '../helpers/dimensions';
 import { useTheme } from '../providers/ThemeContext';
 import Icon from './Icon';
 import axios from 'axios';
 import { API_URL } from '@env';
+import { screenWidth, screenHeight } from '../helpers/dimensions';
 
 type Props = {
     item: ReviewItemIf;
@@ -29,7 +29,7 @@ type Props = {
 };
 
 const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
-    const { colors, fonts } = useTheme();
+    const { colors, fonts, fontSizes } = useTheme();
     const { deleteReview, userInfo, setReviewsUpdated, handleLogout } = useAuth();
     const navigation = useNavigation<any>();
 
@@ -90,11 +90,20 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
 
     const renderPriceRange = (range: string) => {
         return (
-            <Text style={[styles.priceText, { color: colors.textColorPrimary, fontFamily: fonts.medium }]}>
-                {'€'.repeat(priceSymbolsMap[range] || 1)}
+            <Text style={[{ color: colors.textColorPrimary, fontFamily: fonts.medium, fontSize: fontSizes.sm }]}>
+                {'€'.repeat(priceSymbolsMap[range])}
             </Text>
         );
     };
+
+    const checkProfile = () => {
+        const parentNav = navigation.getParent();
+        parentNav?.navigate({
+            name: "Profile",
+            params: { visitor_id: item.user.id_user },
+        });
+    };
+
 
     return (
         <View style={[styles.reviewItemContainer, { backgroundColor: colors.card.bg, borderColor: colors.card.border }]}>
@@ -109,41 +118,49 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
                         {checkCategoryIcon(item.category)}
                     </View>
                 </View>
-
-                <Text numberOfLines={2} style={[styles.reviewItemTitle, { color: colors.textColorPrimary, fontFamily: fonts.bold }]}>
-                    {item.reviewname}
-                </Text>
             </Pressable>
 
             <View style={styles.reviewItemInfoWrapper}>
-                <View style={styles.starRatingContainer}>
-                    <View style={styles.starRatingS}>
-                        <FontAwesome name="star" size={16} color={colors.card.star} />
-                        <Text style={[styles.reviewItemRating, { color: colors.textColorPrimary }]}>{item.reviewRating}</Text>
-                    </View>
-                    <View style={[styles.priceBadge, { backgroundColor: colors.card.bg }]}>
-                        {renderPriceRange(item.priceRange)}
-                    </View>
+
+                <View style={{ minHeight: 55 }}>
+                    <Text numberOfLines={2} ellipsizeMode='tail' style={[styles.reviewItemTitle, { color: colors.textColorPrimary, fontFamily: fonts.bold, fontSize: fontSizes.md }]}>
+                        {item.reviewname}
+                    </Text>
                 </View>
 
-                <Text numberOfLines={1} style={[styles.reviewBy, { color: colors.textColorSecondary, fontFamily: fonts.medium }]}>
-                    Reviewed by: {item.user.username}
-                </Text>
+                <View style={styles.ratingPriceRow}>
+                    <View style={styles.starRatingS}>
+                        <FontAwesome name="star" size={16} color={colors.card.star} />
+                        <Text style={[styles.reviewItemRating, { color: colors.textColorPrimary, fontFamily: fonts.semiBold, fontSize: fontSizes.sm }]}>
+                            {item.reviewRating}
+                        </Text>
+                    </View>
+                    {renderPriceRange(item.priceRange)}
+                </View>
+                <Pressable onPress={checkProfile}>
+                    <View style={styles.profileImageContainer}>
 
-                <View style={[styles.reviewItemTagsContainer]}>
-                    {item.reviewTaste.slice(0, 3).map((tasteItem, i) => {
+                        <Image style={styles.profileImage} source={{ uri: item.user.avatar }} />
+                        <Text style={[{ color: colors.textColorSecondary, fontFamily: fonts.medium }]}>
+                            {item.user.username}
+                        </Text>
+
+                    </View>
+                </Pressable>
+                <View style={styles.reviewItemTagsContainer}>
+                    {item.reviewTaste.slice(0, 2).map((tasteItem, i) => {
                         const { color, textColor } = selectColor(tasteItem);
                         return (
                             <View key={i} style={[styles.reviewItemTagBox, { backgroundColor: color }]}>
-                                <Text style={[styles.reviewItemTagText, { color: textColor, fontFamily: fonts.semiBold }]}>
+                                <Text style={[styles.reviewItemTagText, { color: textColor, fontFamily: fonts.semiBold, fontSize: fontSizes.xs }]}>
                                     {tasteItem}
                                 </Text>
                             </View>
                         );
                     })}
-                    {item.reviewTaste.length > 3 && (
-                        <View style={[styles.reviewItemTagBox, { backgroundColor: colors.card.bg }]}>
-                            <Text style={[styles.reviewItemTagText, { color: colors.textColorPrimary, fontFamily: fonts.semiBold }]}>
+                    {item.reviewTaste.length > 2 && (
+                        <View style={[styles.reviewItemTagBox, { backgroundColor: "#E0E0E0" }]}>
+                            <Text style={[styles.reviewItemTagText, { color: "#333", fontFamily: fonts.semiBold, fontSize: fontSizes.xs }]}>
                                 +{item.reviewTaste.length - 3}
                             </Text>
                         </View>
@@ -184,7 +201,7 @@ export default ReviewItem;
 
 const styles = StyleSheet.create({
     reviewItemContainer: {
-        flex: 1,
+        width: '48%',
         flexDirection: 'column',
         borderWidth: 2,
         borderRadius: 20,
@@ -226,27 +243,17 @@ const styles = StyleSheet.create({
     reviewItemInfoWrapper: {
         flex: 1,
         paddingHorizontal: 10,
-        justifyContent: 'flex-start',
+        justifyContent: 'flex-start'
     },
 
     reviewItemTitle: {
-        fontSize: 16,
-        padding: 10
+        paddingBottom: 4,
     },
 
-    reviewItemRating: {
-        marginLeft: 5,
-    },
-
-    reviewBy: {
-        fontSize: 14,
-        marginBottom: 4,
-    },
-
-    starRatingContainer: {
+    ratingPriceRow: {
         flexDirection: 'row',
-        alignItems: 'center',
         justifyContent: 'space-between',
+        marginBottom: 4,
     },
 
     starRatingS: {
@@ -254,36 +261,40 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
 
-    priceBadge: {
-        alignSelf: 'flex-start',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 16,
-        marginBottom: 6,
+    reviewItemRating: {
+        marginLeft: 4,
     },
 
-    priceText: {
-        fontSize: 12,
-        fontWeight: '700',
-    },
 
     reviewItemTagsContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
         gap: 6,
-        minHeight: 50,
         marginBottom: 6,
     },
 
     reviewItemTagBox: {
-        paddingVertical: 4,
-        paddingHorizontal: 8,
         borderRadius: 12,
         marginBottom: 4,
+        paddingVertical: 6,
+        paddingHorizontal: 6
+    },
+
+    profileImageContainer: {
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        gap: 10,
+        marginVertical: 10
+    },
+
+    profileImage: {
+        height: screenWidth * 0.07,
+        width: screenWidth * 0.07,
+        borderRadius: screenWidth * 0.06,
     },
 
     reviewItemTagText: {
-        fontSize: 12,
         textAlign: 'center',
     },
 
@@ -305,6 +316,5 @@ const styles = StyleSheet.create({
 
     reviewItemIconCount: {
         marginLeft: 4,
-        fontSize: 16,
     },
 });

@@ -11,6 +11,10 @@ export const colorsDarkmode: ThemeColors = {
     success: "#4cd137",
     info: "#3498db",
   },
+  profile: {
+    roleBg: "",
+    roleTextColor: "",
+  },
   button: { bg: "#0600c2" },
   modalDialog: {
     bg: "rgba(30,30,30,1)",
@@ -43,6 +47,10 @@ export const colorsLightmode: ThemeColors = {
     warning: "#ffae42",
     success: "#4cd137",
     info: "#3498db",
+  },
+  profile: {
+    roleBg: "",
+    roleTextColor: "",
   },
   button: { bg: "#443dff" },
   modalDialog: {

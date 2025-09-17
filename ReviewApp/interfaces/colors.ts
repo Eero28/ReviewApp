@@ -11,6 +11,10 @@ export interface ThemeColors {
     success: string;
     info: string;
   };
+  profile: {
+    roleBg: string;
+    roleTextColor: string;
+  };
   button: {
     bg: string;
   };

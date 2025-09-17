@@ -5,6 +5,7 @@ import {
 } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { ReviewItemIf } from "./ReviewItemIf";
+import { UserInfo } from "./UserInfo";
 
 export interface AuthTabParamList extends ParamListBase {
   Login: undefined;
@@ -20,7 +21,9 @@ export interface BottomTabParamList extends ParamListBase {
 
 export interface DrawerParamList extends ParamListBase {
   Reviews: NavigatorScreenParams<BottomTabParamList>;
-  Profile: undefined;
+  Profile: {
+    visitor_id?: number;
+  };
   Favorites: undefined;
 }
 
