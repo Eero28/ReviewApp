@@ -20,14 +20,13 @@ const FilterButtons: FC<Props> = ({ fetchReviewsWithCategory }) => {
 
     //dont show anything if search open
     if (isOpen) {
-        return <></>
+        return null
     }
 
     return (
-        <View style={[styles.container, { backgroundColor: colors.bg }]}>
+        <View style={[{ backgroundColor: colors.bg }]}>
             <ScrollView
                 horizontal
-                contentContainerStyle={styles.scrollContainer}
                 showsHorizontalScrollIndicator={false}
             >
                 {categories.map((category) => (
@@ -68,12 +67,6 @@ const FilterButtons: FC<Props> = ({ fetchReviewsWithCategory }) => {
 export default FilterButtons;
 
 const styles = StyleSheet.create({
-    container: {
-        marginVertical: 0,
-    },
-    scrollContainer: {
-        marginHorizontal: 0,
-    },
     button: {
         flex: 1,
         borderRadius: 5,

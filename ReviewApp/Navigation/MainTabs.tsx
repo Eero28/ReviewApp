@@ -26,10 +26,7 @@ const MainTabs = () => {
                 tabBarActiveTintColor: colors.textColorPrimary,
                 tabBarInactiveTintColor: colors.textColorSecondary,
                 tabBarStyle: {
-                    position: 'absolute',
                     backgroundColor: colors.bg,
-                    borderTopWidth: 0,
-                    elevation: 5,
                 },
             }}
         >

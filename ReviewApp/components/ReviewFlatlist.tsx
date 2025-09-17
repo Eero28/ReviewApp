@@ -13,7 +13,7 @@ import { useTheme } from '../providers/ThemeContext';
 import { useSearch } from '../providers/SearchBarContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
-
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
 type Props = {
     reviews: ReviewItemIf[];
@@ -45,17 +45,26 @@ const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false, noReview
     });
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
+        <SafeAreaView edges={['bottom']} style={[styles.container, { backgroundColor: colors.bg }]}>
             <View style={styles.searchWrapper}>
                 {isOpen && (
                     <Animated.View style={[styles.searchbarContainer, animatedStyle, { backgroundColor: colors.card.bg || '#f2f2f2' }]}>
+                        {!searchTerm && (
+                            <FontAwesome5
+                                style={{ textAling: "center" }}
+                                name={"search"}
+                                size={20}
+                                color={colors.textColorSecondary}
+                            />
+                        )}
                         <TextInput
-                            style={[styles.input, { backgroundColor: colors.form.input || 'lightgray', color: colors.textColorPrimary, fontFamily: fonts.regular }]}
+                            style={[styles.input, { backgroundColor: colors.form.input, color: colors.textColorPrimary, fontFamily: fonts.regular }]}
                             onChangeText={val => setSearchTerm(val.toLowerCase())}
-                            placeholder="Search"
+                            placeholder={"Search reviews, users and tags"}
                             autoFocus={true}
                             placeholderTextColor={colors.textColorSecondary || '#999'}
                         />
+
                     </Animated.View>
                 )}
             </View>
@@ -68,9 +77,7 @@ const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false, noReview
                 <FlatList
                     data={filteredReviews}
                     renderItem={({ item }: { item: ReviewItemIf }) => (
-                        <View style={styles.itemWrapper}>
-                            <ReviewItem disableLongPress={disableLongPress} item={item} />
-                        </View>
+                        <ReviewItem disableLongPress={disableLongPress} item={item} />
                     )}
                     keyExtractor={(item) => item.id_review.toString()}
                     contentContainerStyle={styles.listContainer}
@@ -93,22 +100,25 @@ const styles = StyleSheet.create({
     searchWrapper: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'flex-end',
-        marginVertical: 5,
-        paddingHorizontal: 10,
+        justifyContent: 'center',
+        marginBottom: 5,
+        height: 'auto',
+
     },
     searchbarContainer: {
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
         borderRadius: 20,
-        marginRight: 10,
+        backgroundColor: "red",
+        height: 60
     },
     input: {
-        flex: 1,
         fontSize: 15,
         borderRadius: 10,
         height: 50,
         padding: 10,
+        textAlign: 'center'
     },
     iconWrapper: {
         justifyContent: 'center',
@@ -122,7 +132,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     listContainer: {
-        paddingBottom: 100,
         paddingHorizontal: 5,
     },
     noResultsText: {
