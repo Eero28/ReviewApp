@@ -37,20 +37,6 @@ This project was designed to deepen my understanding of NestJS and React Native 
   <img src="assets/demoPhotos/reviews_light.jpg" alt="Reviews Light" style="width:47%; height:auto;" />
 </div>
 
-**Key Features:**
-
-- Easy login and signup
-- Write, submit, and delete your own reviews
-- Add/remove comments on reviews
-- Like your favorite reviews and comments
-- Search for reviews and other users
-- Smooth pop-up modals for quick actions
-- Smart recommendations using TensorFlow
-- Automated CI/CD
-- Runs in Docker and deployed on Azure (Cost money, so not running anymore)
-- Cloudinary to store images
-- Darkmode / Lightmode
-
 ## Implemented Features
 
 These are the main features currently implemented in ReviewApp, grouped by Frontend, Backend, and DevOps/Infrastructure:
@@ -68,10 +54,11 @@ These are the main features currently implemented in ReviewApp, grouped by Front
 | 7   | Search and filter reviews to easily find content that interests the user.                    |
 | 8   | See personalized recommendations powered by TensorFlow to discover new content.              |
 | 9   | Update profile image to personalize the account.                                             |
-| 10  | Switch between dark mode and light mode to use the theme that suits the user best.           |
-| 11  | Smooth pop-up modals implemented using React Native Reanimated to enhance user experience.   |
-| 12  | User data and theme managed using React Context API for consistent state across the app.     |
-| 13  | .env file for storing environment-specific configuration, including API keys and secrets.    |
+| 10  | Users can visit other users profile page.                                                    |
+| 11  | Switch between dark mode and light mode to use the theme that suits the user best.           |
+| 12  | Smooth pop-up modals implemented using React Native Reanimated to enhance user experience.   |
+| 13  | User data and theme managed using React Context API for consistent state across the app.     |
+| 14  | .env file for storing environment-specific configuration, including API keys and secrets.    |
 
 ### Backend
 
@@ -90,6 +77,8 @@ These are the main features currently implemented in ReviewApp, grouped by Front
 | --- | -------------------------------------------------------------------------------------------------- |
 | 1   | Dockerized for local development and previously deployed on Azure (deployment paused due to cost). |
 | 2   | Automated CI/CD pipeline set up for continuous development and deployment using GitHub Actions.    |
+
+> **Note:** The screenshots/images provided do **not show all features** of the application.
 
 ## **Key Technologies Used:**
 
