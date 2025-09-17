@@ -37,6 +37,8 @@ This project was designed to deepen my understanding of NestJS and React Native 
   <img src="assets/demoPhotos/reviews_light.jpg" alt="Reviews Light" style="width:47%; height:auto;" />
 </div>
 
+> **Note:** The screenshots/images provided do **not show all features** of the application.
+
 ## Implemented Features
 
 These are the main features currently implemented in ReviewApp, grouped by Frontend, Backend, and DevOps/Infrastructure:
@@ -77,8 +79,6 @@ These are the main features currently implemented in ReviewApp, grouped by Front
 | --- | -------------------------------------------------------------------------------------------------- |
 | 1   | Dockerized for local development and previously deployed on Azure (deployment paused due to cost). |
 | 2   | Automated CI/CD pipeline set up for continuous development and deployment using GitHub Actions.    |
-
-> **Note:** The screenshots/images provided do **not show all features** of the application.
 
 ## **Key Technologies Used:**
 
