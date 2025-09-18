@@ -3,7 +3,7 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
-import { UpdateAvatarDto } from 'src/helpers/dtos/user.dto';
+import { UpdateAvatarDto, UserStatsType } from 'src/helpers/dtos/user.dto';
 import { v2 as cloudinary } from 'cloudinary';
 
 @Injectable()
@@ -24,7 +24,47 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException(`User with ID ${id_user} not found`);
     }
+
+    // Fetch stats and assign to the user entity
+    const userStats: UserStatsType = await this.getUserStats(user.id_user);
+    user.stats = userStats;
+
     return user;
+  }
+
+  async getUserStats(id_user: number): Promise<UserStatsType> {
+    const user = await this.usersRepository.findOne({ where: { id_user } });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id_user} not found`);
+    }
+
+    // Count likes
+    const likesCount = await this.usersRepository
+      .createQueryBuilder('user')
+      .leftJoin('user.likes', 'user_like')
+      .where('user.id_user = :id_user', { id_user })
+      .select('COUNT(user_like.id_like)', 'count')
+      .getRawOne();
+
+    const commentsCount = await this.usersRepository
+      .createQueryBuilder('user')
+      .leftJoin('user.comments', 'comment')
+      .where('user.id_user = :id_user', { id_user })
+      .select('COUNT(comment.id_comment)', 'count')
+      .getRawOne();
+
+    const reviewsCount = await this.usersRepository
+      .createQueryBuilder('user')
+      .leftJoin('user.reviews', 'review')
+      .where('user.id_user = :id_user', { id_user })
+      .select('COUNT(review.id_review)', 'count')
+      .getRawOne();
+    // make count as number
+    return {
+      likesCount: Number(likesCount.count) || 0,
+      commentsCount: Number(commentsCount.count) || 0,
+      reviewsCount: Number(reviewsCount.count) || 0,
+    };
   }
 
   // Get a user by email

@@ -7,4 +7,9 @@ export interface UserInfo {
   avatar: string;
   createdAt: Date | string;
   updatedAt: Date | string;
+  stats?: {
+    likesCount: number;
+    commentsCount: number;
+    reviewsCount: number;
+  };
 }

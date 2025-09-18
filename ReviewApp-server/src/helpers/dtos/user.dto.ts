@@ -1,5 +1,6 @@
 import { IsString, IsNumber } from 'class-validator';
 import { Exclude } from 'class-transformer';
+
 export class UserDTO {
   @IsNumber()
   id_user: number;
@@ -26,4 +27,10 @@ export class UpdateAvatarDto {
 
   @IsString()
   public_id?: string; // need for deleting the old image
+}
+
+export class UserStatsType {
+  commentsCount: number;
+  likesCount: number;
+  reviewsCount: number;
 }

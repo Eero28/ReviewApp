@@ -16,6 +16,7 @@ import { User } from './entities/user.entity';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { avatarStorage } from '../../config/cloudinary.config';
+import { UserStatsType } from 'src/helpers/dtos/user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -30,6 +31,11 @@ export class UsersController {
   @Get(':id')
   async findOne(@Param('id') id: number): Promise<User> {
     return await this.usersService.findOne(id);
+  }
+
+  @Get('stats/:id')
+  async getUserStats(@Param('id') id: number): Promise<UserStatsType> {
+    return await this.usersService.getUserStats(id);
   }
 
   @Put(':id')

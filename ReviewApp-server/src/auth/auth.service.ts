@@ -25,6 +25,7 @@ export class AuthService {
   async login(loginDto: LoginDto) {
     // Check if password or email is correct / found in db
     const user = await this.validateUser(loginDto.email, loginDto.password);
+    const stats = await this.usersService.getUserStats(user.id_user);
 
     const payload = {
       email: user.email,
@@ -47,6 +48,7 @@ export class AuthService {
       public_id: user.avatarPublicId,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
+      stats,
     };
   }
 }

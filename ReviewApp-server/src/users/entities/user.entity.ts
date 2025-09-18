@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
 import { Like } from 'src/like/entities/like.entity';
+import { UserStatsType } from 'src/helpers/dtos/user.dto';
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
@@ -46,6 +47,9 @@ export class User {
   @Expose()
   @Column({ default: 'user' })
   role: string;
+
+  @Expose()
+  stats?: UserStatsType;
 
   // one user can have many reviews
   @OneToMany(() => Review, (review) => review.user)

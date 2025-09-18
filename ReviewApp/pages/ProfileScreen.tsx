@@ -96,9 +96,9 @@ const ProfileScreen = () => {
   };
 
   const stats = [
-    { label: "Review Count", value: userReviews.length },
-    { label: "Reviews Liked", value: 85 },
-    { label: "Review Commented", value: 42 },
+    { label: "Reviews created", value: displayedUser?.stats?.reviewsCount },
+    { label: "Reviews liked", value: displayedUser?.stats?.likesCount },
+    { label: "Reviews commented", value: displayedUser?.stats?.commentsCount },
   ];
 
   const updateAvatar = async (uri: string) => {
