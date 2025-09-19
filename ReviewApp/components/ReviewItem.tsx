@@ -26,11 +26,12 @@ import { screenWidth, screenHeight } from '../helpers/dimensions';
 type Props = {
     item: ReviewItemIf;
     disableLongPress?: boolean;
+    onUnlike: (id_review: number) => void;
 };
 
-const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
+const ReviewItem: FC<Props> = ({ item, disableLongPress = false, onUnlike }) => {
     const { colors, fonts, fontSizes } = useTheme();
-    const { deleteReview, userInfo, setReviewsUpdated, handleLogout } = useAuth();
+    const { deleteReview, userInfo, handleLogout, getUserReviews, allReviewsFetch } = useAuth();
     const navigation = useNavigation<any>();
 
     const [showDialogModal, setShowDialogModal] = useState<boolean>(false);
@@ -47,20 +48,26 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
     const handleLiking = async () => {
         if (isProcessing || !userInfo) return;
         setIsProcessing(true);
+
         try {
             if (likesState) {
                 await axios.delete(`${API_URL}/likes/unlike/review/${item.id_review}/user/${userInfo.id_user}`);
+                setLikesState(false);
+                if (onUnlike) {
+                    onUnlike(item.id_review)
+                }
             } else {
                 await likeReview(item.id_review, userInfo.id_user);
+                setLikesState(true);
             }
-            setLikesState(prev => !prev);
-            setReviewsUpdated(prev => !prev);
+            await Promise.all([getUserReviews(), allReviewsFetch()]);
         } catch (error) {
             console.error("Error liking/unliking:", error);
         } finally {
             setIsProcessing(false);
         }
     };
+
 
     const gotoDetails = () => navigation.navigate('ReviewDetails', { item });
     const openCommentSection = () => navigation.navigate('ReviewDetails', { item, showComment: true });

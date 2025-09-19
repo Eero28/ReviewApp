@@ -88,6 +88,10 @@ export class UsersService {
     if (!existingUser) {
       throw new NotFoundException(`User with ID ${id_user} not found`);
     }
+    const userStats: UserStatsType = await this.getUserStats(
+      existingUser.id_user,
+    );
+    existingUser.stats = userStats;
 
     const updatedUser = this.usersRepository.merge(existingUser, userData);
     return this.usersRepository.save(updatedUser);
@@ -118,7 +122,11 @@ export class UsersService {
     existingUser.avatar = updateAvatarDto.avatar;
     existingUser.avatarPublicId = updateAvatarDto.public_id;
 
-    return this.usersRepository.save(existingUser);
+    const updatedUser = await this.usersRepository.save(existingUser);
+
+    updatedUser.stats = await this.getUserStats(id_user);
+
+    return updatedUser;
   }
 
   async deleteUser(id_user: number): Promise<void> {

@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
-import { StyleSheet, Text, View, Pressable } from "react-native";
+import { useState, useCallback } from "react";
+import { StyleSheet, Text, View, Pressable, ActivityIndicator } from "react-native";
 import { useNavigation, useRoute, useFocusEffect } from "@react-navigation/native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
@@ -27,12 +27,13 @@ const ProfileScreen = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const { colors, fonts } = useTheme();
-  const { handleLogout, userInfo, setUserInfo, userReviews, setReviewsUpdated, reviewsUpdated } = useAuth();
+  const { handleLogout, userInfo, setUserInfo, refreshUserStats } = useAuth();
 
   const [isLogoutSheetOpen, setLogoutSheetOpen] = useState(false);
   const [isProfileUpdateSheetOpen, setProfileUpdateSheetOpen] = useState(false);
   const [isSettingsSheetOpen, setSettingsSheetOpen] = useState(false);
   const [imageUri, setImageUri] = useState<string | null>(null);
+  const [isAvatarLoading, setAvatarLoading] = useState(false);
   const [displayedUser, setDisplayedUser] = useState<UserInfo | null>(userInfo);
 
   if (!userInfo) {
@@ -46,11 +47,14 @@ const ProfileScreen = () => {
     );
   }
 
+  // fetch newest data
   const fetchUser = async (id_user: number | null) => {
     try {
+      // if id_user === null then fetch latest data of logged in user
       if (!id_user || id_user === userInfo.id_user) {
-        setDisplayedUser(userInfo);
-        setImageUri(userInfo.avatar);
+        const response = await axios.get(`${API_URL}/users/${userInfo.id_user}`);
+        setDisplayedUser(response.data.data);
+        setImageUri(response.data.data.avatar);
         return;
       }
       const response = await axios.get(`${API_URL}/users/${id_user}`);
@@ -61,14 +65,16 @@ const ProfileScreen = () => {
     }
   };
   const id_user_visitor = route.params?.visitor_id ?? null;
-  // when entering profile screen
+
   useFocusEffect(
     useCallback(() => {
-
-
-      fetchUser(id_user_visitor);
-
-      // when leaving screen reset logged in user data/ modals to false
+      const loadUser = async () => {
+        await fetchUser(id_user_visitor);
+        if (!id_user_visitor) {
+          await refreshUserStats();
+        }
+      };
+      loadUser();
       return () => {
         setDisplayedUser(userInfo);
         setImageUri(userInfo.avatar);
@@ -77,7 +83,7 @@ const ProfileScreen = () => {
         setSettingsSheetOpen(false);
         navigation.setParams({ visitor_id: undefined });
       };
-    }, [route.params?.visitor_id, userInfo])
+    }, [route.params?.visitor_id, userInfo.id_user])
   );
 
   const toggleLogoutSheet = () => {
@@ -105,34 +111,65 @@ const ProfileScreen = () => {
     try {
       const formData = new FormData();
       formData.append("avatar", { uri, name: "avatar.jpg", type: "image/jpeg" } as any);
-      const response = await axios.patch(`${API_URL}/users/avatar/${userInfo.id_user}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+
+      const response = await axios.patch(
+        `${API_URL}/users/avatar/${userInfo.id_user}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${userInfo.access_token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
       const updatedUser = response.data.data;
-      setImageUri(updatedUser.avatar);
-      const newUserInfo = { ...userInfo, avatar: updatedUser.avatar };
+
+      setDisplayedUser(updatedUser);
+
+      const newUserInfo = {
+        ...userInfo,
+        avatar: updatedUser.avatar,
+        avatarPublicId: updatedUser.avatarPublicId,
+        access_token: userInfo.access_token,
+      };
       setUserInfo(newUserInfo);
       await AsyncStorage.setItem("userInfo", JSON.stringify(newUserInfo));
-      setReviewsUpdated(!reviewsUpdated);
-    } catch (error) {
-      errorHandler(error);
+    } catch (error: any) {
+      errorHandler(error)
     }
   };
+
 
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") return alert("Permission to access gallery is required!");
-    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], quality: 1 });
-    if (!result.canceled) {
+    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], quality: 0.7 });
+    if (!result.canceled && result.assets?.length > 0) {
       setImageUri(result.assets[0].uri);
       toggleProfileUpdateSheet();
     }
   };
 
-  const handleAvatarUpdate = () => {
-    if (imageUri) updateAvatar(imageUri);
+  const handleAvatarUpdate = async () => {
+    if (!imageUri) return;
     toggleProfileUpdateSheet();
+    setAvatarLoading(true);
+    try {
+      if (imageUri.startsWith("file://")) {
+        await updateAvatar(imageUri);
+      }
+    } catch (error) {
+      errorHandler(error);
+    } finally {
+      setAvatarLoading(false);
+      setImageUri(null);
+    }
   };
+
+
+
+
   const handleUpdateCancel = () => {
     setImageUri(null);
     toggleProfileUpdateSheet();
@@ -154,14 +191,30 @@ const ProfileScreen = () => {
           </Pressable>
         </View>}
 
-        <ExpoImage source={{ uri: imageUri || displayedUser?.avatar }} style={styles.profileImage} contentFit="cover" cachePolicy="memory-disk" />
+        <View style={styles.avatarWrapper}>
+          {isAvatarLoading ? (
+            <ActivityIndicator size="large" color={colors.textColorPrimary} style={styles.avatarSpinner} />
+          ) : (
+            <ExpoImage
+              source={{ uri: imageUri || displayedUser?.avatar }}
+              style={styles.profileImage}
+              contentFit="cover"
+              cachePolicy="memory-disk"
+            />
+          )}
+        </View>
       </View>
 
       <View style={styles.userInfoContainer}>
         <Text style={[styles.userName, { color: colors.textColorPrimary, fontFamily: fonts.bold }]}>
           {displayedUser?.username}
         </Text>
-        <Text style={[displayedUser?.role === "user" ? [styles.userRole, { color: colors.textColorSecondary }] : [styles.userRoleAdmin, { color: colors.textColorSecondary }], { fontFamily: fonts.medium }]}>
+        <Text style={[
+          displayedUser?.role === "user"
+            ? [styles.userRole, { color: colors.textColorSecondary }]
+            : [styles.userRoleAdmin, { color: colors.textColorSecondary }],
+          { fontFamily: fonts.medium }
+        ]}>
           {displayedUser?.role}
         </Text>
       </View>
@@ -245,10 +298,23 @@ const styles = StyleSheet.create({
     width: profileSize,
     height: profileSize,
     borderRadius: profileSize / 2,
+  },
+  avatarWrapper: {
+    width: profileSize,
+    height: profileSize,
+    borderRadius: profileSize / 2,
+    overflow: "hidden",
     borderWidth: 4,
+    borderColor: "#fff",
     position: "absolute",
     bottom: -profileSize / 2,
     left: 15,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  avatarSpinner: {
+    width: profileSize,
+    height: profileSize,
   },
   settingsContainer: {
     position: "absolute",
@@ -257,7 +323,8 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
   },
   categoryBadge: {
-    padding: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
     borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
@@ -303,14 +370,16 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   userRole: {
-    padding: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 6,
     borderRadius: 12,
     borderWidth: 1,
     fontSize: 14,
     borderColor: "green",
   },
   userRoleAdmin: {
-    padding: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 6,
     borderRadius: 12,
     borderWidth: 1,
     fontSize: 14,
@@ -341,7 +410,8 @@ const styles = StyleSheet.create({
   },
   statsBox: {
     flex: 1,
-    margin: 5,
+    marginLeft: 5,
+    marginRight: 5,
     borderRadius: 12,
     paddingVertical: 20,
     alignItems: "center",

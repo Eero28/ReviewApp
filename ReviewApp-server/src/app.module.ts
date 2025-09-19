@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { DatabaseModule } from './database/database.module';
@@ -9,7 +9,7 @@ import { LikeModule } from './like/like.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TensorflowModule } from './tensorflow/tensorflow.module';
-
+import { LoggerMiddleware } from './logger/middleware';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -24,4 +24,9 @@ import { TensorflowModule } from './tensorflow/tensorflow.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+//apply logger for all routes
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes('*');
+  }
+}

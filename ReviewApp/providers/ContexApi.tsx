@@ -15,14 +15,13 @@ interface AuthContextProps {
   setAllReviews: (reviews: ReviewItemIf[]) => void;
   handleLogin: (email: string, password: string) => Promise<UserInfo | undefined>;
   handleLogout: () => void;
-  getReviews: () => void;
+  getUserReviews: () => void;
   deleteReview: (id_review: number, access_token: string) => void;
   allReviewsFetch: () => void;
   reviewsWithCategory: (category?: string) => void;
   reviewsWithCategoryAll: (category?: string) => void;
-  setReviewsUpdated: Dispatch<SetStateAction<boolean>>;
-  reviewsUpdated: boolean;
   loading: boolean;
+  refreshUserStats: () => void;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -31,9 +30,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [allReviews, setAllReviews] = useState<ReviewItemIf[]>([]);
   const [userReviews, setUserReviews] = useState<ReviewItemIf[]>([]);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
-  const [reviewsUpdated, setReviewsUpdated] = useState(false);
   const [loading, setLoading] = useState<boolean>(true);
 
+  // when user comes to the app
   useEffect(() => {
     const checkUserSession = async () => {
       try {
@@ -42,10 +41,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           const parsedUserInfo = JSON.parse(storedUserInfo);
           setUserInfo(parsedUserInfo);
         } else {
-          await handleLogout()
+          await handleLogout();
         }
       } catch (error) {
-        errorHandler(error)
+        errorHandler(error);
       } finally {
         setLoading(false);
       }
@@ -54,15 +53,60 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
 
+
+  const getUserReviews = async () => {
+    if (!userInfo) return;
+    try {
+      const response = await axios.get(`${API_URL}/review/user/${userInfo.id_user}`);
+      setUserReviews(sortReviews(response.data.data));
+    } catch (error: any) {
+      errorHandler(error, handleLogout);
+    }
+  };
+
+  const allReviewsFetch = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/review`);
+      setAllReviews(sortReviews(response.data.data || []));
+    } catch (error: any) {
+      errorHandler(error, handleLogout);
+    }
+  };
+
+
   useEffect(() => {
     if (userInfo) {
-      getReviews();
+      getUserReviews();
       allReviewsFetch();
     }
-  }, [userInfo, reviewsUpdated]);
+  }, [userInfo]);
+
+
+
+
+  const refreshUserStats = async () => {
+    try {
+      if (!userInfo) return;
+      const response = await axios.get(`${API_URL}/users/${userInfo.id_user}`);
+      const user = response.data.data
+
+      const newUserInfo = {
+        ...user,
+        access_token: userInfo.access_token,
+      };
+
+      setUserInfo(newUserInfo);
+      await AsyncStorage.setItem("userInfo", JSON.stringify(newUserInfo));
+    } catch (error) {
+      errorHandler(error, handleLogout);
+    }
+  };
+
+
 
   const sortReviews = (reviews: ReviewItemIf[]) =>
-    reviews.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    [...reviews].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
 
   const handleLogin = async (email: string, password: string): Promise<UserInfo | undefined> => {
     try {
@@ -86,25 +130,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const getReviews = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/review/user/${userInfo?.id_user}`);
-      setUserReviews(sortReviews(response.data.data));
-    } catch (error: any) {
-      setUserReviews([]);
-      errorHandler(error, handleLogout)
-    }
-  };
 
-  const allReviewsFetch = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/review`);
-      setAllReviews(sortReviews(response.data.data));
-    } catch (error: any) {
-      setAllReviews([]);
-      errorHandler(error, handleLogout)
-    }
-  };
 
   const reviewsWithCategory = async (category?: string) => {
     try {
@@ -135,7 +161,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           Authorization: `Bearer ${access_token}`,
         },
       });
-      setReviewsUpdated(!reviewsUpdated);
+      getUserReviews();
+      allReviewsFetch();
     } catch (error: any) {
       errorHandler(error, handleLogout)
     }
@@ -151,14 +178,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setAllReviews,
         handleLogin,
         handleLogout,
-        getReviews,
+        getUserReviews,
         deleteReview,
         allReviewsFetch,
         reviewsWithCategory,
         reviewsWithCategoryAll,
-        setReviewsUpdated,
-        reviewsUpdated,
-        loading
+        loading,
+        refreshUserStats
       }}
     >
       {children}

@@ -19,9 +19,10 @@ type Props = {
     reviews: ReviewItemIf[];
     disableLongPress?: boolean;
     noReviewsText?: string;
+    onUnlike: (id_review: number) => void;
 };
 
-const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false, noReviewsText }) => {
+const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false, noReviewsText, onUnlike }) => {
     const { colors, fonts } = useTheme();
     const { animatedWidth, isOpen, searchTerm, setSearchTerm } = useSearch();
 
@@ -77,7 +78,7 @@ const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false, noReview
                 <FlatList
                     data={filteredReviews}
                     renderItem={({ item }: { item: ReviewItemIf }) => (
-                        <ReviewItem disableLongPress={disableLongPress} item={item} />
+                        <ReviewItem onUnlike={onUnlike} disableLongPress={disableLongPress} item={item} />
                     )}
                     keyExtractor={(item) => item.id_review.toString()}
                     contentContainerStyle={styles.listContainer}

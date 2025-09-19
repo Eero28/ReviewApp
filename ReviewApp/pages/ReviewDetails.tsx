@@ -22,6 +22,7 @@ import { likeReview } from '../helpers/services/reviewService';
 import { screenHeight, screenWidth } from '../helpers/dimensions';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { MainStackParamList } from '../interfaces/navigation';
+import { RecommendationSuggestion } from '../interfaces/Recommendation';
 
 export interface ReviewDetailsNavigationProp
   extends StackNavigationProp<MainStackParamList, "ReviewDetails"> { }
@@ -33,7 +34,7 @@ const profileSize = screenWidth * 0.15;
 
 const ReviewDetails: FC = () => {
   const { colors, fonts, paddingSpacing } = useTheme();
-  const { setReviewsUpdated, userInfo, userReviews } = useAuth();
+  const { userInfo, userReviews, getUserReviews, allReviewsFetch } = useAuth();
 
   const route = useRoute<ReviewDetailsRouteProp>();
   const navigation = useNavigation<ReviewDetailsNavigationProp>();
@@ -43,7 +44,7 @@ const ReviewDetails: FC = () => {
   const reviewItem = userReviews.find(r => r.id_review === item.id_review) || item;
 
   const [comments, setComments] = useState<Comment[]>([]);
-  const [recommendations, setRecommendations] = useState<[]>([]);
+  const [recommendations, setRecommendations] = useState<RecommendationSuggestion[]>([]);
   const [likesState, setLikesState] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -68,7 +69,7 @@ const ReviewDetails: FC = () => {
     try {
       const response = await axios.get(`${API_URL}/tensorflow/recommendations/${userInfo?.id_user}`);
       const filteredRecommendations = response.data.data.filter(
-        (recommendation) => recommendation.review.id_review !== reviewItem.id_review
+        (recommendation: RecommendationSuggestion) => recommendation.review.id_review !== reviewItem.id_review
       );
       setRecommendations(filteredRecommendations);
     } catch (error) {
@@ -95,7 +96,8 @@ const ReviewDetails: FC = () => {
       } else {
         await likeReview(reviewItem.id_review, userInfo.id_user);
       }
-      setReviewsUpdated(prev => !prev);
+      getUserReviews();
+      allReviewsFetch();
     } catch (error) {
       console.error("Error liking/unliking:", error);
       setLikesState(prev => !prev);

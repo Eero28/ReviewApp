@@ -21,7 +21,7 @@ import { CreateReviewDto } from './dto/create-review.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { reviewStorage } from 'config/cloudinary.config';
+import { reviewStorage } from '../../config/cloudinary.config';
 @Controller('review')
 export class ReviewController {
   constructor(private readonly reviewService: ReviewService) {}
