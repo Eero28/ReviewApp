@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { User } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
-
+import { RegisterUserDto } from './dto/register.dto';
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -17,7 +17,7 @@ export class AuthController {
   }
 
   @Post('register')
-  async createUser(@Body() user: User): Promise<User> {
+  async createUser(@Body() user: RegisterUserDto): Promise<User> {
     return await this.usersService.createUser(user);
   }
 }

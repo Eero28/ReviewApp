@@ -5,7 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
 import { UpdateAvatarDto, UserStatsType } from 'src/helpers/dtos/user.dto';
 import { v2 as cloudinary } from 'cloudinary';
-
+import { RegisterUserDto } from 'src/auth/dto/register.dto';
 @Injectable()
 export class UsersService {
   constructor(
@@ -13,12 +13,10 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
-  // Get all users
   async findAll(): Promise<User[]> {
     return this.usersRepository.find();
   }
 
-  // Get a single user by ID
   async findOne(id_user: number): Promise<User> {
     const user = await this.usersRepository.findOne({ where: { id_user } });
     if (!user) {
@@ -67,20 +65,23 @@ export class UsersService {
     };
   }
 
-  // Get a user by email
   async findOneByEmail(email: string): Promise<User | undefined> {
     return this.usersRepository.findOne({ where: { email } });
   }
 
-  // Create a new user
-  async createUser(user: User): Promise<User> {
-    user.password = await bcrypt.hash(user.password, 10);
-    user.role = user.role || 'user';
-    const newUser = this.usersRepository.create(user);
-    return this.usersRepository.save(newUser);
+  async createUser(dto: RegisterUserDto): Promise<User> {
+    const user = this.usersRepository.create({
+      email: dto.email,
+      username: dto.username,
+      password: await bcrypt.hash(dto.password, 10),
+      role: 'user', // default role
+      avatar:
+        'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
+    });
+
+    return this.usersRepository.save(user);
   }
 
-  // Update user info
   async updateUser(userData: Partial<User>, id_user: number): Promise<User> {
     const existingUser = await this.usersRepository.findOne({
       where: { id_user },
@@ -97,7 +98,6 @@ export class UsersService {
     return this.usersRepository.save(updatedUser);
   }
 
-  // Update user avatar
   async updateUserAvatar(
     updateAvatarDto: UpdateAvatarDto,
     id_user: number,

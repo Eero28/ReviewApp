@@ -21,14 +21,20 @@ import { CreateReviewDto } from './dto/create-review.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { reviewStorage } from '../../config/cloudinary.config';
+import { reviewStorage } from '../config/cloudinary.config';
 @Controller('review')
 export class ReviewController {
   constructor(private readonly reviewService: ReviewService) {}
 
   @Get()
-  async findAllReviews(): Promise<any> {
-    return await this.reviewService.findAllReviews();
+  async findAllReviews(
+    @Query('limit') limit = 20,
+    @Query('offset') offset = 0,
+  ): Promise<Review[]> {
+    return await this.reviewService.findAllReviews(
+      Number(limit),
+      Number(offset),
+    );
   }
 
   @Get('all')
@@ -89,12 +95,13 @@ export class ReviewController {
   }
 
   @Post()
-  @UseInterceptors(FileInterceptor('file', { storage: reviewStorage }))
   @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file', { storage: reviewStorage }))
   async createReview(
     @Body() create: CreateReviewDto,
     @UploadedFile() file: Express.Multer.File,
-  ): Promise<Review> {
-    return await this.reviewService.createReview(create, file);
+    @Request() req: any,
+  ) {
+    return this.reviewService.createReview(create, file, req.user);
   }
 }

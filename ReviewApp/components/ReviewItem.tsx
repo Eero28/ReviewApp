@@ -21,15 +21,14 @@ import { useTheme } from '../providers/ThemeContext';
 import Icon from './Icon';
 import axios from 'axios';
 import { API_URL } from '@env';
-import { screenWidth, screenHeight } from '../helpers/dimensions';
+import { screenWidth } from '../helpers/dimensions';
 
 type Props = {
     item: ReviewItemIf;
     disableLongPress?: boolean;
-    onUnlike: (id_review: number) => void;
 };
 
-const ReviewItem: FC<Props> = ({ item, disableLongPress = false, onUnlike }) => {
+const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
     const { colors, fonts, fontSizes } = useTheme();
     const { deleteReview, userInfo, handleLogout, getUserReviews, allReviewsFetch } = useAuth();
     const navigation = useNavigation<any>();
@@ -53,9 +52,6 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false, onUnlike }) => 
             if (likesState) {
                 await axios.delete(`${API_URL}/likes/unlike/review/${item.id_review}/user/${userInfo.id_user}`);
                 setLikesState(false);
-                if (onUnlike) {
-                    onUnlike(item.id_review)
-                }
             } else {
                 await likeReview(item.id_review, userInfo.id_user);
                 setLikesState(true);
@@ -111,7 +107,6 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false, onUnlike }) => 
         });
     };
 
-
     return (
         <View style={[styles.reviewItemContainer, { backgroundColor: colors.card.bg, borderColor: colors.card.border }]}>
             <Pressable
@@ -120,7 +115,15 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false, onUnlike }) => 
                 style={styles.pressableWrapper}
             >
                 <View style={styles.imageWrapper}>
-                    <Image style={styles.reviewItemImage} source={{ uri: item.imageUrl }} />
+                    <Image
+                        style={styles.reviewItemImage}
+                        source={
+                            item.imageUrl
+                                ? { uri: item.imageUrl }
+                                : require('../assets/placeholder.jpg')
+                        }
+                    />
+
                     <View style={[styles.categoryBadge, { backgroundColor: colors.card.bg }]}>
                         {checkCategoryIcon(item.category)}
                     </View>
@@ -147,7 +150,14 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false, onUnlike }) => 
                 <Pressable onPress={checkProfile}>
                     <View style={styles.profileImageContainer}>
 
-                        <Image style={styles.profileImage} source={{ uri: item.user.avatar }} />
+                        <Image
+                            style={styles.profileImage}
+                            source={
+                                item.user?.avatar
+                                    ? { uri: item.user.avatar }
+                                    : require('../assets/placeholder.jpg')
+                            }
+                        />
                         <Text style={[{ color: colors.textColorSecondary, fontFamily: fonts.medium }]}>
                             {item.user.username}
                         </Text>
@@ -168,7 +178,7 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false, onUnlike }) => 
                     {item.reviewTaste.length > 2 && (
                         <View style={[styles.reviewItemTagBox, { backgroundColor: "#E0E0E0" }]}>
                             <Text style={[styles.reviewItemTagText, { color: "#333", fontFamily: fonts.semiBold, fontSize: fontSizes.xs }]}>
-                                +{item.reviewTaste.length - 3}
+                                +{item.reviewTaste.length - 2}
                             </Text>
                         </View>
                     )}

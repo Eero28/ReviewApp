@@ -15,7 +15,7 @@ import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { avatarStorage } from '../../config/cloudinary.config';
+import { avatarStorage } from '../config/cloudinary.config';
 import { UserStatsType } from 'src/helpers/dtos/user.dto';
 
 @Controller('users')

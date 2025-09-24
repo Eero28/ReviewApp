@@ -24,40 +24,31 @@ export class ReviewService {
   async createReview(
     createReviewDto: CreateReviewDto,
     file: Express.Multer.File,
+    user: User,
   ): Promise<Review> {
-    const user = await this.userRepository.findOne({
-      where: { id_user: createReviewDto.id_user },
-    });
-
-    if (!user) throw new NotFoundException(`User not found`);
-    if (!file) throw new NotFoundException('Image is required for a review');
+    console.log('data gotten', createReviewDto);
+    if (!file) throw new NotFoundException('Image is required');
 
     const review = this.reviewRepository.create({
       ...createReviewDto,
       user,
-      imageUrl: file.path, // cloudinary secure_url
-      imagePublicId: file.filename, // cloudinary public_id
+      imageUrl: file.path,
+      imagePublicId: file.filename,
     });
 
     return this.reviewRepository.save(review);
   }
 
-  async findAllReviews(): Promise<Review[]> {
-    const reviews = await this.reviewRepository
+  async findAllReviews(limit = 20, offset = 0): Promise<Review[]> {
+    return this.reviewRepository
       .createQueryBuilder('review')
-      .leftJoinAndSelect('review.user', 'reviewAuthor') // review author
-      .leftJoinAndSelect('review.likes', 'likes') // review likes
-      .leftJoinAndSelect('likes.user', 'liker') // user who liked
-      .leftJoinAndSelect('review.comments', 'comments') // top-level comments
-      .leftJoinAndSelect('comments.user', 'commentAuthor') // author of each comment
-      .leftJoinAndSelect('comments.replies', 'commentReplies') // replies to top-level comments
-      .leftJoinAndSelect('commentReplies.user', 'replyAuthor') // authors of replies
-      .leftJoinAndSelect('commentReplies.replies', 'nestedReplies') // nested replies
-      .leftJoinAndSelect('nestedReplies.user', 'nestedReplyAuthor') // authors of nested replies
+      .leftJoinAndSelect('review.user', 'reviewAuthor')
+      .leftJoinAndSelect('review.likes', 'likes')
+      .leftJoinAndSelect('likes.user', 'liker')
       .orderBy('review.createdAt', 'DESC')
+      .take(limit)
+      .skip(offset)
       .getMany();
-
-    return reviews;
   }
 
   async getReviewsByCategoryAll(category: string): Promise<Review[]> {
@@ -93,7 +84,7 @@ export class ReviewService {
     if (userReviews.length === 0) {
       return [];
     }
-
+    console.log('userReviews', userReviews);
     return userReviews;
   }
 

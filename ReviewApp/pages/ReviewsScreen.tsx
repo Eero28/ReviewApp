@@ -1,10 +1,10 @@
-import { FC } from 'react';
 import ReviewFlatlist from '../components/ReviewFlatlist';
-import { useAuth } from '../providers/ContexApi'
+import { useAuth } from '../providers/ContexApi';
 import FilterButtons from '../components/FilterButtons';
 
-const ReviewsScreen: FC = ({ }) => {
+const ReviewsScreen = () => {
   const { userReviews, reviewsWithCategory } = useAuth();
+
   return (
     <>
       <FilterButtons fetchReviewsWithCategory={reviewsWithCategory} />
@@ -12,7 +12,5 @@ const ReviewsScreen: FC = ({ }) => {
     </>
   );
 };
-
-
 
 export default ReviewsScreen;

@@ -40,7 +40,7 @@ interface ReviewFormProps {
 const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUpdate = false }) => {
   const navigation = useNavigation<NavigationProp<any>>();
   const { colors, fonts } = useTheme();
-  const { userInfo, allReviewsFetch, handleLogout, getUserReviews } = useAuth();
+  const { userInfo, allReviewsFetch, getUserReviews } = useAuth();
 
   const { control, handleSubmit, reset, formState: { errors } } = useForm<ReviewFormValues>({
     defaultValues: {
@@ -69,53 +69,66 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUp
 
   const onSubmit = async (data: ReviewFormValues) => {
     if (loading) return;
+
     if (!imageUrl) {
       alert('Please take or select an image first');
       return;
     }
+
     setLoading(true);
+
     try {
       const formData = new FormData();
+
       formData.append('reviewname', data.reviewname);
       formData.append('reviewDescription', data.reviewDescription);
       formData.append('reviewRating', String(data.reviewRating));
       formData.append('category', data.category || '');
       formData.append('priceRange', data.priceRange);
-      formData.append('id_user', String(userInfo?.id_user));
-      data.reviewTaste.forEach((taste) => formData.append('reviewTaste[]', taste));
 
-      if (imageUrl.startsWith('file://')) {
+      data.reviewTaste.forEach((taste, index) => {
+        formData.append(`reviewTaste[${index}]`, taste);
+      });
+
+      if (imageUrl && imageUrl.startsWith('file://')) {
         const fileName = imageUrl.split('/').pop() || 'photo.jpg';
         const fileType = fileName.endsWith('png') ? 'image/png' : 'image/jpeg';
-        formData.append('file', { uri: imageUrl, name: fileName, type: fileType } as any);
-      } else {
-        formData.append('imageUrl', imageUrl);
+        formData.append('file', {
+          uri: imageUrl,
+          name: fileName,
+          type: fileType,
+        } as any);
       }
 
-      if (isUpdate && initialData?.id_review) {
-        await axios.patch(`${API_URL}/review/${initialData.id_review}`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            Authorization: `Bearer ${userInfo?.access_token}`,
-          },
-        });
-      } else {
-        await axios.post(`${API_URL}/review`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            Authorization: `Bearer ${userInfo?.access_token}`,
-          },
-        });
+      const url = isUpdate && initialData?.id_review
+        ? `${API_URL}/review/${initialData.id_review}`
+        : `${API_URL}/review`;
+
+      const method = isUpdate ? 'PATCH' : 'POST';
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          Authorization: `Bearer ${userInfo?.access_token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`Server error: ${response.status} ${text}`);
       }
 
-      reset();
       await allReviewsFetch();
       await getUserReviews();
+      reset()
+
       setImageUrl(null);
-      setShowCamera(true);
+      setShowCamera(!isUpdate);
       navigation.goBack();
-    } catch (error) {
-      errorHandler(error, handleLogout);
+    } catch (err) {
+      console.error('Submit error:', err);
+      alert('Failed to submit review. Check console for details.');
     } finally {
       setLoading(false);
     }

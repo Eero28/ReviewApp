@@ -9,10 +9,12 @@ export const errorHandler = (e: unknown, handleLogout?: () => void) => {
 
     const { status, data } = e.response;
     const message = data?.message || "Unknown error";
+
     switch (status) {
       case 401:
         alert(`${message}. Please log in again`);
         handleLogout?.();
+        break;
       case 404:
         console.log(message);
         throw new Error(`404 Not Found: ${message}`);
@@ -23,7 +25,6 @@ export const errorHandler = (e: unknown, handleLogout?: () => void) => {
         console.log(message);
         throw new Error(`${status} Error: ${message}`);
     }
-    // other error
   } else {
     throw e;
   }

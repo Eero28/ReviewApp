@@ -1,12 +1,12 @@
+import { Type } from 'class-transformer';
 import {
-  IsNotEmpty,
+  IsArray,
+  ArrayNotEmpty,
   IsString,
+  IsNotEmpty,
   IsNumber,
   Min,
   Max,
-  IsArray,
-  ArrayNotEmpty,
-  IsOptional,
 } from 'class-validator';
 
 export class CreateReviewDto {
@@ -21,15 +21,8 @@ export class CreateReviewDto {
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(1)
   @Max(5)
+  @Type(() => Number)
   reviewRating: number;
-
-  @IsString()
-  @IsOptional()
-  imageUrl: string;
-
-  @IsOptional()
-  @IsString()
-  imagePublicId?: string;
 
   @IsString()
   @IsNotEmpty()
@@ -43,7 +36,4 @@ export class CreateReviewDto {
   @ArrayNotEmpty()
   @IsString({ each: true })
   reviewTaste: string[];
-
-  @IsNumber()
-  id_user: number;
 }

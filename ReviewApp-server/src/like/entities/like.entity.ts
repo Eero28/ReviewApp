@@ -5,9 +5,10 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   CreateDateColumn,
+  JoinColumn,
 } from 'typeorm';
 import { Exclude } from 'class-transformer';
-@Entity()
+@Entity('likes')
 export class Like {
   @PrimaryGeneratedColumn()
   id_like: number;
@@ -17,10 +18,12 @@ export class Like {
     eager: true,
     onDelete: 'CASCADE',
   })
+  @JoinColumn({ name: 'user_id' })
   user: User;
 
   // A review can have many likes
   @ManyToOne(() => Review, (review) => review.likes, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'review_id' })
   review: Review;
 
   @Exclude()

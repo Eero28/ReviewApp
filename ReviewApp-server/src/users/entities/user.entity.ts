@@ -11,7 +11,7 @@ import {
 import { Exclude, Expose } from 'class-transformer';
 import { Like } from 'src/like/entities/like.entity';
 import { UserStatsType } from 'src/helpers/dtos/user.dto';
-@Entity()
+@Entity('users')
 export class User {
   @PrimaryGeneratedColumn()
   id_user: number;

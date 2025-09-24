@@ -8,10 +8,11 @@ import {
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
+  JoinColumn,
 } from 'typeorm';
 import { Like } from 'src/like/entities/like.entity';
 
-@Entity()
+@Entity('reviews')
 export class Review {
   @PrimaryGeneratedColumn()
   id_review: number;
@@ -48,6 +49,7 @@ export class Review {
 
   // Many reviews can belong to one user
   @ManyToOne(() => User, (user) => user.reviews)
+  @JoinColumn({ name: 'user_id' }) // column in review table
   user: User;
 
   // One review can have many comments

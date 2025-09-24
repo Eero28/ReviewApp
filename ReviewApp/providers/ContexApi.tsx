@@ -22,6 +22,7 @@ interface AuthContextProps {
   reviewsWithCategoryAll: (category?: string) => void;
   loading: boolean;
   refreshUserStats: () => void;
+  hasMore: boolean;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -52,7 +53,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     checkUserSession();
   }, []);
 
-
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
 
   const getUserReviews = async () => {
     if (!userInfo) return;
@@ -64,10 +66,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const allReviewsFetch = async () => {
+  const allReviewsFetch = async (nextPage = 0) => {
     try {
-      const response = await axios.get(`${API_URL}/review`);
-      setAllReviews(sortReviews(response.data.data || []));
+      const response = await axios.get(`${API_URL}/review`, {
+        params: { limit: 20, offset: nextPage * 20 },
+      });
+
+      const reviews = response.data.data || [];
+      if (reviews.length < 20) setHasMore(false);
+
+      setAllReviews(prev => nextPage === 0 ? reviews : [...prev, ...reviews]);
+      setPage(nextPage);
     } catch (error: any) {
       errorHandler(error, handleLogout);
     }
@@ -184,7 +193,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         reviewsWithCategory,
         reviewsWithCategoryAll,
         loading,
-        refreshUserStats
+        refreshUserStats,
+        hasMore
       }}
     >
       {children}

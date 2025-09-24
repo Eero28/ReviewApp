@@ -80,6 +80,11 @@ These are the main features currently implemented in ReviewApp, grouped by Front
 | 1   | Dockerized for local development and previously deployed on Azure (deployment paused due to cost). |
 | 2   | Automated CI/CD pipeline set up for continuous development and deployment using GitHub Actions.    |
 
+## Known Issues
+
+**Expo Go Camera Issue**  
+Expo Go may occasionally crash silently without showing any error when using the image picker or camera. This could be related to the current Expo SDK version (e.g., SDK 54) or a bug in the image picker module.
+
 ## **Key Technologies Used:**
 
 - **Front-end**:
