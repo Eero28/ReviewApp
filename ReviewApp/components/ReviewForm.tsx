@@ -10,16 +10,15 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
-import RNPickerSelect from 'react-native-picker-select';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import CameraComponent from '../components/CameraComponent';
 import { useAuth } from '../providers/ContexApi';
 import { tasteGroupsFormValues, selectColor, toggleSelectedTaste } from '../helpers/tastegroup';
-import { errorHandler } from '../helpers/errors/error';
-import axios from 'axios';
 import { API_URL } from '@env';
 import { useTheme } from '../providers/ThemeContext';
 import BackButton from './BackButton';
+import { errorHandler } from '../helpers/errors/error';
+import SelectDropdown from '../components/SelectDropdown';
 
 interface ReviewFormValues {
   reviewname: string;
@@ -29,6 +28,7 @@ interface ReviewFormValues {
   reviewTaste: string[];
   priceRange: string;
   id_review?: number;
+  imageUrl?: string;
 }
 
 interface ReviewFormProps {
@@ -40,73 +40,53 @@ interface ReviewFormProps {
 const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUpdate = false }) => {
   const navigation = useNavigation<NavigationProp<any>>();
   const { colors, fonts } = useTheme();
-  const { userInfo, allReviewsFetch, getUserReviews } = useAuth();
-
-  const { control, handleSubmit, reset, formState: { errors } } = useForm<ReviewFormValues>({
-    defaultValues: {
-      reviewname: initialData?.reviewname || '',
-      reviewDescription: initialData?.reviewDescription || '',
-      priceRange: initialData?.priceRange || '',
-      reviewRating: initialData?.reviewRating ? Number(initialData.reviewRating) : null,
-      category: initialData?.category || null,
-      reviewTaste: initialData?.reviewTaste || [],
-    },
-  });
+  const { userInfo, allReviewsFetch, fetchUserReviews } = useAuth();
 
   const [imageUrl, setImageUrl] = useState<string | null>(initialImage || null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [showCamera, setShowCamera] = useState<boolean>(!initialImage);
 
-  const onImageCaptured = (url: string) => {
-    setImageUrl(url);
-    setShowCamera(false);
-  };
+  const { control, handleSubmit, formState: { errors } } = useForm<ReviewFormValues>({
+    defaultValues: {
+      reviewname: initialData?.reviewname || '',
+      reviewDescription: initialData?.reviewDescription || '',
+      priceRange: initialData?.priceRange ?? '',
+      reviewRating: initialData?.reviewRating ? Number(initialData.reviewRating) : null,
+      category: initialData?.category ?? '',
+      reviewTaste: initialData?.reviewTaste || undefined,
+    },
+  });
 
-  const discardImage = () => {
-    setImageUrl(null);
-    setShowCamera(true);
-  };
+  const onImageCaptured = (url: string) => setImageUrl(url);
+  const discardImage = () => setImageUrl(null);
 
   const onSubmit = async (data: ReviewFormValues) => {
     if (loading) return;
-
     if (!imageUrl) {
       alert('Please take or select an image first');
       return;
     }
-
     setLoading(true);
 
     try {
       const formData = new FormData();
-
       formData.append('reviewname', data.reviewname);
       formData.append('reviewDescription', data.reviewDescription);
       formData.append('reviewRating', String(data.reviewRating));
       formData.append('category', data.category || '');
       formData.append('priceRange', data.priceRange);
-
-      data.reviewTaste.forEach((taste, index) => {
-        formData.append(`reviewTaste[${index}]`, taste);
-      });
-
-      if (imageUrl && imageUrl.startsWith('file://')) {
-        const fileName = imageUrl.split('/').pop() || 'photo.jpg';
-        const fileType = fileName.endsWith('png') ? 'image/png' : 'image/jpeg';
-        formData.append('file', {
-          uri: imageUrl,
-          name: fileName,
-          type: fileType,
-        } as any);
-      }
+      formData.append('reviewTaste', JSON.stringify(data.reviewTaste));
+      formData.append('file', {
+        uri: imageUrl,
+        type: "image/png",
+        name: `review-image`,
+      } as any);
 
       const url = isUpdate && initialData?.id_review
         ? `${API_URL}/review/${initialData.id_review}`
         : `${API_URL}/review`;
-
       const method = isUpdate ? 'PATCH' : 'POST';
 
-      const response = await fetch(url, {
+      await fetch(url, {
         method,
         headers: {
           Authorization: `Bearer ${userInfo?.access_token}`,
@@ -114,21 +94,12 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUp
         body: formData,
       });
 
-      if (!response.ok) {
-        const text = await response.text();
-        throw new Error(`Server error: ${response.status} ${text}`);
-      }
-
-      await allReviewsFetch();
-      await getUserReviews();
-      reset()
-
+      await Promise.all([fetchUserReviews(), allReviewsFetch()]);
       setImageUrl(null);
-      setShowCamera(!isUpdate);
-      navigation.goBack();
+      if (navigation.canGoBack()) navigation.goBack();
+
     } catch (err) {
-      console.error('Submit error:', err);
-      alert('Failed to submit review. Check console for details.');
+      errorHandler(err);
     } finally {
       setLoading(false);
     }
@@ -145,27 +116,18 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUp
             </Text>
           </View>
 
-          {showCamera && !imageUrl && (
+          {!imageUrl ? (
             <CameraComponent onImageCaptured={onImageCaptured} />
-          )}
-
-          {imageUrl && (
+          ) : (
             <>
-              <Image source={{ uri: imageUrl }} style={styles.imagePreview} />
-              <Pressable
-                style={[styles.discardButton, { backgroundColor: colors.alerts.danger }]}
-                onPress={discardImage}
-              >
-                <Text style={[styles.discardButtonText, { color: colors.textColorPrimary, fontFamily: fonts.medium }]}>
-                  Discard Image
-                </Text>
+              <Image source={{ uri: imageUrl }} style={styles.imagePreview} resizeMode="contain" />
+              <Pressable onPress={discardImage} style={styles.discardButton}>
+                <Text style={styles.discardButtonText}>Discard Image / Take New</Text>
               </Pressable>
             </>
           )}
 
-          <Text style={[styles.label, { color: colors.textColorPrimary, fontFamily: fonts.medium }]}>
-            Review Name
-          </Text>
+          <Text style={[styles.label, { color: colors.textColorPrimary, fontFamily: fonts.medium }]}>Review Name</Text>
           <Controller
             control={control}
             name="reviewname"
@@ -181,15 +143,9 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUp
               />
             )}
           />
-          {errors.reviewname && (
-            <Text style={[styles.error, { color: colors.alerts.danger }]}>
-              {errors.reviewname.message}
-            </Text>
-          )}
+          {errors.reviewname && <Text style={[styles.error, { color: colors.alerts.danger }]}>{errors.reviewname.message}</Text>}
 
-          <Text style={[styles.label, { color: colors.textColorPrimary, fontFamily: fonts.medium }]}>
-            Review Text
-          </Text>
+          <Text style={[styles.label, { color: colors.textColorPrimary, fontFamily: fonts.medium }]}>Review Text</Text>
           <Controller
             control={control}
             name="reviewDescription"
@@ -207,153 +163,136 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUp
               />
             )}
           />
-          {errors.reviewDescription && (
-            <Text style={[styles.error, { color: colors.alerts.danger }]}>
-              {errors.reviewDescription.message}
-            </Text>
-          )}
+          {errors.reviewDescription && <Text style={[styles.error, { color: colors.alerts.danger }]}>{errors.reviewDescription.message}</Text>}
 
-          <Text style={[styles.label, { color: colors.textColorPrimary, fontFamily: fonts.medium }]}>
-            Review Rating
-          </Text>
+          <Text style={[styles.label, { color: colors.textColorPrimary, fontFamily: fonts.medium }]}>Review Rating</Text>
           <Controller
             control={control}
             name="reviewRating"
             rules={{ required: 'Rating is required' }}
             render={({ field: { onChange, value } }) => (
-              <RNPickerSelect
-                onValueChange={onChange}
-                value={value}
-                items={[...Array(9)].map((_, i) => ({
-                  label: (1 + i * 0.5).toString(),
-                  value: 1 + i * 0.5,
-                }))}
-                placeholder={{ label: 'Select a rating', value: null }}
-                style={{
-                  inputIOS: [styles.pickerInput, { backgroundColor: colors.form.input, color: colors.form.inputTextColor }],
-                  inputAndroid: [styles.pickerInput, { backgroundColor: colors.form.input, color: colors.form.inputTextColor }],
-                  placeholder: { color: colors.textColorSecondary },
-                }}
+              <SelectDropdown
+                label="Select Rating"
+                options={['1', '1.5', '2', '2.5', '3', '3.5', '4', '4.5', '5']}
+                selectedValue={value != null ? value.toString() : null}
+                onValueChange={(val) => onChange(Number(val))}
+                bgColor={colors.form.input}
+                textColor={colors.textColorPrimary}
               />
             )}
           />
-          {errors.reviewRating && (
-            <Text style={[styles.error, { color: colors.alerts.danger }]}>
-              {errors.reviewRating.message}
-            </Text>
-          )}
 
-          <Text style={[styles.label, { color: colors.textColorPrimary, fontFamily: fonts.medium }]}>
-            Category
-          </Text>
+          {errors.reviewRating && <Text style={[styles.error, { color: colors.alerts.danger }]}>{errors.reviewRating.message}</Text>}
+
           <Controller
             control={control}
             name="category"
             rules={{ required: 'Category is required' }}
-            render={({ field: { onChange, value } }) => (
-              <RNPickerSelect
-                onValueChange={onChange}
-                value={value}
-                items={[
-                  { label: 'Wine', value: 'wine' },
-                  { label: 'Beer', value: 'beer' },
-                  { label: 'Softdrink', value: 'softdrink' },
-                  { label: 'Hot beverage', value: 'hotbeverage' },
-                  { label: 'Cocktail', value: 'cocktail' },
-                  { label: 'Other', value: 'other' },
-                ]}
-                placeholder={{ label: 'Select a category', value: null }}
-                style={{
-                  inputIOS: [styles.pickerInput, { backgroundColor: colors.form.input, color: colors.form.inputTextColor }],
-                  inputAndroid: [styles.pickerInput, { backgroundColor: colors.form.input, color: colors.form.inputTextColor }],
-                }}
-              />
-            )}
-          />
-          {errors.category && (
-            <Text style={[styles.error, { color: colors.alerts.danger }]}>
-              {errors.category.message}
-            </Text>
-          )}
+            render={({ field: { onChange, value } }) => {
+              const categories = [
+                { label: 'Wine', value: 'wine' },
+                { label: 'Beer', value: 'beer' },
+                { label: 'Softdrink', value: 'softdrink' },
+                { label: 'Hot beverage', value: 'hotbeverage' },
+                { label: 'Cocktail', value: 'cocktail' },
+                { label: 'Other', value: 'other' },
+              ];
 
-          <Text style={[styles.label, { color: colors.textColorPrimary, fontFamily: fonts.medium }]}>
-            Price Range
-          </Text>
+              return (
+                <SelectDropdown
+                  label="Select Category"
+                  options={categories.map(c => c.label)}
+                  selectedValue={
+                    value
+                      ? categories.find(c => c.value === value)?.label || null
+                      : null
+                  }
+                  onValueChange={(selectedLabel) => {
+                    const selected = categories.find(c => c.label === selectedLabel);
+                    if (selected) onChange(selected.value);
+                  }}
+                  bgColor={colors.form.input}
+                  textColor={colors.textColorPrimary}
+                />
+              );
+            }}
+          />
+          {errors.category && <Text style={[styles.error, { color: colors.alerts.danger }]}>{errors.category.message}</Text>}
+
           <Controller
             control={control}
             name="priceRange"
             rules={{ required: 'Price range is required' }}
-            render={({ field: { onChange, value } }) => (
-              <RNPickerSelect
-                onValueChange={onChange}
-                value={value}
-                items={[
-                  { label: '1-5 euros', value: '1-5' },
-                  { label: '5-10 euros', value: '5-10' },
-                  { label: '10-20 euros', value: '10-20' },
-                  { label: '20-50 euros', value: '20-50' },
-                  { label: '50-100 euros', value: '50-100' },
-                  { label: '+100 euros', value: '+100' },
-                ]}
-                placeholder={{ label: 'Select price range', value: null }}
-                style={{
-                  inputIOS: [styles.pickerInput, { backgroundColor: colors.form.input, color: colors.form.inputTextColor }],
-                  inputAndroid: [styles.pickerInput, { backgroundColor: colors.form.input, color: colors.form.inputTextColor }],
-                }}
-              />
-            )}
-          />
-          {errors.priceRange && (
-            <Text style={[styles.error, { color: colors.alerts.danger }]}>
-              {errors.priceRange.message}
-            </Text>
-          )}
+            render={({ field: { onChange, value } }) => {
+              const ranges = [
+                { label: '1-5 euros', value: '1-5' },
+                { label: '5-10 euros', value: '5-10' },
+                { label: '10-20 euros', value: '10-20' },
+                { label: '20-50 euros', value: '20-50' },
+                { label: '50-100 euros', value: '50-100' },
+                { label: '+100 euros', value: '+100' },
+              ];
 
-          <Text style={[styles.label, { color: colors.textColorPrimary, fontFamily: fonts.medium }]}>
-            What does it taste like?
-          </Text>
+              return (
+                <SelectDropdown
+                  label="Select Price Range"
+                  options={ranges.map(r => r.label)}
+                  selectedValue={
+                    value
+                      ? ranges.find(r => r.value === value)?.label || null
+                      : null
+                  }
+                  onValueChange={(selectedLabel) => {
+                    const selected = ranges.find(r => r.label === selectedLabel);
+                    if (selected) onChange(selected.value);
+                  }}
+                  bgColor={colors.form.input}
+                  textColor={colors.textColorPrimary}
+                />
+              );
+            }}
+          />
+
+          {errors.priceRange && <Text style={[styles.error, { color: colors.alerts.danger }]}>{errors.priceRange.message}</Text>}
+
+          <Text style={[styles.label, { color: colors.textColorPrimary, fontFamily: fonts.medium }]}>What does it taste like?</Text>
           <Controller
             control={control}
             name="reviewTaste"
             rules={{ required: 'Pick at least one taste' }}
-            render={({ field: { onChange, value = [] } }) => (
-              <View>
-                {tasteGroupsFormValues.map(({ group, tastes }) => (
-                  <View key={group}>
-                    <Text style={[styles.groupLabel, { color: colors.textColorSecondary, fontFamily: fonts.medium }]}>
-                      {group}
-                    </Text>
-                    <View style={styles.tasteContainer}>
-                      {tastes.map((taste) => {
-                        const { color, textColor } = selectColor(taste);
-                        const isSelected = value.includes(taste);
-                        return (
-                          <Pressable
-                            key={taste}
-                            style={[styles.tasteChip, { backgroundColor: isSelected ? color : '#eee' }]}
-                            onPress={() => onChange(toggleSelectedTaste(value, taste))}
-                          >
-                            <Text style={{ color: isSelected ? textColor : '#000', fontFamily: fonts.medium }}>
-                              {taste}
-                            </Text>
-                          </Pressable>
-                        );
-                      })}
+            render={({ field: { onChange, value } }) => {
+              const selectedTastes = Array.isArray(value) ? value : [];
+              return (
+                <View>
+                  {tasteGroupsFormValues.map(({ group, tastes }) => (
+                    <View key={group}>
+                      <Text style={[styles.groupLabel, { color: colors.textColorSecondary, fontFamily: fonts.medium }]}>{group}</Text>
+                      <View style={styles.tasteContainer}>
+                        {tastes.map((taste) => {
+                          const { color, textColor } = selectColor(taste);
+                          const isSelected = selectedTastes.includes(taste);
+                          return (
+                            <Pressable
+                              key={taste}
+                              style={[styles.tasteChip, { backgroundColor: isSelected ? color : '#eee' }]}
+                              onPress={() => onChange(toggleSelectedTaste(selectedTastes, taste))}
+                            >
+                              <Text style={{ color: isSelected ? textColor : '#000', fontFamily: fonts.medium }}>{taste}</Text>
+                            </Pressable>
+                          );
+                        })}
+                      </View>
                     </View>
-                  </View>
-                ))}
-              </View>
-            )}
+                  ))}
+                </View>
+              );
+            }}
           />
-          {errors.reviewTaste && (
-            <Text style={[styles.error, { color: colors.alerts.danger }]}>
-              {errors.reviewTaste.message}
-            </Text>
-          )}
+          {errors.reviewTaste && <Text style={[styles.error, { color: colors.alerts.danger }]}>{errors.reviewTaste.message}</Text>}
 
           <View style={styles.buttonContainer}>
             <Pressable
-              disabled={!imageUrl || loading}
+              disabled={loading}
               onPress={handleSubmit(onSubmit)}
               style={({ pressed }) => [
                 {
@@ -397,24 +336,20 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     resizeMode: 'cover',
   },
-  takePhotoButton: {
+  discardButton: {
+    backgroundColor: '#ff4d4d',
     paddingVertical: 12,
     paddingHorizontal: 20,
-    borderRadius: 12,
+    borderRadius: 10,
     alignSelf: 'center',
+    marginTop: 10,
     marginBottom: 16,
-  },
-  discardButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 25,
-    alignSelf: 'center',
-    marginBottom: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   discardButtonText: {
+    color: '#fff',
     fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
   },
   label: {
     fontSize: 16,
@@ -430,10 +365,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     fontSize: 16,
   },
-  pickerInput: {
-    fontSize: 16,
-    paddingVertical: 14,
-    paddingHorizontal: 12,
+  pickerWrapper: {
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 10,

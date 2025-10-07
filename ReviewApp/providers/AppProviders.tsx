@@ -3,6 +3,7 @@ import { AuthProvider } from "./ContexApi";
 import { ThemeProvider, useTheme } from "./ThemeContext";
 import { SearchProvider } from "./SearchBarContext";
 import { StatusBar } from "react-native";
+import { Provider as PaperProvider } from "react-native-paper";
 
 interface AppProvidersProps {
   children: ReactNode;
@@ -21,13 +22,15 @@ const ThemedStatusBar = () => {
 
 export const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
   return (
-    <ThemeProvider>
-      <SearchProvider>
-        <AuthProvider>
-          <ThemedStatusBar />
-          {children}
-        </AuthProvider>
-      </SearchProvider>
-    </ThemeProvider>
+    <PaperProvider>
+      <ThemeProvider>
+        <SearchProvider>
+          <AuthProvider>
+            <ThemedStatusBar />
+            {children}
+          </AuthProvider>
+        </SearchProvider>
+      </ThemeProvider>
+    </PaperProvider>
   );
 };

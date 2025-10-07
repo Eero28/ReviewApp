@@ -12,12 +12,11 @@ import UpArrow from '../assets/svg/up.svg';
 export type IconName = 'beer' | 'wine' | 'hotbeverage' | 'cocktail' | 'softdrink' | 'other' | 'all' | 'upArrow';
 
 export type IconProps = {
-    name: string; // accept string from item.category
+    name: IconName;
     size?: number;
     color?: string;
 };
 
-// Mapping from string → IconName
 const categoryStringToIconName: Record<string, IconName> = {
     beer: 'beer',
     wine: 'wine',
@@ -26,13 +25,12 @@ const categoryStringToIconName: Record<string, IconName> = {
     softdrink: 'softdrink',
     other: 'other',
     all: 'all',
-    uparrow: 'upArrow', // note lowercase
+    uparrow: 'upArrow',
 };
 
 const Icon: React.FC<IconProps> = ({ name, size = 24 }) => {
-    // Map string to valid IconName
     const iconName: IconName | undefined = categoryStringToIconName[name.toLowerCase()];
-    if (!iconName) return null; // fallback if unknown
+    if (!iconName) return null;
 
     switch (iconName) {
         case 'beer':

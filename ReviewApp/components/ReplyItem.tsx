@@ -61,7 +61,6 @@ const ReplyItem: FC<Props> = ({ reply, depth = 1, id_review, getReviewComments, 
     };
 
 
-    // Bottom Sheet
     const toggleSheet = () => {
         setShowDialogModal(!showDialogModal);
     };
@@ -79,7 +78,7 @@ const ReplyItem: FC<Props> = ({ reply, depth = 1, id_review, getReviewComments, 
                     />
                     <View style={styles.replyTextContainer}>
                         <Text style={styles.commentUser}>{reply.user?.username ?? 'Anonymous'}:</Text>
-                        <Text style={styles.commentText}>{reply.text}</Text>
+                        <Text style={styles.commentText}>{reply.text ?? ''}</Text>
                         <Text style={styles.dateText}>{calculateDate(reply.createdAt)}</Text>
 
                         <TouchableOpacity onPress={() => setReplying(!replying)} style={styles.replyButton}>

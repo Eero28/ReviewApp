@@ -1,4 +1,4 @@
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 import {
   IsArray,
   ArrayNotEmpty,
@@ -35,5 +35,6 @@ export class CreateReviewDto {
   @IsArray()
   @ArrayNotEmpty()
   @IsString({ each: true })
+  @Transform(({ value }) => JSON.parse(value))
   reviewTaste: string[];
 }

@@ -6,9 +6,10 @@
     "jsx": "react-jsx"
   },
   "include": [
-    "src/**/*",
+    "**/*.ts",
+    "**/*.tsx",
     "node_modules/react-native/types/**/*.d.ts",
-    "@react-native-dotenv.d.ts",
+    "env.d.ts",
     "svg.d.ts"
   ]
 }

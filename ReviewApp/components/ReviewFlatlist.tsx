@@ -12,8 +12,9 @@ import NoReviewsMade from './NoReviewsMade';
 import { useTheme } from '../providers/ThemeContext';
 import { useSearch } from '../providers/SearchBarContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import EmptyList from './EmptyList';
 
 type Props = {
     reviews: ReviewItemIf[];
@@ -29,8 +30,7 @@ const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false, noReview
         width: animatedWidth.value,
     }));
 
-
-    if (reviews.length <= 0) {
+    if (!reviews || reviews.length <= 0) {
         return <NoReviewsMade noReviewsText={noReviewsText} />;
     }
 
@@ -38,20 +38,16 @@ const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false, noReview
         const search = searchTerm.toLowerCase().trim();
         const matchesName = review.reviewname?.toLowerCase().trim().includes(search);
         const matchesUser = review.user?.username?.toLowerCase().trim().includes(search);
-        const matchesTaste = review.reviewTaste.some(taste =>
-            taste.toLowerCase().trim().includes(search)
-        );
-        return matchesName || matchesUser || matchesTaste;
+        return matchesName || matchesUser;
     });
 
     return (
-        <SafeAreaView edges={['bottom']} style={[styles.container, { backgroundColor: colors.bg }]}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
             <View style={styles.searchWrapper}>
                 {isOpen && (
                     <Animated.View style={[styles.searchbarContainer, animatedStyle, { backgroundColor: colors.card.bg || '#f2f2f2' }]}>
                         {!searchTerm && (
                             <FontAwesome5
-                                style={{ textAling: "center" }}
                                 name={"search"}
                                 size={20}
                                 color={colors.textColorSecondary}
@@ -64,7 +60,6 @@ const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false, noReview
                             autoFocus={true}
                             placeholderTextColor={colors.textColorSecondary || '#999'}
                         />
-
                     </Animated.View>
                 )}
             </View>
@@ -75,16 +70,15 @@ const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false, noReview
                 </Text>
             ) : (
                 <FlatList
-                    data={filteredReviews}
-                    renderItem={({ item }: { item: ReviewItemIf }) => (
-                        <ReviewItem disableLongPress={disableLongPress} item={item} />
-                    )}
+                    data={filteredReviews || []}
+                    renderItem={({ item }) => <ReviewItem disableLongPress={disableLongPress} item={item} />}
                     keyExtractor={(item) => item.id_review.toString()}
                     contentContainerStyle={styles.listContainer}
                     numColumns={2}
                     columnWrapperStyle={styles.columnWrapper}
                     keyboardShouldPersistTaps="handled"
                     showsVerticalScrollIndicator={false}
+                    ListEmptyComponent={EmptyList}
                 />
             )}
         </SafeAreaView>
@@ -94,23 +88,19 @@ const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false, noReview
 export default ReviewFlatlist;
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
+    container: {},
     searchWrapper: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 5,
         height: 'auto',
-
     },
     searchbarContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 20,
-        backgroundColor: "red",
         height: 60
     },
     input: {
@@ -120,19 +110,12 @@ const styles = StyleSheet.create({
         padding: 10,
         textAlign: 'center'
     },
-    iconWrapper: {
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    itemWrapper: {
-        width: '48%',
-        marginBottom: 10,
-    },
     columnWrapper: {
         justifyContent: 'space-between',
     },
     listContainer: {
-        paddingHorizontal: 5,
+        paddingBottom: 70,
+        paddingHorizontal: 5
     },
     noResultsText: {
         textAlign: 'center',

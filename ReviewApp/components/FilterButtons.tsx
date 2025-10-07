@@ -16,6 +16,7 @@ const FilterButtons: FC<Props> = ({ fetchReviewsWithCategory }) => {
     const handlePress = (categoryValue?: string) => {
         setActiveCategory(categoryValue);
         fetchReviewsWithCategory(categoryValue);
+        console.log(categoryValue)
     };
 
     //dont show anything if search open
@@ -43,6 +44,7 @@ const FilterButtons: FC<Props> = ({ fetchReviewsWithCategory }) => {
                     >
                         <View style={styles.iconContainer}>
                             <Icon
+                                // @ts-ignore
                                 name={category.icon}
                                 size={30}
                                 color={activeCategory === category.value ? colors.textColorPrimary : colors.textColorSecondary || 'black'}

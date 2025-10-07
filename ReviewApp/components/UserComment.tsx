@@ -83,8 +83,8 @@ const UserComment: FC<Props> = ({ item, getReviewComments, id_review }) => {
             style={styles.profileImage}
           />
           <View style={{ flex: 1, marginLeft: 10 }}>
-            <Text style={styles.commentUser}>{item.user.username}</Text>
-            <Text style={styles.commentText}>{item.text}</Text>
+            <Text style={styles.commentUser}>{item.user?.username ?? 'Anonymous'}</Text>
+            <Text style={styles.commentText}>{item.text ?? ''}</Text>
             <Text style={styles.dateText}>{calculateDate(item.createdAt)}</Text>
 
             <TouchableOpacity onPress={() => setReplying(!replying)} style={styles.replyButton}>

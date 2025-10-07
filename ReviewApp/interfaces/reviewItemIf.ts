@@ -10,6 +10,7 @@ export interface ReviewItemIf {
   reviewTaste: string[];
   priceRange: string;
   imageUrl: string;
+  imagePublicId?: string | undefined;
   createdAt: string;
   user: UserInfo;
   likes: ReviewLike[];

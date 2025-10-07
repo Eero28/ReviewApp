@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'flex-start',
     marginTop: 10,
-    gap: 10,
+    marginRight: 10,
   },
   descriptionBox: {
     padding: 8,

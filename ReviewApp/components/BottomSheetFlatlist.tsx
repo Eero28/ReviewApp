@@ -58,7 +58,7 @@ function BottomSheetFlatList({
   review_name,
   getReviewComments,
 }: BottomSheetProps) {
-  const { userInfo, handleLogout, allReviewsFetch, getUserReviews } = useAuth();
+  const { userInfo, handleLogout, allReviewsFetch } = useAuth();
 
   const snapPositions = snapPoints.map((point) => parseFloat(point.replace('%', '')) / 100);
   const closeHeight = screenHeight;
@@ -148,7 +148,6 @@ function BottomSheetFlatList({
       };
       await axios.post(`${API_URL}/comments`, data);
       getReviewComments();
-      getUserReviews();
       allReviewsFetch();
       setCommentText('');
     } catch (error: any) {
@@ -160,7 +159,6 @@ function BottomSheetFlatList({
     }
   };
 
-  // let page load and then it correctly brings keyboard
   useEffect(() => {
     if (commentInput && commentInputRef.current && isOpen) {
       setTimeout(() => {
@@ -180,7 +178,7 @@ function BottomSheetFlatList({
         <GestureDetector gesture={panHandle}>
           <View style={styles.lineContainer}>
             <View style={[styles.line, { backgroundColor: handleColor }]} />
-            <Text style={styles.text}>{handleTitle}</Text>
+            {handleTitle ? <Text style={styles.text}>{String(handleTitle)}</Text> : null}
           </View>
         </GestureDetector>
 

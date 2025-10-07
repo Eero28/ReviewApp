@@ -31,7 +31,7 @@ GET http://localhost:3000/review/all?category=softdrink
 GET http://localhost:4000/review/user/1
 
 ### Get a single review by ID
-GET http://localhost:3000/review/6
+GET http://localhost:4000/review/28
 
 ###
 GET http://localhost:3000/users/1

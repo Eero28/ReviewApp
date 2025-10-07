@@ -12,7 +12,7 @@ import { useTheme } from "../providers/ThemeContext";
 type Props = {};
 
 const Favorites: FC<Props> = () => {
-    const { userInfo, getUserReviews } = useAuth();
+    const { userInfo } = useAuth();
     const { colors, fonts, paddingSpacing } = useTheme();
 
     const [userFavorites, setUserFavorites] = useState<ReviewItemIf[]>([]);
@@ -21,7 +21,6 @@ const Favorites: FC<Props> = () => {
         try {
             const response = await axios.get(`${API_URL}/review/user/favorites/${userInfo?.id_user}`);
             setUserFavorites(response.data.data);
-            getUserReviews();
         } catch (error) {
             errorHandler(error);
         }
@@ -49,7 +48,6 @@ const Favorites: FC<Props> = () => {
                 disableLongPress
                 noReviewsText="You have no favorites yet!"
                 reviews={userFavorites}
-                onUnlike={handleUnlike}
             />
         </View>
     );

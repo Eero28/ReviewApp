@@ -34,14 +34,6 @@ export const reviewStorage = new CloudinaryStorage({
   params: async (req, file) => ({
     folder: 'reviews',
     allowed_formats: ['jpg', 'png', 'jpeg'],
-    transformation: [
-      {
-        width: 600,
-        height: 600,
-        crop: 'limit',
-        quality: 'auto:good',
-      },
-    ],
     public_id: getPublicId(file),
   }),
 });

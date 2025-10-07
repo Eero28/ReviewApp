@@ -5,34 +5,32 @@ import {
   Get,
   Param,
   Post,
-  Put,
+  Patch,
   Query,
   Request,
   UseGuards,
-  HttpException,
-  HttpStatus,
   UseInterceptors,
   UploadedFile,
-  Patch,
 } from '@nestjs/common';
 import { ReviewService } from './review.service';
 import { Review } from './entities/review.entity';
 import { CreateReviewDto } from './dto/create-review.dto';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UpdateReviewDto } from './dto/update-review.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { reviewStorage } from '../config/cloudinary.config';
+
 @Controller('review')
 export class ReviewController {
   constructor(private readonly reviewService: ReviewService) {}
 
   @Get()
   async findAllReviews(
-    @Query('limit') limit = 20,
+    @Query('limit') limit?: number,
     @Query('offset') offset = 0,
   ): Promise<Review[]> {
-    return await this.reviewService.findAllReviews(
-      Number(limit),
+    return this.reviewService.findAllReviews(
+      Number(limit) || 10,
       Number(offset),
     );
   }
@@ -40,41 +38,66 @@ export class ReviewController {
   @Get('all')
   async getReviewsByCategory(
     @Query('category') category: string,
+    @Query('limit') limit?: number,
+    @Query('offset') offset = 0,
   ): Promise<Review[]> {
-    return await this.reviewService.getReviewsByCategoryAll(category);
+    return this.reviewService.getReviewsByCategoryAll(
+      category,
+      Number(limit) || 10,
+      Number(offset),
+    );
   }
 
   @Get(':id')
   async getReviewById(@Param('id') id_review: number): Promise<Review> {
-    return await this.reviewService.getReviewById(id_review);
+    return this.reviewService.getReviewById(id_review);
   }
 
   @Get('user/:id_user')
   async getUserReviewsByCategory(
     @Param('id_user') id_user: number,
+    @Query('limit') limit?: number,
+    @Query('offset') offset = 0,
   ): Promise<Review[]> {
-    return this.reviewService.getUserReviewsByid(id_user);
+    return this.reviewService.getUserReviewsByid(
+      id_user,
+      Number(limit) || 10,
+      Number(offset),
+    );
   }
 
   @Get('users/:id_user/reviews')
   async findAllByUserIdWithCategory(
     @Param('id_user') id_user: number,
     @Query('category') category?: string,
+    @Query('limit') limit?: number,
+    @Query('offset') offset = 0,
   ): Promise<Review[]> {
-    return this.reviewService.findAllByUserIdWithCategory(id_user, category);
+    return this.reviewService.findAllByUserIdWithCategory(
+      id_user,
+      category,
+      Number(limit) || 10,
+      Number(offset),
+    );
   }
 
   @Get('user/favorites/:id_user')
   async getUserFavoriteReviews(
     @Param('id_user') id_user: number,
+    @Query('limit') limit?: number,
+    @Query('offset') offset = 0,
   ): Promise<Review[]> {
-    return this.reviewService.getUserFavoriteReviews(id_user);
+    return this.reviewService.getUserFavoriteReviews(
+      id_user,
+      Number(limit) || 10,
+      Number(offset),
+    );
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   async deleteReview(@Param('id') id: number, @Request() req): Promise<void> {
-    return await this.reviewService.deleteReview(id, req);
+    return this.reviewService.deleteReview(id, req);
   }
 
   @Patch(':id_review')
@@ -86,12 +109,7 @@ export class ReviewController {
     @UploadedFile() file: Express.Multer.File,
     @Request() req,
   ): Promise<Review> {
-    return await this.reviewService.updateReview(
-      id_review,
-      updateReview,
-      req,
-      file,
-    );
+    return this.reviewService.updateReview(id_review, updateReview, req, file);
   }
 
   @Post()
@@ -102,6 +120,13 @@ export class ReviewController {
     @UploadedFile() file: Express.Multer.File,
     @Request() req: any,
   ) {
-    return this.reviewService.createReview(create, file, req.user);
+    console.log(create);
+    console.log(file);
+    const review = await this.reviewService.createReview(
+      create,
+      file,
+      req.user,
+    );
+    return { message: 'Review created', data: review };
   }
 }

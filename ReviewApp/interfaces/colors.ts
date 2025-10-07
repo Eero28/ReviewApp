@@ -27,6 +27,7 @@ export interface ThemeColors {
     border: string;
     star: string;
     separator: string;
+    accentBlue: string;
   };
   form: {
     input: string;

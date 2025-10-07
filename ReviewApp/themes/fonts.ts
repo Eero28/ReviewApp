@@ -6,6 +6,7 @@ export const fonts = {
 };
 
 export const fontSizes = {
+  xxs: 11,
   xs: 12,
   sm: 14,
   md: 16,

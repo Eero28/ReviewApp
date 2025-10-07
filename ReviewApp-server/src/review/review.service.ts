@@ -4,10 +4,10 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Review } from './entities/review.entity';
 import { Repository } from 'typeorm';
-import { CreateReviewDto } from './dto/create-review.dto';
+import { Review } from './entities/review.entity';
 import { User } from 'src/users/entities/user.entity';
+import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { v2 as cloudinary } from 'cloudinary';
 
@@ -16,7 +16,6 @@ export class ReviewService {
   constructor(
     @InjectRepository(Review)
     private reviewRepository: Repository<Review>,
-
     @InjectRepository(User)
     private userRepository: Repository<User>,
   ) {}
@@ -26,7 +25,6 @@ export class ReviewService {
     file: Express.Multer.File,
     user: User,
   ): Promise<Review> {
-    console.log('data gotten', createReviewDto);
     if (!file) throw new NotFoundException('Image is required');
 
     const review = this.reviewRepository.create({
@@ -39,7 +37,7 @@ export class ReviewService {
     return this.reviewRepository.save(review);
   }
 
-  async findAllReviews(limit = 20, offset = 0): Promise<Review[]> {
+  async findAllReviews(limit = 5, offset = 0): Promise<Review[]> {
     return this.reviewRepository
       .createQueryBuilder('review')
       .leftJoinAndSelect('review.user', 'reviewAuthor')
@@ -51,71 +49,74 @@ export class ReviewService {
       .getMany();
   }
 
-  async getReviewsByCategoryAll(category: string): Promise<Review[]> {
-    const reviews = await this.reviewRepository
+  async getReviewsByCategoryAll(
+    category: string,
+    limit = 5,
+    offset = 0,
+  ): Promise<Review[]> {
+    return this.reviewRepository
       .createQueryBuilder('review')
       .leftJoinAndSelect('review.user', 'reviewAuthor')
       .leftJoinAndSelect('review.likes', 'likes')
       .leftJoinAndSelect('likes.user', 'liker')
       .leftJoinAndSelect('review.comments', 'comment')
       .where('review.category = :category', { category })
+      .orderBy('review.createdAt', 'DESC')
+      .take(limit)
+      .skip(offset)
       .getMany();
-
-    if (reviews.length === 0) {
-      return [];
-    }
-    return reviews;
   }
 
-  async getUserReviewsByid(id_user: number): Promise<Review[]> {
-    if (!id_user) {
+  async getUserReviewsByid(
+    id_user: number,
+    limit = 10,
+    offset = 0,
+  ): Promise<Review[]> {
+    if (!id_user)
       throw new NotFoundException(`User with ID ${id_user} not found`);
-    }
 
-    const userReviews = await this.reviewRepository
+    return this.reviewRepository
       .createQueryBuilder('review')
       .leftJoinAndSelect('review.user', 'reviewAuthor')
       .leftJoinAndSelect('review.likes', 'likes')
       .leftJoinAndSelect('likes.user', 'liker')
       .leftJoinAndSelect('review.comments', 'comments')
       .where('reviewAuthor.id_user = :id_user', { id_user })
+      .orderBy('review.createdAt', 'DESC')
+      .take(limit)
+      .skip(offset)
       .getMany();
-
-    if (userReviews.length === 0) {
-      return [];
-    }
-    console.log('userReviews', userReviews);
-    return userReviews;
   }
 
-  async getUserFavoriteReviews(id_user: number): Promise<Review[]> {
-    if (!id_user) {
+  async getUserFavoriteReviews(
+    id_user: number,
+    limit = 10,
+    offset = 0,
+  ): Promise<Review[]> {
+    if (!id_user)
       throw new NotFoundException(`User with ID ${id_user} not found`);
-    }
-    const favorites = await this.reviewRepository
+
+    return this.reviewRepository
       .createQueryBuilder('review')
       .leftJoinAndSelect('review.user', 'reviewAuthor')
       .leftJoinAndSelect('review.likes', 'like')
       .leftJoinAndSelect('like.user', 'liker')
       .leftJoinAndSelect('review.comments', 'comment')
       .where('liker.id_user = :id_user', { id_user })
+      .orderBy('review.createdAt', 'DESC')
+      .take(limit)
+      .skip(offset)
       .getMany();
-
-    console.log(favorites);
-
-    if (favorites.length === 0) {
-      return [];
-    }
-    return favorites;
   }
 
   async findAllByUserIdWithCategory(
     id_user: number,
     category?: string,
+    limit = 10,
+    offset = 0,
   ): Promise<Review[]> {
-    if (!id_user) {
+    if (!id_user)
       throw new NotFoundException(`User with ID ${id_user} not found`);
-    }
 
     const qb = this.reviewRepository
       .createQueryBuilder('review')
@@ -125,27 +126,22 @@ export class ReviewService {
       .leftJoinAndSelect('review.comments', 'comments')
       .where('reviewAuthor.id_user = :id_user', { id_user });
 
-    if (category) {
-      qb.andWhere('review.category = :category', { category });
-    }
+    if (category) qb.andWhere('review.category = :category', { category });
 
-    const userReviews = await qb.getMany();
-    if (userReviews.length === 0) {
-      return [];
-    }
-    return userReviews;
+    return qb
+      .orderBy('review.createdAt', 'DESC')
+      .take(limit)
+      .skip(offset)
+      .getMany();
   }
 
   async getReviewById(id_review: number): Promise<Review> {
     const review = await this.reviewRepository.findOne({
       where: { id_review },
-      relations: ['user', 'likes'],
+      relations: ['user', 'likes', 'comments'],
     });
-
-    if (!review) {
+    if (!review)
       throw new NotFoundException(`Review with ID ${id_review} not found`);
-    }
-
     return review;
   }
 
@@ -156,49 +152,36 @@ export class ReviewService {
     file?: Express.Multer.File,
   ): Promise<Review> {
     const user: User = req.user;
-
     const review = await this.reviewRepository.findOne({
       where: { id_review },
       relations: ['user'],
     });
-
     if (!review) throw new NotFoundException(`Review not found`);
-    if (review.user.id_user !== user.id_user) {
+    if (review.user.id_user !== user.id_user)
       throw new ForbiddenException(`You cannot update someone else's review`);
-    }
 
     if (file) {
-      // delete old image using public_id
-      if (review.imagePublicId) {
+      if (review.imagePublicId)
         await cloudinary.uploader.destroy(review.imagePublicId);
-      }
-      // update image info with new file
       review.imageUrl = file.path;
       review.imagePublicId = file.filename;
     }
-    // replace old review with updatereviewdto info
-    Object.assign(review, updateReviewDto);
 
+    Object.assign(review, updateReviewDto);
     return this.reviewRepository.save(review);
   }
 
   async deleteReview(id_review: number, req: any): Promise<void> {
     const user: User = req.user;
-
     const review = await this.reviewRepository.findOne({
       where: { id_review },
       relations: ['user'],
     });
-
-    if (!review) {
+    if (!review)
       throw new NotFoundException(`Review with ID ${id_review} not found`);
-    }
-
-    if (review.user.id_user !== user.id_user) {
+    if (review.user.id_user !== user.id_user)
       throw new ForbiddenException('You can only delete your own reviews');
-    }
 
-    // delete image when review is deleted
     if (review.imagePublicId) {
       try {
         await cloudinary.uploader.destroy(review.imagePublicId);
@@ -208,11 +191,9 @@ export class ReviewService {
     }
 
     const result = await this.reviewRepository.delete(id_review);
-
-    if (result.affected === 0) {
+    if (result.affected === 0)
       throw new NotFoundException(
         `Review with ID ${id_review} could not be deleted`,
       );
-    }
   }
 }

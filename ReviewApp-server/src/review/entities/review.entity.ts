@@ -38,7 +38,7 @@ export class Review {
   @Column()
   priceRange: string;
 
-  @Column('text', { array: true })
+  @Column('text', { array: true, default: '{}' })
   reviewTaste: string[];
 
   @CreateDateColumn()

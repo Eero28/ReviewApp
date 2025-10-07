@@ -1,14 +1,16 @@
 import { StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Keyboard } from 'react-native';
 import React from 'react';
+import { useTheme } from '../providers/ThemeContext';
 
 type Props = {
     children: React.ReactNode;
 }
 
 const KeyboardAvoidContainer = ({ children }: Props) => {
+    const { colors } = useTheme()
     return (
         <KeyboardAvoidingView
-            style={styles.container}
+            style={[styles.container, { backgroundColor: colors.bg }]}
             behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
         >
             <ScrollView

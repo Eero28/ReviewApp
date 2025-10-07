@@ -5,6 +5,7 @@ export interface UserInfo {
   email: string;
   role: string;
   avatar: string;
+  avatarPublicId?: string;
   createdAt: Date | string;
   updatedAt: Date | string;
   stats?: {

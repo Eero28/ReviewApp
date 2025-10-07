@@ -85,6 +85,8 @@ These are the main features currently implemented in ReviewApp, grouped by Front
 **Expo Go Camera Issue**  
 Expo Go may occasionally crash silently without showing any error when using the image picker or camera. This could be related to the current Expo SDK version (e.g., SDK 54) or a bug in the image picker module.
 
+**Reason:** The problem was with the picker select package. Deleted this to solve runtime error
+
 ## **Key Technologies Used:**
 
 - **Front-end**:
@@ -233,3 +235,9 @@ The `Like` entity represents a like given by a user to a review.
 - `POST /likes/like/review/:id_review` → Like a review using id_review
 - `DELETE /likes/unlike/review/:id_review/user/:id_user` → Unlike a review using id_review and id_user
 - `GET /likes/users/review/:id_review` → Get all users who liked a specific review using id_review
+
+## What I Learned While Building ReviewApp
+
+- My first experience optimizing a large number of images revealed how vital performance truly is. Without optimization, the app could crash silently, serving as a warning.
+- Working with Cloudinary taught me how on-the-fly image transformations can simplify frontend performance.
+- I realized the value of planning for scalability, especially when handling media heavy applications.

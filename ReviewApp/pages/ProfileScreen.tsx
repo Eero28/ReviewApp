@@ -167,13 +167,11 @@ const ProfileScreen = () => {
     }
   };
 
-
-
-
   const handleUpdateCancel = () => {
     setImageUri(null);
     toggleProfileUpdateSheet();
   };
+
   const goToFavoritesPage = () => navigation.navigate("Favorites");
 
   return (
@@ -196,11 +194,12 @@ const ProfileScreen = () => {
             <ActivityIndicator size="large" color={colors.textColorPrimary} style={styles.avatarSpinner} />
           ) : (
             <ExpoImage
-              source={{ uri: imageUri || displayedUser?.avatar }}
+              source={{ uri: `${imageUri || displayedUser?.avatar}?t=${Date.now()}` }}
               style={styles.profileImage}
               contentFit="cover"
-              cachePolicy="memory-disk"
+              cachePolicy="none"
             />
+
           )}
         </View>
       </View>

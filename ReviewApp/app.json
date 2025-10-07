@@ -4,25 +4,31 @@
     "slug": "ReviewApp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/ReviewApp_Logo.jpg",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "icon": "./assets/ReviewApp_Logo.jpg",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.eero28.ReviewApp"
+      "bundleIdentifier": "com.eero28.ReviewApp",
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app needs access to your camera to take photos.",
+        "NSPhotoLibraryUsageDescription": "This app needs access to your photo library to upload pictures."
+      }
     },
     "android": {
+      "usesCleartextTraffic": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.eero28.ReviewApp",
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "permissions": ["CAMERA", "READ_MEDIA_IMAGES", "READ_MEDIA_VIDEO"]
     },
     "web": {
       "favicon": "./assets/favicon.png"

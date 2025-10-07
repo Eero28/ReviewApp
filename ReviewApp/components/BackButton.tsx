@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-
+import { useNavigation, CommonActions } from '@react-navigation/native';
 
 type BackButtonProps = {
     color?: string;
@@ -20,14 +19,30 @@ const BackButton: React.FC<BackButtonProps> = ({
     left = 15,
 }) => {
     const navigation = useNavigation<any>();
+    const [disabled, setDisabled] = useState(false);
+
+    const handleBack = () => {
+        if (disabled) return;
+
+        setDisabled(true);
+
+        const parent = navigation.getParent();
+
+        if (navigation.canGoBack()) {
+            navigation.dispatch(CommonActions.goBack());
+        } else if (parent?.canGoBack()) {
+            parent.dispatch(CommonActions.goBack());
+        }
+
+        setTimeout(() => setDisabled(false), 500);
+    };
+
 
     return (
         <Pressable
-            onPress={() => navigation.goBack()}
-            style={[
-                styles.button,
-                { top, left, backgroundColor: background }
-            ]}
+            onPress={handleBack}
+            disabled={disabled}
+            style={[styles.button, { top, left, backgroundColor: background, opacity: disabled ? 0.6 : 1 }]}
         >
             <Ionicons name="arrow-back" size={size} color={color} />
         </Pressable>

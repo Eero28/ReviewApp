@@ -1,4 +1,4 @@
-import { ThemeColors } from "../interfaces/colors";
+import { ThemeColors } from "../interfaces/Colors";
 
 export const colorsDarkmode: ThemeColors = {
   bg: "#030401",
@@ -21,10 +21,11 @@ export const colorsDarkmode: ThemeColors = {
   },
   card: {
     bg: "#1A1A1A",
-    bgContent: "red",
+    bgContent: "#2A2A2A",
     border: "#4D4D4D",
     star: "#ffae42",
     separator: "#B3B3B3",
+    accentBlue: "#3b82f6",
   },
   form: {
     input: "#1A1A1A",
@@ -62,6 +63,7 @@ export const colorsLightmode: ThemeColors = {
     border: "#e0e0e0",
     star: "#ffae42",
     separator: "gray",
+    accentBlue: "#2563eb",
   },
   form: {
     input: "#ffffff",

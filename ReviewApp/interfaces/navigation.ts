@@ -5,7 +5,6 @@ import {
 } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { ReviewItemIf } from "./ReviewItemIf";
-import { UserInfo } from "./UserInfo";
 
 export interface AuthTabParamList extends ParamListBase {
   Login: undefined;
@@ -16,7 +15,9 @@ export interface BottomTabParamList extends ParamListBase {
   Myreviews: {
     openSearch: boolean;
   };
-  AllReviews: undefined;
+  AllReviews: {
+    openSearch: Boolean;
+  };
 }
 
 export interface DrawerParamList extends ParamListBase {
@@ -30,13 +31,13 @@ export interface DrawerParamList extends ParamListBase {
 export interface MainStackParamList extends ParamListBase {
   MainApp: NavigatorScreenParams<DrawerParamList>;
   ReviewDetails: {
-    item: ReviewItemIf;
+    id_review: string;
     showComment?: boolean;
   };
   TakeImage: {
-    isUpdate: boolean;
-    initialImage: string;
-    initialData: ReviewItemIf;
+    isUpdate?: boolean;
+    initialImage?: string;
+    initialData?: ReviewItemIf;
   };
 }
 
