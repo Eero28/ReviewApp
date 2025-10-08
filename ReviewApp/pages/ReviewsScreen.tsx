@@ -1,34 +1,30 @@
 import { useState, useEffect } from 'react';
 import ReviewFlatlist from '../components/ReviewFlatlist';
-import { useAuth } from '../providers/ContexApi';
 import FilterButtons from '../components/FilterButtons';
 import LoadingScreen from '../components/LoadingScreen';
-
+import { useAuth } from '../providers/ContexApi';
 
 const ReviewsScreen = () => {
-  const { fetchUserReviews, userInfo, userReviews } = useAuth();
+  const { fetchReviews, userInfo, userReviews } = useAuth();
   const [loading, setLoading] = useState<boolean>(false);
+
   useEffect(() => {
     if (!userInfo?.id_user) return;
-    const controller = new AbortController();
 
-    const fetchReviews = async () => {
+    const fetchData = async () => {
       setLoading(true);
-      await fetchUserReviews()
+      await fetchReviews("user"); // 'true' = fetch reviews for the current user
       setLoading(false);
     };
-    fetchReviews();
 
-    return () => controller.abort();
+    fetchData();
   }, [userInfo]);
-
 
   if (loading) return <LoadingScreen />;
 
-
   return (
     <>
-      <FilterButtons fetchReviewsWithCategory={fetchUserReviews} />
+      <FilterButtons fetchReviewsWithCategory={(category) => fetchReviews("user", category)} />
       <ReviewFlatlist reviews={userReviews} />
     </>
   );

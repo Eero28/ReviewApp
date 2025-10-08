@@ -1,4 +1,4 @@
-import { UserInfo } from "./UserInfo";
+import { UserInfo } from "./userInfo";
 import { ReviewLike } from "./ReviewLike";
 import { Comment } from "./Comment";
 export interface ReviewItemIf {

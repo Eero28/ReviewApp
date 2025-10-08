@@ -10,7 +10,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import ModalDialog from './ModalDialog';
 import { useAuth } from '../providers/ContexApi';
-import { ReviewItemIf } from '../interfaces/ReviewItemIf';
+import { ReviewItemIf } from '../interfaces/reviewItemIf';
 import { FontAwesome } from '@expo/vector-icons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { selectColor } from '../helpers/tastegroup';
@@ -32,7 +32,7 @@ type Props = {
 
 const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
     const { colors, fonts, fontSizes } = useTheme();
-    const { deleteReview, userInfo, handleLogout, allReviewsFetch } = useAuth();
+    const { deleteReview, userInfo, handleLogout, fetchReviews } = useAuth();
     const navigation = useNavigation<any>();
 
     const [showDialogModal, setShowDialogModal] = useState<boolean>(false);
@@ -63,7 +63,7 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
             }
 
             if (!isCancelled) {
-                await allReviewsFetch();
+                await fetchReviews("all");
             }
         } catch (error) {
             console.error("Error liking/unliking:", error);

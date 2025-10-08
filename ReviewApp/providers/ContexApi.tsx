@@ -1,15 +1,9 @@
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-} from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import axios from 'axios';
 import { API_URL } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { UserInfo } from '../interfaces/UserInfo';
-import { ReviewItemIf } from '../interfaces/ReviewItemIf';
+import { UserInfo } from '../interfaces/userInfo';
+import { ReviewItemIf } from '../interfaces/reviewItemIf';
 import { errorHandler } from '../helpers/errors/error';
 
 interface AuthContextProps {
@@ -22,9 +16,7 @@ interface AuthContextProps {
   handleLogin: (email: string, password: string) => Promise<UserInfo | undefined>;
   handleLogout: () => void;
   deleteReview: (id_review: number, access_token: string) => void;
-  fetchUserReviews: (category?: string) => Promise<void>;
-  allReviewsFetch: (signal?: AbortSignal) => Promise<void>;
-  reviewsWithCategoryAll: (category?: string) => void;
+  fetchReviews: (type: "user" | "all", category?: string) => Promise<void>;
   loading: boolean;
   refreshUserStats: () => void;
 }
@@ -43,11 +35,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const storedUserInfo = await AsyncStorage.getItem('userInfo');
         if (storedUserInfo) {
           const parsedUserInfo: UserInfo = JSON.parse(storedUserInfo);
-          if (parsedUserInfo?.id_user) {
-            setUserInfo(parsedUserInfo);
-          } else {
-            await handleLogout();
-          }
+          if (parsedUserInfo?.id_user) setUserInfo(parsedUserInfo);
+          else await handleLogout();
         } else {
           await handleLogout();
         }
@@ -61,51 +50,29 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     checkUserSession();
   }, []);
 
-  const fetchUserReviews = async (category?: string) => {
+  const fetchReviews = async (type: "user" | "all", category?: string) => {
     try {
-      const url = category
-        ? `${API_URL}/review/users/${userInfo?.id_user}/reviews?category=${category}`
-        : `${API_URL}/review/user/${userInfo?.id_user}`;
+      if (type === "user" && !userInfo?.id_user) {
+        return;
+      }
+
+      const baseUrl =
+        type === "user"
+          ? `${API_URL}/review/user/${userInfo!.id_user}`
+          : `${API_URL}/review`;
+
+      // if category
+      const url = category ? `${baseUrl}?category=${category}` : baseUrl;
+
       const response = await axios.get(url);
-      setUserReviews(response.data.data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
-
-  const allReviewsFetch = async (signal?: AbortSignal, forUser?: boolean) => {
-    try {
-      const response = await axios.get(`${API_URL}/review`, { signal });
-      if (forUser) {
-        if (!userInfo) return;
-        const userReviews = response.data.data.filter((val: ReviewItemIf) => {
-          return userInfo?.id_user === val.user.id_user;
-        })
-        setUserReviews(userReviews)
+      if (type === "user") {
+        setUserReviews(response.data.data || []);
       } else {
         setAllReviews(response.data.data || []);
       }
-    } catch (error: any) {
-      if (axios.isCancel(error)) return;
-      errorHandler(error);
-    }
-  };
-
-
-  const refreshUserStats = async () => {
-    if (!userInfo) return;
-    try {
-      const response = await axios.get(`${API_URL}/users/${userInfo.id_user}`);
-      const user = response.data.data;
-      const newUserInfo = {
-        ...user,
-        access_token: userInfo.access_token,
-      };
-      setUserInfo(newUserInfo);
-      await AsyncStorage.setItem("userInfo", JSON.stringify(newUserInfo));
-    } catch (error) {
-      errorHandler(error, handleLogout);
+    } catch (err) {
+      errorHandler(err)
     }
   };
 
@@ -131,25 +98,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-
-  const reviewsWithCategoryAll = async (category?: string) => {
-    try {
-      const url = category ? `${API_URL}/review/all?category=${category}` : `${API_URL}/review`;
-      const response = await axios.get(url);
-      setAllReviews(response.data.data || []);
-    } catch (error: any) {
-      errorHandler(error, handleLogout);
-    }
-  };
-
   const deleteReview = async (id_review: number, access_token: string) => {
     try {
       await axios.delete(`${API_URL}/review/${id_review}`, {
         headers: { Authorization: `Bearer ${access_token}` },
       });
-      fetchUserReviews()
-      allReviewsFetch()
+      fetchReviews("user");
+      fetchReviews("all");
     } catch (error: any) {
+      errorHandler(error, handleLogout);
+    }
+  };
+
+  const refreshUserStats = async () => {
+    if (!userInfo) return;
+    try {
+      const response = await axios.get(`${API_URL}/users/${userInfo.id_user}`);
+      const user = response.data.data;
+      const newUserInfo = { ...user, access_token: userInfo.access_token };
+      setUserInfo(newUserInfo);
+      await AsyncStorage.setItem("userInfo", JSON.stringify(newUserInfo));
+    } catch (error) {
       errorHandler(error, handleLogout);
     }
   };
@@ -166,11 +135,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         handleLogin,
         handleLogout,
         deleteReview,
-        allReviewsFetch,
-        reviewsWithCategoryAll,
+        fetchReviews,
         loading,
         refreshUserStats,
-        fetchUserReviews
       }}
     >
       {children}

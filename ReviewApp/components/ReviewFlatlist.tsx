@@ -7,7 +7,7 @@ import {
     View,
 } from 'react-native';
 import ReviewItem from './ReviewItem';
-import { ReviewItemIf } from '../interfaces/ReviewItemIf';
+import { ReviewItemIf } from '../interfaces/reviewItemIf';
 import NoReviewsMade from './NoReviewsMade';
 import { useTheme } from '../providers/ThemeContext';
 import { useSearch } from '../providers/SearchBarContext';

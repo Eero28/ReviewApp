@@ -40,7 +40,7 @@ interface ReviewFormProps {
 const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUpdate = false }) => {
   const navigation = useNavigation<NavigationProp<any>>();
   const { colors, fonts } = useTheme();
-  const { userInfo, allReviewsFetch, fetchUserReviews } = useAuth();
+  const { userInfo, fetchReviews, handleLogout } = useAuth();
 
   const [imageUrl, setImageUrl] = useState<string | null>(initialImage || null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -94,12 +94,12 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUp
         body: formData,
       });
 
-      await Promise.all([fetchUserReviews(), allReviewsFetch()]);
+      await Promise.all([fetchReviews("all"), fetchReviews("user")]);
       setImageUrl(null);
       if (navigation.canGoBack()) navigation.goBack();
 
     } catch (err) {
-      errorHandler(err);
+      errorHandler(err, handleLogout);
     } finally {
       setLoading(false);
     }
@@ -165,7 +165,6 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUp
           />
           {errors.reviewDescription && <Text style={[styles.error, { color: colors.alerts.danger }]}>{errors.reviewDescription.message}</Text>}
 
-          <Text style={[styles.label, { color: colors.textColorPrimary, fontFamily: fonts.medium }]}>Review Rating</Text>
           <Controller
             control={control}
             name="reviewRating"

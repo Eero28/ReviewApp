@@ -58,7 +58,7 @@ function BottomSheetFlatList({
   review_name,
   getReviewComments,
 }: BottomSheetProps) {
-  const { userInfo, handleLogout, allReviewsFetch } = useAuth();
+  const { userInfo, handleLogout, fetchReviews } = useAuth();
 
   const snapPositions = snapPoints.map((point) => parseFloat(point.replace('%', '')) / 100);
   const closeHeight = screenHeight;
@@ -148,7 +148,7 @@ function BottomSheetFlatList({
       };
       await axios.post(`${API_URL}/comments`, data);
       getReviewComments();
-      allReviewsFetch();
+      fetchReviews("all");
       setCommentText('');
     } catch (error: any) {
       console.log(error);
