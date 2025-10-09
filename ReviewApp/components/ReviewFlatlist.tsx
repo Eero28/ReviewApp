@@ -5,6 +5,7 @@ import {
     Text,
     TextInput,
     View,
+    ActivityIndicator,
 } from 'react-native';
 import ReviewItem from './ReviewItem';
 import { ReviewItemIf } from '../interfaces/ReviewItemIf';
@@ -23,10 +24,20 @@ type Props = {
     onEndReached: () => void;
     onRefresh?: () => void;
     refreshing?: boolean;
+    loadingMore?: boolean;
     type: "all" | "user";
 };
 
-const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false, noReviewsText, onEndReached, onRefresh, refreshing, type }) => {
+const ReviewFlatlist: FC<Props> = ({
+    reviews,
+    disableLongPress = false,
+    noReviewsText,
+    onEndReached,
+    onRefresh,
+    refreshing,
+    type,
+    loadingMore = false,
+}) => {
     const { colors, fonts } = useTheme();
     const { animatedWidth, isOpen, searchTerm, setSearchTerm } = useSearch();
 
@@ -44,6 +55,15 @@ const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false, noReview
         const matchesUser = review.user?.username?.toLowerCase().trim().includes(search);
         return matchesName || matchesUser;
     });
+
+    const renderFooter = () => {
+        if (!loadingMore) return null;
+        return (
+            <View style={styles.footer}>
+                <ActivityIndicator size="small" color={colors.textColorPrimary} />
+            </View>
+        );
+    };
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
@@ -83,8 +103,9 @@ const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false, noReview
                     keyboardShouldPersistTaps="handled"
                     showsVerticalScrollIndicator={false}
                     ListEmptyComponent={EmptyList}
+                    ListFooterComponent={renderFooter}
                     onEndReached={onEndReached}
-                    onEndReachedThreshold={0.8}
+                    onEndReachedThreshold={0.5}
                     onRefresh={onRefresh}
                     refreshing={refreshing}
                 />
@@ -109,25 +130,29 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 20,
-        height: 60
+        height: 60,
     },
     input: {
         fontSize: 15,
         borderRadius: 10,
         height: 50,
         padding: 10,
-        textAlign: 'center'
+        textAlign: 'center',
     },
     columnWrapper: {
         justifyContent: 'space-between',
     },
     listContainer: {
         paddingBottom: 70,
-        paddingHorizontal: 5
+        paddingHorizontal: 5,
     },
     noResultsText: {
         textAlign: 'center',
         fontSize: 16,
         marginTop: 20,
+    },
+    footer: {
+        paddingVertical: 15,
+        alignItems: 'center',
     },
 });

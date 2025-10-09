@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-native';
-import { FC } from 'react';
+import { FC, useRef, useEffect } from 'react';
 import Icon from './Icon';
 import { categories } from '../helpers/categories';
 import { useTheme } from '../providers/ThemeContext';
@@ -14,20 +14,27 @@ const FilterButtons: FC<Props> = ({ activeCategory, setActiveCategory }) => {
     const { isOpen } = useSearch();
     const { colors, fonts } = useTheme();
 
+    const scrollRef = useRef<ScrollView>(null);
+
     if (isOpen) return null;
 
-    const handlePress = (categoryValue?: string) => {
+    const handlePress = (categoryValue?: string, index?: number) => {
         setActiveCategory(categoryValue);
-        console.log(categoryValue)
+        scrollRef.current?.scrollTo({ x: index! * 80, animated: true });
     };
 
     return (
         <View style={{ backgroundColor: colors.bg }}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                {categories.map((category) => (
+            <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                ref={scrollRef}
+                contentContainerStyle={{ paddingHorizontal: 10 }}
+            >
+                {categories.map((category, index) => (
                     <TouchableOpacity
                         key={category.label}
-                        onPress={() => handlePress(category.value)}
+                        onPress={() => handlePress(category.value, index)}
                         style={[
                             styles.button,
                             activeCategory === category.value && [

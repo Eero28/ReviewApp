@@ -3,39 +3,56 @@ import ReviewFlatlist from '../components/ReviewFlatlist';
 import FilterButtons from '../components/FilterButtons';
 import LoadingScreen from '../components/LoadingScreen';
 import { useAuth } from '../providers/ContexApi';
+import { errorHandler } from '../helpers/errors/error';
 
 const AllReviews = () => {
-  const { allReviews, fetchReviews } = useAuth();
+  const { allReviews, fetchReviews, allHasMore } = useAuth();
 
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string | undefined>(undefined);
   const [refreshing, setRefreshing] = useState<boolean>(false);
 
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await fetchReviews("all", activeCategory, false, true);
-    setRefreshing(false);
-  };
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      await fetchReviews("all", activeCategory, false, true);
-      setLoading(false);
+      try {
+        await fetchReviews("all", activeCategory, false, true);
+      } catch (error) {
+        errorHandler(error);
+      } finally {
+        setLoading(false);
+      }
     };
-
     fetchData();
   }, [activeCategory]);
 
   const onEndReached = async () => {
-    if (loadingMore) return;
+    if (loadingMore || !allHasMore) return;
     setLoadingMore(true);
-    await fetchReviews("all", activeCategory, true);
-    setLoadingMore(false);
+    try {
+      await fetchReviews("all", activeCategory, true, false);
+    } catch (error) {
+      errorHandler(error);
+    } finally {
+      setLoadingMore(false);
+    }
   };
 
-  if (loading) return <LoadingScreen />;
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await fetchReviews("all", activeCategory, false, true);
+    } catch (error) {
+      errorHandler(error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  if (loading && (!allReviews || allReviews.length === 0)) return <LoadingScreen />;
 
   return (
     <>
@@ -49,6 +66,7 @@ const AllReviews = () => {
         disableLongPress={true}
         onRefresh={onRefresh}
         refreshing={refreshing}
+        loadingMore={loadingMore}
         type='all'
       />
     </>

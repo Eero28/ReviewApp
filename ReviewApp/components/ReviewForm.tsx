@@ -95,7 +95,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUp
       });
 
       if (response.status === 401) {
-        console.warn('Token expired. Logging out...');
+        alert('Token expired. Logging out...');
         handleLogout();
         navigation.goBack()
         return;

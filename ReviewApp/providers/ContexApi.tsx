@@ -19,6 +19,8 @@ interface AuthContextProps {
   fetchReviews: (type: "user" | "all", category?: string, loadMore?: boolean, resetSkip?: boolean) => Promise<void>;
   loading: boolean;
   refreshUserStats: () => void;
+  userHasMore: boolean;
+  allHasMore: boolean;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -33,6 +35,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [userSkip, setUserSkip] = useState(0);
   const [allSkip, setAllSkip] = useState(0);
   const limit = 10;
+
+  const [userHasMore, setUserHasMore] = useState(true);
+  const [allHasMore, setAllHasMore] = useState(true);
 
 
   useEffect(() => {
@@ -90,6 +95,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       const reviewsFromAPI: ReviewItemIf[] = response.data.data || [];
 
+      if (reviewsFromAPI.length === 0) {
+        if (type === "user") {
+          setUserHasMore(false);
+          // Clear reviews if this is a fresh fetch (not loadMore)
+          if (!loadMore) setUserReviews([]);
+        } else {
+          setAllHasMore(false);
+          if (!loadMore) setAllReviews([]);
+        }
+        return;
+      }
       const currentReviews = type === "user" ? userReviews : allReviews;
 
       // If loadMore=true, append new reviews; otherwise replace the list
@@ -100,6 +116,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (type === "user") {
         setUserReviews(updatedReviews);
         setUserSkip(skip + reviewsFromAPI.length);
+        console.log("api", reviewsFromAPI.length)
+        console.log("params", params)
       } else {
         setAllReviews(updatedReviews);
         setAllSkip(skip + reviewsFromAPI.length);
@@ -175,6 +193,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         fetchReviews,
         loading,
         refreshUserStats,
+        userHasMore,
+        allHasMore
       }}
     >
       {children}

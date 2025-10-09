@@ -6,46 +6,40 @@ import { useAuth } from '../providers/ContexApi';
 import { errorHandler } from '../helpers/errors/error';
 
 const ReviewsScreen = () => {
-  const { fetchReviews, userInfo, userReviews } = useAuth();
+  const { fetchReviews, userInfo, userReviews, userHasMore } = useAuth();
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string | undefined>(undefined);
   const [refreshing, setRefreshing] = useState<boolean>(false);
 
-
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await fetchReviews("user", undefined, false, true);
-    setRefreshing(false);
-  };
-
-  // initial fetch
   useEffect(() => {
     if (!userInfo?.id_user) return;
+    fetchReviews("user", activeCategory, false, true);
+  }, [activeCategory, userInfo?.id_user]);
 
-    const fetchData = async () => {
-      setLoading(true);
-      await fetchReviews("user", activeCategory, false, true);
-      setLoading(false);
-    };
 
-    fetchData();
-  }, [userInfo?.id_user, activeCategory]);
-
-  // Load more reviews when scrolling
   const onEndReached = async () => {
+    if (loadingMore || !userHasMore) return;
+
+    setLoadingMore(true);
     try {
-      console.log("endd")
-      if (loadingMore) return;
-      setLoadingMore(true);
       await fetchReviews("user", activeCategory, true, false);
     } catch (error) {
-      errorHandler(error)
+      errorHandler(error);
     } finally {
       setLoadingMore(false);
     }
-
   };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await fetchReviews("user", activeCategory, false, true);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
 
   if (loading) return <LoadingScreen />;
 
@@ -61,7 +55,8 @@ const ReviewsScreen = () => {
         disableLongPress={false}
         refreshing={refreshing}
         onRefresh={onRefresh}
-        type='user'
+        loadingMore={loadingMore}
+        type="user"
       />
     </>
   );

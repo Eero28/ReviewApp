@@ -1,4 +1,4 @@
-import { FC, useEffect, useState, useRef } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator } from 'react-native';
 import { Image } from 'expo-image';
 import { FontAwesome, MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -50,22 +50,19 @@ const ReviewDetails: FC = () => {
   const [likesState, setLikesState] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [x, setX] = useState<boolean>(false)
 
-  const scrollRef = useRef<ScrollView | null>(null);
-  const scrollToTop = () => scrollRef.current?.scrollTo({ y: 0, animated: true });
+
   const toggleSheet = () => setIsOpen(!isOpen);
 
   useEffect(() => {
     const fetchReview = async () => {
-      if (!reviewItem) {
-        try {
-          const response = await axios.get(`${API_URL}/review/${id_review}`);
-          setReviewItem(response.data.data);
-        } catch (error) {
-          console.error('Failed to fetch review', error);
-        }
+      try {
+        const response = await axios.get(`${API_URL}/review/${id_review}`);
+        setReviewItem(response.data.data);
+      } catch (error) {
+        console.error('Failed to fetch review', error);
       }
+
     };
     fetchReview();
   }, [id_review]);
@@ -90,10 +87,12 @@ const ReviewDetails: FC = () => {
   }, [reviewItem]);
 
   const getRecommendations = async () => {
-    setRecommendationsLoading(true)
-    setX(true)
+    if (!userInfo?.id_user || !reviewItem) return;
+
+    setRecommendationsLoading(true);
     try {
       const response = await axios.get(`${API_URL}/tensorflow/recommendations/${userInfo?.id_user}`);
+      // Exclude the currently viewed review
       const filteredRecommendations = response.data.data.filter(
         (rec: RecommendationSuggestion) => rec.review.id_review !== reviewItem.id_review
       );
@@ -101,11 +100,9 @@ const ReviewDetails: FC = () => {
     } catch (error) {
       console.error(error);
     } finally {
-      setRecommendationsLoading(false)
-      setX(false)
+      setRecommendationsLoading(false);
     }
   };
-
   const getReviewComments = async () => {
     if (!reviewItem) return;
     try {
@@ -163,7 +160,7 @@ const ReviewDetails: FC = () => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
-      <ScrollView ref={scrollRef} contentContainerStyle={{ paddingBottom: paddingSpacing.xxl }}>
+      <ScrollView contentContainerStyle={{ paddingBottom: paddingSpacing.xxl }}>
         <View style={styles.cardContainer}>
           <View style={styles.imageWrapper}>
             <Image contentFit='cover' style={styles.reviewItemImage} source={{ uri: reviewItem.imageUrl }} />
@@ -284,12 +281,10 @@ const ReviewDetails: FC = () => {
 
               {recommendations.length > 0 && (
                 <AnimatedRecommendations
-                  onCardPress={scrollToTop}
                   recommendations={recommendations}
                 />
               )}
 
-              {/* Overlay spinner if loading */}
               {recommendationsLoading && (
                 <ActivityIndicator size="small" color="red" />
               )}

@@ -15,7 +15,6 @@ import { useTheme } from '../providers/ThemeContext';
 
 type Props = {
     recommendations: RecommendationSuggestion[];
-    onCardPress: () => void;
 };
 
 const CARD_WIDTH = screenWidth * 0.6;
@@ -23,14 +22,34 @@ const CARD_HEIGHT = screenHeight * 0.5;
 const CARD_MARGIN = 16;
 const SNAP_INTERVAL = CARD_WIDTH + CARD_MARGIN;
 
-const AnimatedRecommendations: FC<Props> = ({ recommendations, onCardPress }) => {
-    const { colors } = useTheme()
+const AnimatedRecommendations: FC<Props> = ({ recommendations }) => {
+    const { colors } = useTheme();
     const scrollX = useSharedValue(0);
     const navigation = useNavigation<any>();
 
     const scrollHandler = useAnimatedScrollHandler((event) => {
         scrollX.value = event.contentOffset.x;
     });
+
+    const animatedStyles = recommendations.map((_, index) =>
+        useAnimatedStyle(() => {
+            const scale = interpolate(
+                scrollX.value,
+                [(index - 1) * SNAP_INTERVAL, index * SNAP_INTERVAL, (index + 1) * SNAP_INTERVAL],
+                [0.95, 1, 0.95],
+                Extrapolation.CLAMP
+            );
+            const translateY = interpolate(
+                scrollX.value,
+                [(index - 1) * SNAP_INTERVAL, index * SNAP_INTERVAL, (index + 1) * SNAP_INTERVAL],
+                [10, 0, 10],
+                Extrapolation.CLAMP
+            );
+            return {
+                transform: [{ scale }, { translateY }],
+            };
+        })
+    );
 
     return (
         <Animated.ScrollView
@@ -42,47 +61,24 @@ const AnimatedRecommendations: FC<Props> = ({ recommendations, onCardPress }) =>
             onScroll={scrollHandler}
             contentContainerStyle={{ paddingHorizontal: 16, alignItems: 'flex-end' }}
         >
-            {recommendations.map((item, index) => {
-                const animatedStyle = useAnimatedStyle(() => {
-                    const scale = interpolate(
-                        scrollX.value,
-                        [(index - 1) * SNAP_INTERVAL, index * SNAP_INTERVAL, (index + 1) * SNAP_INTERVAL],
-                        [0.95, 1, 0.95],
-                        Extrapolation.CLAMP
-                    );
-
-                    const translateY = interpolate(
-                        scrollX.value,
-                        [(index - 1) * SNAP_INTERVAL, index * SNAP_INTERVAL, (index + 1) * SNAP_INTERVAL],
-                        [10, 0, 10],
-                        Extrapolation.CLAMP
-                    );
-
-                    return {
-                        transform: [{ scale }, { translateY }],
-                    };
-                });
-
-                return (
-                    <Animated.View
-                        key={index}
-                        style={[styles.cardWrapper, { width: CARD_WIDTH, height: CARD_HEIGHT, backgroundColor: colors.bg }, animatedStyle]}
+            {recommendations.map((item, index) => (
+                <Animated.View
+                    key={index}
+                    style={[styles.cardWrapper, { width: CARD_WIDTH, height: CARD_HEIGHT, backgroundColor: colors.bg }, animatedStyles[index]]}
+                >
+                    <Pressable
+                        style={{ borderRadius: 16, flex: 1 }}
+                        onPress={() => {
+                            navigation.replace('ReviewDetails', {
+                                id_review: item.review.id_review,
+                                showComment: false
+                            });
+                        }}
                     >
-                        <Pressable
-                            style={{ borderRadius: 16, flex: 1 }}
-                            onPress={() => {
-                                onCardPress();
-                                navigation.navigate('ReviewDetails', {
-                                    id_review: item.review.id_review,
-                                    showComment: false
-                                });
-                            }}
-                        >
-                            <Recommendation item={item} />
-                        </Pressable>
-                    </Animated.View>
-                );
-            })}
+                        <Recommendation item={item} />
+                    </Pressable>
+                </Animated.View>
+            ))}
         </Animated.ScrollView>
     );
 };
