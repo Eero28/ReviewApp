@@ -148,7 +148,7 @@ function BottomSheetFlatList({
       };
       await axios.post(`${API_URL}/comments`, data);
       getReviewComments();
-      fetchReviews("all");
+      fetchReviews("all", undefined, false, true);
       setCommentText('');
     } catch (error: any) {
       console.log(error);

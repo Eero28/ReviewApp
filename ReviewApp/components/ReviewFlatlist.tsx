@@ -7,7 +7,7 @@ import {
     View,
 } from 'react-native';
 import ReviewItem from './ReviewItem';
-import { ReviewItemIf } from '../interfaces/reviewItemIf';
+import { ReviewItemIf } from '../interfaces/ReviewItemIf';
 import NoReviewsMade from './NoReviewsMade';
 import { useTheme } from '../providers/ThemeContext';
 import { useSearch } from '../providers/SearchBarContext';
@@ -20,9 +20,13 @@ type Props = {
     reviews: ReviewItemIf[];
     disableLongPress?: boolean;
     noReviewsText?: string;
+    onEndReached: () => void;
+    onRefresh?: () => void;
+    refreshing?: boolean;
+    type: "all" | "user";
 };
 
-const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false, noReviewsText }) => {
+const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false, noReviewsText, onEndReached, onRefresh, refreshing, type }) => {
     const { colors, fonts } = useTheme();
     const { animatedWidth, isOpen, searchTerm, setSearchTerm } = useSearch();
 
@@ -71,7 +75,7 @@ const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false, noReview
             ) : (
                 <FlatList
                     data={filteredReviews || []}
-                    renderItem={({ item }) => <ReviewItem disableLongPress={disableLongPress} item={item} />}
+                    renderItem={({ item }) => <ReviewItem type={type} disableLongPress={disableLongPress} item={item} />}
                     keyExtractor={(item) => item.id_review.toString()}
                     contentContainerStyle={styles.listContainer}
                     numColumns={2}
@@ -79,6 +83,10 @@ const ReviewFlatlist: FC<Props> = ({ reviews, disableLongPress = false, noReview
                     keyboardShouldPersistTaps="handled"
                     showsVerticalScrollIndicator={false}
                     ListEmptyComponent={EmptyList}
+                    onEndReached={onEndReached}
+                    onEndReachedThreshold={0.8}
+                    onRefresh={onRefresh}
+                    refreshing={refreshing}
                 />
             )}
         </SafeAreaView>

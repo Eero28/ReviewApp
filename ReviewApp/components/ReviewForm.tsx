@@ -86,7 +86,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUp
         : `${API_URL}/review`;
       const method = isUpdate ? 'PATCH' : 'POST';
 
-      await fetch(url, {
+      const response = await fetch(url, {
         method,
         headers: {
           Authorization: `Bearer ${userInfo?.access_token}`,
@@ -94,7 +94,13 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ initialData, initialImage, isUp
         body: formData,
       });
 
-      await Promise.all([fetchReviews("all"), fetchReviews("user")]);
+      if (response.status === 401) {
+        console.warn('Token expired. Logging out...');
+        handleLogout();
+        navigation.goBack()
+        return;
+      }
+      await fetchReviews("user", undefined, false, true);
       setImageUrl(null);
       if (navigation.canGoBack()) navigation.goBack();
 

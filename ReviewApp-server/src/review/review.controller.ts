@@ -27,42 +27,41 @@ export class ReviewController {
   @Get()
   async findAllReviews(
     @Query('limit') limit?: number,
-    @Query('offset') offset = 0,
+    @Query('skip') skip = 0,
   ): Promise<Review[]> {
-    return this.reviewService.findAllReviews(
-      Number(limit) || 10,
-      Number(offset),
-    );
+    return this.reviewService.findAllReviews(Number(limit) || 10, Number(skip));
   }
 
-  @Get('all')
+  @Get('category')
   async getReviewsByCategory(
     @Query('category') category: string,
     @Query('limit') limit?: number,
-    @Query('offset') offset = 0,
+    @Query('skip') skip = 0,
   ): Promise<Review[]> {
-    return this.reviewService.getReviewsByCategoryAll(
+    return this.reviewService.findReviewsByCategory(
       category,
       Number(limit) || 10,
-      Number(offset),
+      Number(skip),
     );
   }
 
   @Get(':id')
   async getReviewById(@Param('id') id_review: number): Promise<Review> {
-    return this.reviewService.getReviewById(id_review);
+    return this.reviewService.findReview(id_review);
   }
 
   @Get('user/:id_user')
   async getUserReviewsByCategory(
     @Param('id_user') id_user: number,
+    @Query('category') category?: string,
     @Query('limit') limit?: number,
-    @Query('offset') offset = 0,
+    @Query('skip') skip: number = 0,
   ): Promise<Review[]> {
-    return this.reviewService.getUserReviewsByid(
+    return this.reviewService.findAllByUserIdWithCategory(
       id_user,
-      Number(limit) || 10,
-      Number(offset),
+      category,
+      limit,
+      skip,
     );
   }
 
@@ -71,13 +70,13 @@ export class ReviewController {
     @Param('id_user') id_user: number,
     @Query('category') category?: string,
     @Query('limit') limit?: number,
-    @Query('offset') offset = 0,
+    @Query('skip') skip = 0,
   ): Promise<Review[]> {
     return this.reviewService.findAllByUserIdWithCategory(
       id_user,
       category,
       Number(limit) || 10,
-      Number(offset),
+      Number(skip),
     );
   }
 
@@ -85,12 +84,12 @@ export class ReviewController {
   async getUserFavoriteReviews(
     @Param('id_user') id_user: number,
     @Query('limit') limit?: number,
-    @Query('offset') offset = 0,
+    @Query('skip') skip = 0,
   ): Promise<Review[]> {
-    return this.reviewService.getUserFavoriteReviews(
+    return this.reviewService.findUserFavoriteReviews(
       id_user,
       Number(limit) || 10,
-      Number(offset),
+      Number(skip),
     );
   }
 

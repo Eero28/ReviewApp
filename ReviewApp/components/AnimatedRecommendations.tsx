@@ -72,7 +72,10 @@ const AnimatedRecommendations: FC<Props> = ({ recommendations, onCardPress }) =>
                             style={{ borderRadius: 16, flex: 1 }}
                             onPress={() => {
                                 onCardPress();
-                                navigation.navigate('ReviewDetails', { item: item.review });
+                                navigation.navigate('ReviewDetails', {
+                                    id_review: item.review.id_review,
+                                    showComment: false
+                                });
                             }}
                         >
                             <Recommendation item={item} />

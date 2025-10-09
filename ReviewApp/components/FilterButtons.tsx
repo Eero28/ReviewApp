@@ -1,35 +1,29 @@
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-native';
-import { FC, useState } from 'react';
+import { FC } from 'react';
 import Icon from './Icon';
 import { categories } from '../helpers/categories';
 import { useTheme } from '../providers/ThemeContext';
 import { useSearch } from '../providers/SearchBarContext';
+
 type Props = {
-    fetchReviewsWithCategory: (category?: string) => void;
+    activeCategory?: string;
+    setActiveCategory: (category?: string) => void;
 };
 
-const FilterButtons: FC<Props> = ({ fetchReviewsWithCategory }) => {
-    const { isOpen } = useSearch()
+const FilterButtons: FC<Props> = ({ activeCategory, setActiveCategory }) => {
+    const { isOpen } = useSearch();
     const { colors, fonts } = useTheme();
-    const [activeCategory, setActiveCategory] = useState<string | undefined>(undefined);
+
+    if (isOpen) return null;
 
     const handlePress = (categoryValue?: string) => {
         setActiveCategory(categoryValue);
-        fetchReviewsWithCategory(categoryValue);
         console.log(categoryValue)
     };
 
-    //dont show anything if search open
-    if (isOpen) {
-        return null
-    }
-
     return (
-        <View style={[{ backgroundColor: colors.bg }]}>
-            <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-            >
+        <View style={{ backgroundColor: colors.bg }}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 {categories.map((category) => (
                     <TouchableOpacity
                         key={category.label}
@@ -47,7 +41,11 @@ const FilterButtons: FC<Props> = ({ fetchReviewsWithCategory }) => {
                                 // @ts-ignore
                                 name={category.icon}
                                 size={30}
-                                color={activeCategory === category.value ? colors.textColorPrimary : colors.textColorSecondary || 'black'}
+                                color={
+                                    activeCategory === category.value
+                                        ? colors.textColorPrimary
+                                        : colors.textColorSecondary || 'black'
+                                }
                             />
                             <Text
                                 style={[
@@ -70,7 +68,6 @@ export default FilterButtons;
 
 const styles = StyleSheet.create({
     button: {
-        flex: 1,
         borderRadius: 5,
         alignItems: 'center',
         marginHorizontal: 5,
@@ -85,9 +82,8 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     iconContainer: {
-        alignItems: "center",
-        justifyContent: "center",
+        alignItems: 'center',
+        justifyContent: 'center',
         padding: 5,
-        textAlign: "center",
-    }
+    },
 });

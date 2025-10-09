@@ -37,7 +37,7 @@ export class ReviewService {
     return this.reviewRepository.save(review);
   }
 
-  async findAllReviews(limit = 5, offset = 0): Promise<Review[]> {
+  async findAllReviews(limit = 5, skip = 0): Promise<Review[]> {
     return this.reviewRepository
       .createQueryBuilder('review')
       .leftJoinAndSelect('review.user', 'reviewAuthor')
@@ -45,14 +45,14 @@ export class ReviewService {
       .leftJoinAndSelect('likes.user', 'liker')
       .orderBy('review.createdAt', 'DESC')
       .take(limit)
-      .skip(offset)
+      .skip(skip)
       .getMany();
   }
 
-  async getReviewsByCategoryAll(
+  async findReviewsByCategory(
     category: string,
     limit = 5,
-    offset = 0,
+    skip = 0,
   ): Promise<Review[]> {
     return this.reviewRepository
       .createQueryBuilder('review')
@@ -63,14 +63,14 @@ export class ReviewService {
       .where('review.category = :category', { category })
       .orderBy('review.createdAt', 'DESC')
       .take(limit)
-      .skip(offset)
+      .skip(skip)
       .getMany();
   }
 
-  async getUserReviewsByid(
+  async findUserReviewsById(
     id_user: number,
     limit = 10,
-    offset = 0,
+    skip = 0,
   ): Promise<Review[]> {
     if (!id_user)
       throw new NotFoundException(`User with ID ${id_user} not found`);
@@ -84,14 +84,14 @@ export class ReviewService {
       .where('reviewAuthor.id_user = :id_user', { id_user })
       .orderBy('review.createdAt', 'DESC')
       .take(limit)
-      .skip(offset)
+      .skip(skip)
       .getMany();
   }
 
-  async getUserFavoriteReviews(
+  async findUserFavoriteReviews(
     id_user: number,
     limit = 10,
-    offset = 0,
+    skip = 0,
   ): Promise<Review[]> {
     if (!id_user)
       throw new NotFoundException(`User with ID ${id_user} not found`);
@@ -105,7 +105,7 @@ export class ReviewService {
       .where('liker.id_user = :id_user', { id_user })
       .orderBy('review.createdAt', 'DESC')
       .take(limit)
-      .skip(offset)
+      .skip(skip)
       .getMany();
   }
 
@@ -113,7 +113,7 @@ export class ReviewService {
     id_user: number,
     category?: string,
     limit = 10,
-    offset = 0,
+    skip = 0,
   ): Promise<Review[]> {
     if (!id_user)
       throw new NotFoundException(`User with ID ${id_user} not found`);
@@ -131,11 +131,11 @@ export class ReviewService {
     return qb
       .orderBy('review.createdAt', 'DESC')
       .take(limit)
-      .skip(offset)
+      .skip(skip)
       .getMany();
   }
 
-  async getReviewById(id_review: number): Promise<Review> {
+  async findReview(id_review: number): Promise<Review> {
     const review = await this.reviewRepository.findOne({
       where: { id_review },
       relations: ['user', 'likes', 'comments'],

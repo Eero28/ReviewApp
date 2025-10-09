@@ -2,8 +2,8 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import axios from 'axios';
 import { API_URL } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { UserInfo } from '../interfaces/userInfo';
-import { ReviewItemIf } from '../interfaces/reviewItemIf';
+import { UserInfo } from '../interfaces/UserInfo';
+import { ReviewItemIf } from '../interfaces/ReviewItemIf';
 import { errorHandler } from '../helpers/errors/error';
 
 interface AuthContextProps {
@@ -16,7 +16,7 @@ interface AuthContextProps {
   handleLogin: (email: string, password: string) => Promise<UserInfo | undefined>;
   handleLogout: () => void;
   deleteReview: (id_review: number, access_token: string) => void;
-  fetchReviews: (type: "user" | "all", category?: string) => Promise<void>;
+  fetchReviews: (type: "user" | "all", category?: string, loadMore?: boolean, resetSkip?: boolean) => Promise<void>;
   loading: boolean;
   refreshUserStats: () => void;
 }
@@ -28,6 +28,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [userReviews, setUserReviews] = useState<ReviewItemIf[]>([]);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+
+  // pagination
+  const [userSkip, setUserSkip] = useState(0);
+  const [allSkip, setAllSkip] = useState(0);
+  const limit = 10;
+
 
   useEffect(() => {
     const checkUserSession = async () => {
@@ -50,29 +56,58 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     checkUserSession();
   }, []);
 
-  const fetchReviews = async (type: "user" | "all", category?: string) => {
+  const fetchReviews = async (
+    type: "user" | "all",
+    category?: string,
+    loadMore: boolean = false,
+    resetSkip: boolean = false
+  ): Promise<void> => {
     try {
-      if (type === "user" && !userInfo?.id_user) {
-        return;
-      }
-
-      const baseUrl =
-        type === "user"
-          ? `${API_URL}/review/user/${userInfo!.id_user}`
-          : `${API_URL}/review`;
-
-      // if category
-      const url = category ? `${baseUrl}?category=${category}` : baseUrl;
-
-      const response = await axios.get(url);
+      let skip = 0;
+      let baseUrl = "";
 
       if (type === "user") {
-        setUserReviews(response.data.data || []);
+        if (!userInfo?.id_user) return;
+
+        baseUrl = `${API_URL}/review/user/${userInfo.id_user}`;
+        skip = resetSkip ? 0 : userSkip;
+
       } else {
-        setAllReviews(response.data.data || []);
+        // For all reviews
+        baseUrl = category
+          ? `${API_URL}/review/category`
+          : `${API_URL}/review`;
+        skip = resetSkip ? 0 : allSkip;
       }
+
+      // params
+      const params: Record<string, any> = { limit, skip };
+      if (category) {
+        params.category = category;
+      }
+
+      const response = await axios.get(baseUrl, { params });
+
+      const reviewsFromAPI: ReviewItemIf[] = response.data.data || [];
+
+      const currentReviews = type === "user" ? userReviews : allReviews;
+
+      // If loadMore=true, append new reviews; otherwise replace the list
+      const updatedReviews = loadMore
+        ? [...currentReviews, ...reviewsFromAPI]
+        : reviewsFromAPI;
+
+      if (type === "user") {
+        setUserReviews(updatedReviews);
+        setUserSkip(skip + reviewsFromAPI.length);
+      } else {
+        setAllReviews(updatedReviews);
+        setAllSkip(skip + reviewsFromAPI.length);
+      }
+
+
     } catch (err) {
-      errorHandler(err)
+      console.error("Error fetching reviews:", err);
     }
   };
 
@@ -103,8 +138,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       await axios.delete(`${API_URL}/review/${id_review}`, {
         headers: { Authorization: `Bearer ${access_token}` },
       });
-      fetchReviews("user");
-      fetchReviews("all");
+      await Promise.all([
+        fetchReviews("user", undefined, false, true),
+        fetchReviews("all", undefined, false, true)
+      ]);
     } catch (error: any) {
       errorHandler(error, handleLogout);
     }

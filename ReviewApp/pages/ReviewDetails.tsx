@@ -25,6 +25,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { MainStackParamList } from '../interfaces/Navigation';
 import { RecommendationSuggestion } from '../interfaces/Recommendation';
 import GradientCard from '../components/GradientCard';
+import { errorHandler } from '../helpers/errors/error';
 
 export interface ReviewDetailsNavigationProp
   extends StackNavigationProp<MainStackParamList, "ReviewDetails"> { }
@@ -36,18 +37,20 @@ const profileSize = screenWidth * 0.1;
 
 const ReviewDetails: FC = () => {
   const { colors, fonts, paddingSpacing, fontSizes } = useTheme();
-  const { userInfo, allReviewsFetch } = useAuth();
+  const { userInfo, fetchReviews } = useAuth();
 
   const route = useRoute<ReviewDetailsRouteProp>();
   const navigation = useNavigation<ReviewDetailsNavigationProp>();
   const { id_review, showComment } = route.params;
   const [reviewItem, setReviewItem] = useState<any | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
+
   const [recommendations, setRecommendations] = useState<RecommendationSuggestion[]>([]);
+  const [recommendationsLoading, setRecommendationsLoading] = useState<boolean>(false)
   const [likesState, setLikesState] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [x, setX] = useState<boolean>(false)
 
   const scrollRef = useRef<ScrollView | null>(null);
   const scrollToTop = () => scrollRef.current?.scrollTo({ y: 0, animated: true });
@@ -56,14 +59,11 @@ const ReviewDetails: FC = () => {
   useEffect(() => {
     const fetchReview = async () => {
       if (!reviewItem) {
-        setLoading(true);
         try {
           const response = await axios.get(`${API_URL}/review/${id_review}`);
           setReviewItem(response.data.data);
         } catch (error) {
           console.error('Failed to fetch review', error);
-        } finally {
-          setLoading(false);
         }
       }
     };
@@ -75,7 +75,14 @@ const ReviewDetails: FC = () => {
   }, [showComment]);
 
   useEffect(() => {
-    if (userInfo?.id_user && reviewItem) getRecommendations();
+    if (userInfo?.id_user && reviewItem) {
+      try {
+
+        getRecommendations();
+      } catch (error) {
+        errorHandler(error)
+      }
+    }
   }, [userInfo?.id_user, reviewItem]);
 
   useEffect(() => {
@@ -83,6 +90,8 @@ const ReviewDetails: FC = () => {
   }, [reviewItem]);
 
   const getRecommendations = async () => {
+    setRecommendationsLoading(true)
+    setX(true)
     try {
       const response = await axios.get(`${API_URL}/tensorflow/recommendations/${userInfo?.id_user}`);
       const filteredRecommendations = response.data.data.filter(
@@ -91,6 +100,9 @@ const ReviewDetails: FC = () => {
       setRecommendations(filteredRecommendations);
     } catch (error) {
       console.error(error);
+    } finally {
+      setRecommendationsLoading(false)
+      setX(false)
     }
   };
 
@@ -114,7 +126,7 @@ const ReviewDetails: FC = () => {
       } else {
         await likeReview(reviewItem.id_review, userInfo.id_user);
       }
-      allReviewsFetch();
+      fetchReviews("all", undefined, false, true);
     } catch (error) {
       console.error("Error liking/unliking:", error);
       setLikesState(prev => !prev);
@@ -141,7 +153,7 @@ const ReviewDetails: FC = () => {
     });
   }
 
-  if (loading || !reviewItem) {
+  if (!reviewItem) {
     return (
       <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
         <ActivityIndicator size="large" color={colors.textColorSecondary} />
@@ -254,18 +266,38 @@ const ReviewDetails: FC = () => {
           </View>
         </View>
 
-        {recommendations.length > 0 && (
-          <View style={{ padding: 10 }}>
-            <GradientCard>
-              <View style={styles.recommendationsContainer}>
-                <Text style={[styles.recommendationTitle, { color: colors.textColorPrimary, fontFamily: fonts.bold, fontSize: fontSizes.lg }]}>
-                  Recommendations for you
-                </Text>
-                <AnimatedRecommendations onCardPress={scrollToTop} recommendations={recommendations} />
-              </View>
-            </GradientCard>
-          </View>
-        )}
+        <View style={{ padding: 10 }}>
+          <GradientCard>
+            <View style={styles.recommendationsContainer}>
+              <Text
+                style={[
+                  styles.recommendationTitle,
+                  { color: colors.textColorPrimary, fontFamily: fonts.bold, fontSize: fontSizes.lg },
+                ]}
+              >
+                {recommendationsLoading
+                  ? "Loading recommendations..."
+                  : recommendations.length > 0
+                    ? "Recommendations for you"
+                    : "No similar recommendations found"}
+              </Text>
+
+              {recommendations.length > 0 && (
+                <AnimatedRecommendations
+                  onCardPress={scrollToTop}
+                  recommendations={recommendations}
+                />
+              )}
+
+              {/* Overlay spinner if loading */}
+              {recommendationsLoading && (
+                <ActivityIndicator size="small" color="red" />
+              )}
+            </View>
+          </GradientCard>
+        </View>
+
+
       </ScrollView>
 
       <BottomSheetFlatList
@@ -289,8 +321,12 @@ const ReviewDetails: FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  infoContainer: { padding: 10 },
+  container: {
+    flex: 1,
+  },
+  infoContainer: {
+    padding: 10,
+  },
   cardContainer: {
     width: '100%',
     alignSelf: 'center',
@@ -298,7 +334,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     position: 'relative',
   },
-  imageWrapper: { alignItems: 'center', position: 'relative' },
+  imageWrapper: {
+    alignItems: 'center',
+    position: 'relative',
+  },
   reviewItemImage: {
     width: '100%',
     height: screenHeight / 2,
@@ -330,13 +369,35 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.5)',
   },
-  ratingContainer: { flexDirection: 'row', marginVertical: 10 },
-  sectionTitle: { marginBottom: 8 },
-  textDescription: { fontSize: 16, lineHeight: 22 },
-  sectionBoxInfo: { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  reviewerContainer: { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  reviewerTextContainer: { justifyContent: 'center' },
-  profileImage: { width: profileSize, height: profileSize, borderRadius: profileSize / 2 },
+  ratingContainer: {
+    flexDirection: 'row',
+    marginVertical: 10,
+  },
+  sectionTitle: {
+    marginBottom: 8,
+  },
+  textDescription: {
+    fontSize: 16,
+    lineHeight: 22,
+  },
+  sectionBoxInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  reviewerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  reviewerTextContainer: {
+    justifyContent: 'center',
+  },
+  profileImage: {
+    width: profileSize,
+    height: profileSize,
+    borderRadius: profileSize / 2,
+  },
   descriptionBoxesContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -353,14 +414,41 @@ const styles = StyleSheet.create({
     marginRight: 8,
     marginBottom: 8,
   },
-  descriptionText: { fontSize: 14, textAlign: 'center' },
-  statsContainer: { flexDirection: 'row', justifyContent: 'center', marginVertical: 12 },
-  pressable: { flexDirection: 'row', alignItems: 'center', borderRadius: 16 },
-  updateButton: { borderRadius: 16, width: '25%', alignSelf: 'center', marginVertical: 12 },
-  updateButtonText: { textAlign: 'center' },
-  recommendationsContainer: { width: '100%', textAlign: 'center' },
-  recommendationTitle: { marginVertical: 12, marginLeft: 20 },
-  text: { fontSize: 14, marginBottom: 6 },
+  descriptionText: {
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginVertical: 12,
+  },
+  pressable: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 16,
+  },
+  updateButton: {
+    borderRadius: 16,
+    width: '25%',
+    alignSelf: 'center',
+    marginVertical: 12,
+  },
+  updateButtonText: {
+    textAlign: 'center',
+  },
+  recommendationsContainer: {
+    width: '100%',
+    textAlign: 'center',
+  },
+  recommendationTitle: {
+    marginVertical: 12,
+    marginLeft: 20,
+  },
+  text: {
+    fontSize: 14,
+    marginBottom: 6,
+  },
 });
 
 export default ReviewDetails;

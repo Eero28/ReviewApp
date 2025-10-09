@@ -8,9 +8,9 @@
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "icon": "./assets/ReviewApp_Logo.jpg",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "icon": "./assets/",
+      "resizeMode": "cover",
+      "backgroundColor": "#2b3840"
     },
     "ios": {
       "supportsTablet": true,
@@ -24,7 +24,7 @@
       "usesCleartextTraffic": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#2b3840"
       },
       "package": "com.eero28.ReviewApp",
       "edgeToEdgeEnabled": true,

@@ -129,13 +129,14 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     marginTop: 10,
     marginRight: 10,
+    gap: 5
   },
   descriptionBox: {
     padding: 8,
     borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
-    minWidth: 55
+    minWidth: 55,
   },
   descriptionText: {
     fontSize: 10,

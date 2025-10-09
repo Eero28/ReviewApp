@@ -10,7 +10,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import ModalDialog from './ModalDialog';
 import { useAuth } from '../providers/ContexApi';
-import { ReviewItemIf } from '../interfaces/reviewItemIf';
+import { ReviewItemIf } from '../interfaces/ReviewItemIf';
 import { FontAwesome } from '@expo/vector-icons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { selectColor } from '../helpers/tastegroup';
@@ -28,9 +28,10 @@ import { transformCloudinaryImageSize } from '../helpers/cloudinary';
 type Props = {
     item: ReviewItemIf;
     disableLongPress?: boolean;
+    type: "all" | "user";
 };
 
-const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
+const ReviewItem: FC<Props> = ({ item, disableLongPress = false, type }) => {
     const { colors, fonts, fontSizes } = useTheme();
     const { deleteReview, userInfo, handleLogout, fetchReviews } = useAuth();
     const navigation = useNavigation<any>();
@@ -63,7 +64,7 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
             }
 
             if (!isCancelled) {
-                await fetchReviews("all");
+                await fetchReviews(type, undefined, false, true);
             }
         } catch (error) {
             console.error("Error liking/unliking:", error);
@@ -139,6 +140,7 @@ const ReviewItem: FC<Props> = ({ item, disableLongPress = false }) => {
                         contentFit='cover'
                         onLoadEnd={() => setImageLoading(false)}
                     />
+
 
                     <View style={[styles.categoryBadge, { backgroundColor: colors.card.bg }]}>
                         {checkCategoryIcon(item.category)}

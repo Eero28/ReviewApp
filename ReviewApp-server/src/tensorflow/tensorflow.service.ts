@@ -86,7 +86,7 @@ export class TensorflowService implements OnModuleInit {
 
   async recommendInterestingReviews(id_user: number): Promise<any> {
     try {
-      const userReviews = await this.reviewService.getUserReviewsByid(id_user);
+      const userReviews = await this.reviewService.findUserReviewsById(id_user);
       if (!userReviews || userReviews.length === 0) return [];
 
       const categoriesReviewed = [
@@ -96,7 +96,7 @@ export class TensorflowService implements OnModuleInit {
 
       for (const category of categoriesReviewed) {
         const allCategoryReviews =
-          await this.reviewService.getReviewsByCategoryAll(category);
+          await this.reviewService.findReviewsByCategory(category);
         const reviewsExcludingUser = allCategoryReviews.filter(
           (review) => review.user.id_user !== id_user,
         );

@@ -1,35 +1,56 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import ReviewFlatlist from '../components/ReviewFlatlist';
 import FilterButtons from '../components/FilterButtons';
 import LoadingScreen from '../components/LoadingScreen';
 import { useAuth } from '../providers/ContexApi';
 
 const AllReviews = () => {
-  const { allReviews, fetchReviews, userInfo } = useAuth();
-  const [loading, setLoading] = useState<boolean>(false);
-  console.log(allReviews)
-  useEffect(() => {
-    if (!userInfo?.id_user) return;
+  const { allReviews, fetchReviews } = useAuth();
 
+  const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<string | undefined>(undefined);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchReviews("all", activeCategory, false, true);
+    setRefreshing(false);
+  };
+
+  useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      await fetchReviews("all");
+      await fetchReviews("all", activeCategory, false, true);
       setLoading(false);
     };
 
     fetchData();
-  }, [userInfo]);
+  }, [activeCategory]);
+
+  const onEndReached = async () => {
+    if (loadingMore) return;
+    setLoadingMore(true);
+    await fetchReviews("all", activeCategory, true);
+    setLoadingMore(false);
+  };
+
+  if (loading) return <LoadingScreen />;
 
   return (
     <>
-      {loading ? (
-        <LoadingScreen />
-      ) : (
-        <>
-          <FilterButtons fetchReviewsWithCategory={(category) => fetchReviews("all", category)} />
-          <ReviewFlatlist disableLongPress={true} reviews={allReviews ?? []} />
-        </>
-      )}
+      <FilterButtons
+        activeCategory={activeCategory}
+        setActiveCategory={setActiveCategory}
+      />
+      <ReviewFlatlist
+        reviews={allReviews ?? []}
+        onEndReached={onEndReached}
+        disableLongPress={true}
+        onRefresh={onRefresh}
+        refreshing={refreshing}
+        type='all'
+      />
     </>
   );
 };
